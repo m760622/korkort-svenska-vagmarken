@@ -1174,3 +1174,94 @@ html[lang="sv"] .quiz-option.scenario-btn {
   pointer-events: none;
 }
 
+/* PREMIUM SETUP SCREENS (Quiz & Games) */
+.quiz-setup, .game-setup {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 40px 30px;
+  max-width: 500px;
+  margin: 40px auto;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.quiz-setup h2, .game-setup h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.quiz-setup p, .game-setup p {
+  color: var(--text-soft);
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.quiz-setup .control-group, .game-setup .control-group,
+.quiz-setup label, .game-setup label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 20px;
+  text-align: right;
+  width: 100%;
+}
+
+html[lang="sv"] .quiz-setup .control-group, html[lang="sv"] .game-setup .control-group,
+html[lang="sv"] .quiz-setup label, html[lang="sv"] .game-setup label {
+  text-align: left;
+}
+
+.quiz-setup label span, .game-setup label span {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.quiz-setup select, .game-setup select {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: left 15px center;
+  background-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+html[lang="sv"] .quiz-setup select, html[lang="sv"] .game-setup select {
+  background-position: right 15px center;
+}
+
+.quiz-setup select:focus, .game-setup select:focus,
+.quiz-setup select:hover, .game-setup select:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0, 114, 206, 0.1);
+}
+
+.quiz-setup button.btn-primary, .game-setup button.btn-primary {
+  width: 100%;
+  padding: 18px;
+  font-size: 18px;
+  margin-top: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 114, 206, 0.3);
+  transition: all 0.3s ease;
+}
+
+.quiz-setup button.btn-primary:hover, .game-setup button.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 114, 206, 0.4);
+}
+
+
