@@ -883,7 +883,6 @@ const memory = { cards: [], first: null, second: null, locked: false, found: 0, 
 
 $('memory-start').addEventListener('click', () => {
   const pairs = parseInt($('memory-pairs').value, 10);
-  const lang = $('memory-lang').value;
   const pool = sample(SIGNS, pairs);
   memory.total = pairs;
   memory.found = 0;
