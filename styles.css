@@ -252,6 +252,23 @@ body {
 }
 .badge-id { background: var(--primary); color: white; }
 .modal .desc { font-size: 14px; color: var(--text-soft); line-height: 1.5; margin: 8px 0; }
+.modal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.modal-nav .btn { flex: 1; padding: 10px 14px; font-size: 14px; }
+.modal-pos {
+  font-size: 13px;
+  color: var(--text-soft);
+  font-weight: 600;
+  min-width: 60px;
+  text-align: center;
+}
 
 /* TTS BUTTONS */
 .tts-row { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }

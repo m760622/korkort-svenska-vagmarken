@@ -435,8 +435,20 @@ function setLangDir(el, lang) {
   el.style.textAlign = lang === 'ar' ? 'right' : 'left';
 }
 
+let modalList = SIGNS;
+let modalIdx = 0;
+
 function openModal(id) {
-  const s = SIGNS.find(x => x.id === id);
+  modalList = state.category ? SIGNS.filter(s => s.category === state.category) : SIGNS;
+  modalIdx = modalList.findIndex(s => s.id === id);
+  if (modalIdx === -1) { modalList = SIGNS; modalIdx = SIGNS.findIndex(s => s.id === id); }
+  if (modalIdx === -1) return;
+  renderModalSign();
+  $('modal').classList.remove('hidden');
+}
+
+function renderModalSign() {
+  const s = modalList[modalIdx];
   if (!s) return;
   const c = catBy(s.category);
   const isAr = state.lang === 'ar';
@@ -478,12 +490,29 @@ function openModal(id) {
   $('modal-name-sv-data').textContent = s.nameSv;
   $('modal-name-ar-data').textContent = s.nameAr;
   document.querySelectorAll('#modal .btn-tts').forEach(b => b.dataset.signId = s.id);
-  $('modal').classList.remove('hidden');
+  $('modal-pos').textContent = `${modalIdx + 1} / ${modalList.length}`;
+  document.querySelector('.modal-content')?.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function modalNext() {
+  modalIdx = (modalIdx + 1) % modalList.length;
+  renderModalSign();
+}
+function modalPrev() {
+  modalIdx = (modalIdx - 1 + modalList.length) % modalList.length;
+  renderModalSign();
 }
 function closeModal() { $('modal').classList.add('hidden'); }
 $('modal-close').addEventListener('click', closeModal);
 $('modal').querySelector('.modal-backdrop').addEventListener('click', closeModal);
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+$('modal-prev').addEventListener('click', modalPrev);
+$('modal-next').addEventListener('click', modalNext);
+document.addEventListener('keydown', (e) => {
+  if ($('modal').classList.contains('hidden')) return;
+  if (e.key === 'Escape') closeModal();
+  else if (e.key === 'ArrowLeft') (state.lang === 'ar' ? modalNext : modalPrev)();
+  else if (e.key === 'ArrowRight') (state.lang === 'ar' ? modalPrev : modalNext)();
+});
 
 // ===== LANG TOGGLE =====
 $('lang-toggle').addEventListener('click', () => {
