@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#003F87" />
+  <title data-i18n="app.title">علامات الطرق السويدية — Svenska Vägmärken</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">🚸</span>
+      <div class="brand-text">
+        <div class="brand-sv">Svenska Vägmärken</div>
+        <div class="brand-ar">علامات الطرق السويدية</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="tts-settings-btn" class="lang-btn" data-i18n-aria="tts.settings" aria-label="إعدادات النطق" title="إعدادات النطق">🔊⚙️</button>
+      <button id="lang-toggle" class="lang-btn" data-i18n-aria="lang.toggle" aria-label="تغيير اللغة">العربية / Svenska</button>
+    </div>
+  </header>
+
+  <!-- TTS Settings Panel -->
+  <div id="tts-panel" class="tts-panel hidden">
+    <div class="tts-panel-inner">
+      <div class="tts-panel-header">
+        <h3><span data-i18n="tts.title">🔊 إعدادات النطق</span></h3>
+        <button id="tts-panel-close" class="modal-close" style="position:static">✕</button>
+      </div>
+      <p id="tts-status" class="tts-status" data-i18n="tts.loading">جاري تحميل الأصوات...</p>
+
+      <label><span data-i18n="tts.voiceAr">الصوت العربي:</span>
+        <select id="tts-voice-ar"></select>
+      </label>
+
+      <label><span data-i18n="tts.voiceSv">الصوت السويدي:</span>
+        <select id="tts-voice-sv"></select>
+      </label>
+
+      <label><span data-i18n="tts.rate">السرعة:</span> <span id="tts-rate-val">0.85x</span>
+        <input type="range" id="tts-rate" min="0.5" max="1.3" step="0.05" value="0.85" />
+      </label>
+
+      <label><span data-i18n="tts.pitch">الدرجة:</span> <span id="tts-pitch-val">1.0</span>
+        <input type="range" id="tts-pitch" min="0.7" max="1.4" step="0.05" value="1.0" />
+      </label>
+
+      <div class="tts-test-row">
+        <button class="btn btn-primary" id="tts-test-ar" data-i18n="tts.testAr">🔊 اختبار عربي</button>
+        <button class="btn btn-primary" id="tts-test-sv" data-i18n="tts.testSv">🔊 اختبار سويدي</button>
+      </div>
+
+      <details class="tts-help">
+        <summary data-i18n="tts.helpTitle">💡 لتحسين الجودة (نصائح)</summary>
+        <ul data-i18n-html="tts.helpBody">
+          <li><b>iOS:</b> الإعدادات → إمكانية الوصول → المحتوى المنطوق → الأصوات → عربي/سويدي → نزّل صوتاً (مفضل: «Premium» أو «Enhanced»).</li>
+          <li><b>Android:</b> الإعدادات → اللغة والإدخال → تحويل النص إلى كلام → اختر «Google» وأضف اللغات.</li>
+          <li><b>سطح المكتب:</b> Chrome يستخدم أصوات Google السحابية تلقائياً (يحتاج إنترنت).</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-view="browse" role="tab">📚 <span data-i18n="tab.browse">تصفّح</span></button>
+    <button class="tab" data-view="quiz" role="tab">🎯 <span data-i18n="tab.quiz">اختيار من متعدد</span></button>
+    <button class="tab" data-view="flip" role="tab">🔄 <span data-i18n="tab.flip">قلب البطاقات</span></button>
+    <button class="tab" data-view="memory" role="tab">🧠 <span data-i18n="tab.memory">لعبة الذاكرة</span></button>
+  </nav>
+
+  <main id="main">
+    <!-- BROWSE -->
+    <section id="view-browse" class="view active">
+      <div class="search-row">
+        <input id="search" type="search" data-i18n-placeholder="search.placeholder" placeholder="ابحث بالعربية أو السويدية..." aria-label="بحث" />
+        <select id="category-filter" data-i18n-aria="filter.category" aria-label="الفئة">
+          <option value="" data-i18n="filter.all">كل الفئات</option>
+        </select>
+      </div>
+
+      <div id="categories-grid" class="categories-grid"></div>
+      <div id="signs-grid" class="signs-grid"></div>
+    </section>
+
+    <!-- QUIZ (Multiple Choice) -->
+    <section id="view-quiz" class="view">
+      <div id="quiz-setup" class="game-setup">
+        <h2 data-i18n="quiz.title">🎯 اختيار من متعدد</h2>
+        <p data-i18n="quiz.intro">شاهد العلامة واختر المعنى الصحيح من بين 4 خيارات.</p>
+        <label><span data-i18n="label.category">الفئة:</span>
+          <select id="quiz-category"><option value="" data-i18n="filter.all">كل الفئات</option></select>
+        </label>
+        <label><span data-i18n="quiz.count">عدد الأسئلة:</span>
+          <select id="quiz-count">
+            <option>10</option><option>20</option><option selected>15</option><option>30</option>
+          </select>
+        </label>
+        <label><span data-i18n="quiz.optsLang">لغة الخيارات:</span>
+          <select id="quiz-lang">
+            <option value="ar" data-i18n="lang.ar">العربية</option>
+            <option value="sv" data-i18n="lang.sv">السويدية</option>
+          </select>
+        </label>
+        <button id="quiz-start" class="btn btn-primary" data-i18n="btn.start">ابدأ ▶</button>
+      </div>
+
+      <div id="quiz-game" class="game hidden">
+        <div class="game-header">
+          <div class="progress"><div id="quiz-progress" class="progress-bar"></div></div>
+          <div class="score">
+            <span>✓ <b id="quiz-correct">0</b></span>
+            <span>✗ <b id="quiz-wrong">0</b></span>
+            <span>📊 <b id="quiz-position">0/0</b></span>
+          </div>
+        </div>
+        <div id="quiz-sign" class="quiz-sign"></div>
+        <div id="quiz-options" class="quiz-options"></div>
+        <button id="quiz-next" class="btn btn-primary hidden" data-i18n="btn.next">التالي ←</button>
+      </div>
+
+      <div id="quiz-result" class="game-result hidden">
+        <h2 data-i18n="game.over">🎉 انتهت اللعبة</h2>
+        <div id="quiz-score-final" class="big-score"></div>
+        <button id="quiz-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
+      </div>
+    </section>
+
+    <!-- FLIP CARDS -->
+    <section id="view-flip" class="view">
+      <div id="flip-setup" class="game-setup">
+        <h2 data-i18n="flip.title">🔄 قلب البطاقات</h2>
+        <p data-i18n="flip.intro">شاهد العلامة، فكّر بالمعنى، ثم اقلب البطاقة للتأكد. حدد ما تعرفه وما تحتاج لمراجعته.</p>
+        <label><span data-i18n="label.category">الفئة:</span>
+          <select id="flip-category"><option value="" data-i18n="filter.all">كل الفئات</option></select>
+        </label>
+        <label>
+          <input type="checkbox" id="flip-only-unknown" /> <span data-i18n="flip.onlyReview">أظهر فقط ما حدّدته «راجعني لاحقاً»</span>
+        </label>
+        <button id="flip-start" class="btn btn-primary" data-i18n="btn.start">ابدأ ▶</button>
+        <button id="flip-reset-progress" class="btn btn-ghost" data-i18n="flip.reset">🗑 محو حالة المعرفة</button>
+      </div>
+
+      <div id="flip-game" class="game hidden">
+        <div class="game-header">
+          <span>📊 <b id="flip-position">0/0</b></span>
+          <span>✓ <b id="flip-known">0</b></span>
+          <span>↻ <b id="flip-review">0</b></span>
+        </div>
+
+        <div id="flipcard" class="flipcard">
+          <div class="flipcard-inner">
+            <div class="flipcard-face flipcard-front">
+              <div id="flip-sign-svg"></div>
+              <p class="hint" data-i18n="flip.hint">انقر للقلب</p>
+            </div>
+            <div class="flipcard-face flipcard-back">
+              <h3 id="flip-primary"></h3>
+              <p id="flip-secondary" class="ar"></p>
+              <p id="flip-desc" class="desc"></p>
+              <div class="tts-row">
+                <button class="btn-tts" data-lang="sv-SE" data-target="flip-name-sv-data" data-i18n="btn.speakSv">🔊 سويدي</button>
+                <button class="btn-tts" data-lang="ar-SA" data-target="flip-name-ar-data" data-i18n="btn.speakAr">🔊 عربي</button>
+              </div>
+              <span id="flip-name-sv-data" hidden></span>
+              <span id="flip-name-ar-data" hidden></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flip-actions">
+          <button id="flip-review-btn" class="btn btn-warn" data-i18n="flip.review">↻ راجعني لاحقاً</button>
+          <button id="flip-known-btn" class="btn btn-success" data-i18n="flip.known">✓ أعرفها</button>
+        </div>
+        <button id="flip-prev" class="btn btn-ghost" data-i18n="btn.prev">← السابق</button>
+      </div>
+    </section>
+
+    <!-- MEMORY MATCH -->
+    <section id="view-memory" class="view">
+      <div id="memory-setup" class="game-setup">
+        <h2 data-i18n="memory.title">🧠 لعبة الذاكرة</h2>
+        <p data-i18n="memory.intro">اقلب البطاقات لإيجاد كل صورة مع اسمها. حاول تنفيذها بأقل عدد من المحاولات.</p>
+        <label><span data-i18n="memory.pairs">عدد الأزواج:</span>
+          <select id="memory-pairs">
+            <option>4</option><option selected>6</option><option>8</option><option>10</option>
+          </select>
+        </label>
+        <label><span data-i18n="memory.namesLang">لغة الأسماء:</span>
+          <select id="memory-lang">
+            <option value="ar" data-i18n="lang.ar">العربية</option>
+            <option value="sv" data-i18n="lang.sv">السويدية</option>
+          </select>
+        </label>
+        <button id="memory-start" class="btn btn-primary" data-i18n="btn.start">ابدأ ▶</button>
+      </div>
+
+      <div id="memory-game" class="game hidden">
+        <div class="game-header">
+          <span><span data-i18n="memory.pairsLabel">🎯 الأزواج:</span> <b id="memory-found">0</b>/<b id="memory-total">0</b></span>
+          <span><span data-i18n="memory.tries">🎲 المحاولات:</span> <b id="memory-tries">0</b></span>
+          <span>⏱ <b id="memory-time">00:00</b></span>
+          <button id="memory-quit" class="btn btn-ghost" data-i18n="memory.quit">انسحب</button>
+        </div>
+        <div id="memory-board" class="memory-board"></div>
+      </div>
+
+      <div id="memory-result" class="game-result hidden">
+        <h2 data-i18n="memory.win">🏆 ممتاز!</h2>
+        <p id="memory-result-text" class="big-score"></p>
+        <button id="memory-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sign Detail Modal -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close" data-i18n-aria="btn.close" aria-label="إغلاق">✕</button>
+      <div id="modal-svg" class="modal-svg"></div>
+      <h2 id="modal-primary"></h2>
+      <h3 id="modal-secondary"></h3>
+      <div class="modal-meta">
+        <span id="modal-cat" class="badge"></span>
+        <span id="modal-id" class="badge badge-id"></span>
+      </div>
+      <p id="modal-desc-primary" class="desc"></p>
+      <p id="modal-desc-secondary" class="desc"></p>
+      <div class="tts-row">
+        <button class="btn-tts" data-lang="sv-SE" data-target="modal-name-sv-data" data-i18n="btn.speakSv">🔊 سويدي</button>
+        <button class="btn-tts" data-lang="ar-SA" data-target="modal-name-ar-data" data-i18n="btn.speakAr">🔊 عربي</button>
+      </div>
+      <span id="modal-name-sv-data" hidden></span>
+      <span id="modal-name-ar-data" hidden></span>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="signs-data.js?v=5"></script>
+  <script src="app.js?v=5"></script>
+</body>
+</html>
