@@ -13,9 +13,13 @@ const state = {
 const I18N = {
   ar: {
     'app.title': 'علامات الطرق السويدية — Svenska Vägmärken',
-    'tab.browse': 'تصفّح', 'tab.dashboard': 'إنجازاتي', 'tab.quiz': 'اختبار', 'tab.flip': 'قلب البطاقات', 'tab.memory': 'لعبة الذاكرة',
+    'tab.browse': 'تصفّح', 'tab.dashboard': 'إنجازاتي', 'tab.quiz': 'اختبار', 'tab.flip': 'قلب البطاقات', 'tab.games': 'الألعاب',
     'dash.streak': 'أيام متتالية', 'dash.xp': 'نقاط (XP)', 'dash.known': 'تم الحفظ', 'dash.progress': 'مستوى التقدم في الفئات', 'dash.badges': 'الأوسمة (Badges)',
     'quiz.type': 'نوع الاختبار', 'quiz.type.signs': 'العلامات المرورية', 'quiz.type.scenarios': 'مواقف مرورية (سيناريوهات)',
+    'games.title': '🕹️ ألعاب التحدي', 'game.memory': 'لعبة الذاكرة', 'game.memory.desc': 'ابحث عن أزواج العلامات المتطابقة',
+    'game.time': 'سباق الزمن', 'game.time.desc': 'أجب بأسرع ما يمكن خلال 60 ثانية', 'game.time.intro': 'أجب بأسرع ما يمكن خلال 60 ثانية. (+2 ثانية للصح، -5 للخطأ)', 'time.done': 'انتهى الوقت!',
+    'game.match': 'التوصيل', 'game.match.desc': 'اضغط على الاسم ثم على العلامة المطابقة', 'game.match.intro': 'اضغط على الاسم ثم على العلامة التي تطابقه.', 'match.done': 'عمل رائع!',
+    'game.swipe': 'الفرز السريع', 'game.swipe.desc': 'صنف العلامات بسرعة حسب فئتها', 'game.swipe.intro': 'اضغط على الفئة الصحيحة للعلامة بأسرع ما يمكن!', 'swipe.done': 'انتهت المحاولات!',
     'lang.toggle': 'تغيير اللغة', 'lang.ar': 'العربية', 'lang.sv': 'السويدية',
     'tts.settings': 'إعدادات النطق', 'tts.title': '🔊 إعدادات النطق', 'tts.loading': 'جاري تحميل الأصوات...',
     'tts.voiceAr': 'الصوت العربي:', 'tts.voiceSv': 'الصوت السويدي:', 'tts.rate': 'السرعة:', 'tts.pitch': 'الدرجة:',
@@ -52,9 +56,13 @@ const I18N = {
   },
   sv: {
     'app.title': 'Svenska Vägmärken — علامات الطرق السويدية',
-    'tab.browse': 'Bläddra', 'tab.dashboard': 'Mina Framsteg', 'tab.quiz': 'Quiz', 'tab.flip': 'Vändkort', 'tab.memory': 'Memory',
+    'tab.browse': 'Bläddra', 'tab.dashboard': 'Mina Framsteg', 'tab.quiz': 'Quiz', 'tab.flip': 'Vändkort', 'tab.games': 'Spel',
     'dash.streak': 'Dagar i rad', 'dash.xp': 'Erfarenhet (XP)', 'dash.known': 'Inlärda', 'dash.progress': 'Framsteg per Kategori', 'dash.badges': 'Utmärkelser',
     'quiz.type': 'Typ av Quiz', 'quiz.type.signs': 'Vägmärken', 'quiz.type.scenarios': 'Trafiksituationer',
+    'games.title': '🕹️ Utmaningsspel', 'game.memory': 'Memory', 'game.memory.desc': 'Hitta matchande par',
+    'game.time': 'Tidsutmaning', 'game.time.desc': 'Svara så snabbt du kan på 60 sekunder', 'game.time.intro': 'Svara så snabbt du kan på 60 sekunder. (+2 sek för rätt, -5 för fel)', 'time.done': 'Tiden är slut!',
+    'game.match': 'Matcha', 'game.match.desc': 'Klicka på namnet och sedan på rätt märke', 'game.match.intro': 'Klicka på ett namn och sedan på rätt vägmärke.', 'match.done': 'Bra jobbat!',
+    'game.swipe': 'Snabb Swipe', 'game.swipe.desc': 'Klassificera märket snabbt efter kategori', 'game.swipe.intro': 'Klicka på rätt kategori för märket så snabbt som möjligt!', 'swipe.done': 'Inga försök kvar!',
     'lang.toggle': 'Byt språk', 'lang.ar': 'Arabiska', 'lang.sv': 'Svenska',
     'tts.settings': 'Röstinställningar', 'tts.title': '🔊 Röstinställningar', 'tts.loading': 'Laddar röster...',
     'tts.voiceAr': 'Arabisk röst:', 'tts.voiceSv': 'Svensk röst:', 'tts.rate': 'Hastighet:', 'tts.pitch': 'Tonhöjd:',
@@ -975,6 +983,236 @@ function finishMemory() {
 $('memory-restart').addEventListener('click', () => {
   $('memory-result').classList.add('hidden');
   $('memory-setup').classList.remove('hidden');
+});
+
+// ===== ARCADE GAMES MENU =====
+function openGame(gameId) {
+  $('games-menu').classList.add('hidden');
+  $$('.sub-game').forEach(g => g.classList.add('hidden'));
+  $(`game-${gameId}`).classList.remove('hidden');
+}
+
+function closeGame() {
+  $$('.sub-game').forEach(g => g.classList.add('hidden'));
+  $('games-menu').classList.remove('hidden');
+  clearInterval(timeAtt.timer);
+  $('time-game').classList.add('hidden');
+  $('time-result').classList.add('hidden');
+  $('time-setup').classList.remove('hidden');
+  
+  $('match-game').classList.add('hidden');
+  $('match-result').classList.add('hidden');
+  $('match-setup').classList.remove('hidden');
+
+  $('swipe-game').classList.add('hidden');
+  $('swipe-result').classList.add('hidden');
+  $('swipe-setup').classList.remove('hidden');
+}
+
+// ===== TIME ATTACK =====
+const timeAtt = { score: 0, timeLeft: 60, timer: null, currentSign: null };
+
+$('time-start').addEventListener('click', () => {
+  timeAtt.score = 0;
+  timeAtt.timeLeft = 60;
+  $('time-score').textContent = 0;
+  $('time-timer').textContent = 60;
+  $('time-setup').classList.add('hidden');
+  $('time-game').classList.remove('hidden');
+  nextTimeQuestion();
+  
+  clearInterval(timeAtt.timer);
+  timeAtt.timer = setInterval(() => {
+    timeAtt.timeLeft--;
+    $('time-timer').textContent = timeAtt.timeLeft;
+    if (timeAtt.timeLeft <= 0) finishTimeAttack();
+  }, 1000);
+});
+
+function nextTimeQuestion() {
+  const s = sample(SIGNS, 1)[0];
+  timeAtt.currentSign = s;
+  const samePool = signsIn(s.category).filter(x => x.id !== s.id);
+  const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
+  const opts = shuffle([s, ...distractors]);
+  
+  $('time-sign').innerHTML = s.svg;
+  $('time-options').innerHTML = opts.map(o =>
+    `<button class="quiz-option" data-id="${o.id}">
+      <span class="opt-ar" dir="rtl" lang="ar">${o.nameAr}</span>
+      <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
+    </button>`
+  ).join('');
+  
+  $$('.quiz-option', $('time-options')).forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.dataset.id === timeAtt.currentSign.id) {
+        timeAtt.score++;
+        timeAtt.timeLeft += 2; // bonus
+        $('time-score').textContent = timeAtt.score;
+        btn.classList.add('correct');
+        setTimeout(nextTimeQuestion, 300);
+      } else {
+        timeAtt.timeLeft -= 5; // penalty
+        btn.classList.add('wrong');
+        const correctBtn = $$('.quiz-option', $('time-options')).find(b => b.dataset.id === timeAtt.currentSign.id);
+        if (correctBtn) correctBtn.classList.add('correct');
+        setTimeout(nextTimeQuestion, 600);
+      }
+      $('time-timer').textContent = timeAtt.timeLeft;
+    });
+  });
+}
+
+function finishTimeAttack() {
+  clearInterval(timeAtt.timer);
+  $('time-game').classList.add('hidden');
+  $('time-result').classList.remove('hidden');
+  $('time-score-final').textContent = timeAtt.score;
+  if (timeAtt.score > 0) addXP(timeAtt.score * 5);
+}
+$('time-restart').addEventListener('click', () => {
+  $('time-result').classList.add('hidden');
+  $('time-setup').classList.remove('hidden');
+});
+
+// ===== MATCH GAME =====
+const matchG = { round: 1, score: 0, items: [], selectedName: null, selectedSign: null, matchedCount: 0 };
+
+$('match-start').addEventListener('click', () => {
+  matchG.round = 1;
+  matchG.score = 0;
+  $('match-setup').classList.add('hidden');
+  $('match-game').classList.remove('hidden');
+  startMatchRound();
+});
+
+function startMatchRound() {
+  if (matchG.round > 5) {
+    $('match-game').classList.add('hidden');
+    $('match-result').classList.remove('hidden');
+    addXP(matchG.score * 10);
+    return;
+  }
+  matchG.matchedCount = 0;
+  $('match-round').textContent = matchG.round;
+  $('match-score').textContent = matchG.score;
+  
+  const pool = sample(SIGNS, 5);
+  const names = shuffle([...pool]);
+  const signs = shuffle([...pool]);
+  
+  const isAr = state.lang === 'ar';
+  
+  $('match-board').innerHTML = `
+    <div class="match-col" id="match-names">
+      ${names.map(s => `<div class="match-item m-name" data-id="${s.id}">${isAr ? s.nameAr : s.nameSv}</div>`).join('')}
+    </div>
+    <div class="match-col" id="match-signs">
+      ${signs.map(s => `<div class="match-item m-sign" data-id="${s.id}" style="width:70px; height:70px; margin:0 auto; padding:5px;">${s.svg}</div>`).join('')}
+    </div>
+  `;
+  
+  $$('.m-name').forEach(el => el.addEventListener('click', () => {
+    $$('.m-name').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    matchG.selectedName = el;
+    checkMatch();
+  }));
+  
+  $$('.m-sign').forEach(el => el.addEventListener('click', () => {
+    $$('.m-sign').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    matchG.selectedSign = el;
+    checkMatch();
+  }));
+}
+
+function checkMatch() {
+  if (matchG.selectedName && matchG.selectedSign) {
+    if (matchG.selectedName.dataset.id === matchG.selectedSign.dataset.id) {
+      matchG.selectedName.classList.add('matched');
+      matchG.selectedSign.classList.add('matched');
+      matchG.score++;
+      $('match-score').textContent = matchG.score;
+      matchG.matchedCount++;
+      if (matchG.matchedCount === 5) {
+        matchG.round++;
+        setTimeout(startMatchRound, 500);
+      }
+    } else {
+      matchG.selectedName.classList.remove('selected');
+      matchG.selectedSign.classList.remove('selected');
+      toast(T('msg.wrongMatch') || 'خطأ!', 1000);
+    }
+    matchG.selectedName = null;
+    matchG.selectedSign = null;
+  }
+}
+$('match-restart').addEventListener('click', () => {
+  $('match-result').classList.add('hidden');
+  $('match-setup').classList.remove('hidden');
+});
+
+// ===== SWIPE SORTER =====
+const swipeG = { score: 0, lives: 3, current: null };
+
+$('swipe-start').addEventListener('click', () => {
+  swipeG.score = 0;
+  swipeG.lives = 3;
+  $('swipe-score').textContent = 0;
+  $('swipe-lives').textContent = 3;
+  
+  const isAr = state.lang === 'ar';
+  const mainCats = CATEGORIES.slice(0, 6);
+  $('swipe-buttons').innerHTML = mainCats.map(c => 
+    `<button class="btn btn-secondary" data-cat="${c.key}" style="border-color:${c.color}; font-size:14px; padding:10px;">${c.icon} ${isAr ? c.nameAr : c.nameSv}</button>`
+  ).join('');
+  
+  $$('#swipe-buttons button').forEach(btn => {
+    btn.addEventListener('click', () => handleSwipe(btn.dataset.cat));
+  });
+
+  $('swipe-setup').classList.add('hidden');
+  $('swipe-game').classList.remove('hidden');
+  nextSwipe();
+});
+
+function nextSwipe() {
+  const mainCatKeys = CATEGORIES.slice(0, 6).map(c => c.key);
+  const pool = SIGNS.filter(s => mainCatKeys.includes(s.category));
+  swipeG.current = sample(pool, 1)[0];
+  $('swipe-sign').innerHTML = swipeG.current.svg;
+  $('swipe-card').style.transform = 'translateX(0) rotate(0)';
+  $('swipe-card').style.opacity = '1';
+}
+
+function handleSwipe(cat) {
+  if (swipeG.current.category === cat) {
+    swipeG.score++;
+    $('swipe-score').textContent = swipeG.score;
+    $('swipe-card').style.transform = 'translateX(100px) rotate(15deg)';
+    $('swipe-card').style.opacity = '0';
+    setTimeout(nextSwipe, 300);
+  } else {
+    swipeG.lives--;
+    $('swipe-lives').textContent = swipeG.lives;
+    $('swipe-card').style.transform = 'translateX(-20px)';
+    setTimeout(() => $('swipe-card').style.transform = 'translateX(20px)', 100);
+    setTimeout(() => $('swipe-card').style.transform = 'translateX(0)', 200);
+    if (swipeG.lives <= 0) setTimeout(finishSwipe, 300);
+  }
+}
+
+function finishSwipe() {
+  $('swipe-game').classList.add('hidden');
+  $('swipe-result').classList.remove('hidden');
+  $('swipe-score-final').textContent = swipeG.score;
+  if (swipeG.score > 0) addXP(swipeG.score * 2);
+}
+$('swipe-restart').addEventListener('click', () => {
+  $('swipe-result').classList.add('hidden');
+  $('swipe-setup').classList.remove('hidden');
 });
 
 // ===== TTS SETTINGS PANEL =====

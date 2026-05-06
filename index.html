@@ -220,40 +220,146 @@
       </div>
     </section>
 
-    <!-- MEMORY MATCH -->
-    <section id="view-memory" class="view">
-      <div id="memory-setup" class="game-setup">
-        <h2 data-i18n="memory.title">🧠 لعبة الذاكرة</h2>
-        <p data-i18n="memory.intro">اقلب البطاقات لإيجاد كل صورة مع اسمها. حاول تنفيذها بأقل عدد من المحاولات.</p>
-        <label><span data-i18n="memory.pairs">عدد الأزواج:</span>
-          <select id="memory-pairs">
-            <option>4</option><option selected>6</option><option>8</option><option>10</option>
-          </select>
-        </label>
-        <label><span data-i18n="memory.namesLang">لغة الأسماء:</span>
-          <select id="memory-lang">
-            <option value="ar" data-i18n="lang.ar">العربية</option>
-            <option value="sv" data-i18n="lang.sv">السويدية</option>
-          </select>
-        </label>
-        <button id="memory-start" class="btn btn-primary" data-i18n="btn.start">ابدأ ▶</button>
-      </div>
-
-      <div id="memory-game" class="game hidden">
-        <div class="game-header">
-          <span><span data-i18n="memory.pairsLabel">🎯 الأزواج:</span> <b id="memory-found">0</b>/<b id="memory-total">0</b></span>
-          <span><span data-i18n="memory.tries">🎲 المحاولات:</span> <b id="memory-tries">0</b></span>
-          <span>⏱ <b id="memory-time">00:00</b></span>
-          <button id="memory-quit" class="btn btn-ghost" data-i18n="memory.quit">انسحب</button>
+    <!-- GAMES ARCADE -->
+    <section id="view-games" class="view">
+      
+      <!-- Games Menu -->
+      <div id="games-menu" class="games-menu">
+        <h2 style="text-align:center; margin-bottom: 20px;" data-i18n="games.title">🕹️ ألعاب التحدي</h2>
+        <div class="games-grid">
+          <div class="game-card" onclick="openGame('memory')">
+            <div class="game-icon">🧩</div>
+            <h3 data-i18n="game.memory">لعبة الذاكرة</h3>
+            <p data-i18n="game.memory.desc" style="font-size:12px; color:var(--text-soft)">ابحث عن أزواج العلامات المتطابقة</p>
+          </div>
+          <div class="game-card" onclick="openGame('time')">
+            <div class="game-icon">⏱️</div>
+            <h3 data-i18n="game.time">سباق الزمن</h3>
+            <p data-i18n="game.time.desc" style="font-size:12px; color:var(--text-soft)">أجب بأسرع ما يمكن خلال 60 ثانية</p>
+          </div>
+          <div class="game-card" onclick="openGame('match')">
+            <div class="game-icon">🔗</div>
+            <h3 data-i18n="game.match">التوصيل</h3>
+            <p data-i18n="game.match.desc" style="font-size:12px; color:var(--text-soft)">اسحب الاسم وطابقه مع العلامة</p>
+          </div>
+          <div class="game-card" onclick="openGame('swipe')">
+            <div class="game-icon">⬅️➡️</div>
+            <h3 data-i18n="game.swipe">الفرز السريع</h3>
+            <p data-i18n="game.swipe.desc" style="font-size:12px; color:var(--text-soft)">اسحب العلامة يميناً ويساراً حسب الفئة</p>
+          </div>
         </div>
-        <div id="memory-board" class="memory-board"></div>
       </div>
 
-      <div id="memory-result" class="game-result hidden">
-        <h2 data-i18n="memory.win">🏆 ممتاز!</h2>
-        <p id="memory-result-text" class="big-score"></p>
-        <button id="memory-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
+      <!-- MEMORY GAME -->
+      <div id="game-memory" class="sub-game hidden">
+        <button class="btn btn-secondary back-btn" onclick="closeGame()" style="margin-bottom:15px">🔙 <span data-i18n="btn.back">رجوع</span></button>
+        <div id="memory-setup" class="game-setup">
+          <h2 data-i18n="memory.title">🧠 لعبة الذاكرة</h2>
+          <p data-i18n="memory.intro">اقلب البطاقات لإيجاد كل صورة مع اسمها. حاول تنفيذها بأقل عدد من المحاولات.</p>
+          <label><span data-i18n="memory.pairs">عدد الأزواج:</span>
+            <select id="memory-pairs">
+              <option>4</option><option selected>6</option><option>8</option><option>10</option>
+            </select>
+          </label>
+          <label><span data-i18n="memory.namesLang">لغة الأسماء:</span>
+            <select id="memory-lang">
+              <option value="ar" data-i18n="lang.ar">العربية</option>
+              <option value="sv" data-i18n="lang.sv">السويدية</option>
+            </select>
+          </label>
+          <button id="memory-start" class="btn btn-primary" data-i18n="btn.start">ابدأ ▶</button>
+        </div>
+
+        <div id="memory-game" class="game hidden">
+          <div class="game-header">
+            <span><span data-i18n="memory.pairsLabel">🎯 الأزواج:</span> <b id="memory-found">0</b>/<b id="memory-total">0</b></span>
+            <span><span data-i18n="memory.tries">🎲 المحاولات:</span> <b id="memory-tries">0</b></span>
+            <span>⏱ <b id="memory-time">00:00</b></span>
+            <button id="memory-quit" class="btn btn-ghost" data-i18n="memory.quit">انسحب</button>
+          </div>
+          <div id="memory-board" class="memory-board"></div>
+        </div>
+
+        <div id="memory-result" class="game-result hidden">
+          <h2 data-i18n="memory.win">🏆 ممتاز!</h2>
+          <p id="memory-result-text" class="big-score"></p>
+          <button id="memory-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
+        </div>
       </div>
+
+      <!-- TIME ATTACK -->
+      <div id="game-time" class="sub-game hidden">
+        <button class="btn btn-secondary back-btn" onclick="closeGame()" style="margin-bottom:15px">🔙 <span data-i18n="btn.back">رجوع</span></button>
+        <div id="time-setup" class="game-setup">
+          <h2 data-i18n="game.time">⏱️ سباق الزمن</h2>
+          <p data-i18n="game.time.intro" style="margin-bottom:20px;">أجب بأسرع ما يمكن خلال 60 ثانية. (+2 ثانية للصح، -5 للخطأ)</p>
+          <button id="time-start" class="btn btn-primary" data-i18n="btn.start">ابدأ سباق الزمن ▶</button>
+        </div>
+        <div id="time-game" class="game hidden">
+          <div class="game-header">
+            <span style="color:#d32f2f; font-size:24px; font-weight:bold;">⏳ <span id="time-timer">60</span></span>
+            <span>⭐ <b id="time-score" style="font-size:20px;">0</b></span>
+          </div>
+          <div id="time-sign" class="quiz-sign" style="margin:20px auto"></div>
+          <div id="time-options" class="quiz-options"></div>
+        </div>
+        <div id="time-result" class="game-result hidden">
+          <h2 data-i18n="time.done">انتهى الوقت!</h2>
+          <p style="font-size:20px; margin:20px 0;">أجبت على <b id="time-score-final" style="font-size:30px; color:var(--primary)">0</b> علامات بشكل صحيح.</p>
+          <button id="time-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
+        </div>
+      </div>
+
+      <!-- MATCH (Drag & Drop) -->
+      <div id="game-match" class="sub-game hidden">
+        <button class="btn btn-secondary back-btn" onclick="closeGame()" style="margin-bottom:15px">🔙 <span data-i18n="btn.back">رجوع</span></button>
+        <div id="match-setup" class="game-setup">
+          <h2 data-i18n="game.match">🔗 التوصيل</h2>
+          <p data-i18n="game.match.intro" style="margin-bottom:20px;">قم بتوصيل أو سحب الأسماء وطابقها مع العلامات الصحيحة.</p>
+          <button id="match-start" class="btn btn-primary" data-i18n="btn.start">ابدأ التوصيل ▶</button>
+        </div>
+        <div id="match-game" class="game hidden">
+           <div class="game-header">
+             <span>🎯 <b id="match-round">1</b>/5</span>
+             <span>⭐ <b id="match-score">0</b></span>
+           </div>
+           <div class="match-board" id="match-board">
+              <!-- Dynamically generated cols -->
+           </div>
+        </div>
+        <div id="match-result" class="game-result hidden">
+          <h2 data-i18n="match.done">عمل رائع!</h2>
+          <button id="match-restart" class="btn btn-primary" data-i18n="btn.playAgain" style="margin-top:20px">العب مرة أخرى</button>
+        </div>
+      </div>
+
+      <!-- SWIPE SORTER -->
+      <div id="game-swipe" class="sub-game hidden">
+        <button class="btn btn-secondary back-btn" onclick="closeGame()" style="margin-bottom:15px">🔙 <span data-i18n="btn.back">رجوع</span></button>
+        <div id="swipe-setup" class="game-setup">
+          <h2 data-i18n="game.swipe">⬅️➡️ الفرز السريع</h2>
+          <p data-i18n="game.swipe.intro" style="margin-bottom:20px;">اضغط على الفئة الصحيحة للعلامة بأسرع ما يمكن!</p>
+          <button id="swipe-start" class="btn btn-primary" data-i18n="btn.start">ابدأ الفرز ▶</button>
+        </div>
+        <div id="swipe-game" class="game hidden" style="text-align:center;">
+          <div class="game-header">
+            <span>⭐ <b id="swipe-score">0</b></span>
+            <span>❤️ <b id="swipe-lives">3</b></span>
+          </div>
+          <div id="swipe-card" class="swipe-card">
+            <div id="swipe-sign" class="quiz-sign" style="margin:20px auto"></div>
+          </div>
+          <div id="swipe-buttons" class="swipe-buttons">
+            <!-- Buttons dynamically generated -->
+          </div>
+        </div>
+        <div id="swipe-result" class="game-result hidden">
+          <h2 data-i18n="swipe.done">انتهت المحاولات!</h2>
+          <p style="font-size:20px; margin:20px 0;">فرزت <b id="swipe-score-final" style="font-size:30px; color:var(--primary)">0</b> علامة.</p>
+          <button id="swipe-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
+        </div>
+      </div>
+
     </section>
   </main>
 
