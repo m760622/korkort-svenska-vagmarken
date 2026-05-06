@@ -529,7 +529,7 @@ const quiz = { items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', wrongPool: [
 $('quiz-start').addEventListener('click', () => {
   const cat = $('quiz-category').value;
   const count = parseInt($('quiz-count').value, 10);
-  quiz.lang = $('quiz-lang').value;
+  quiz.lang = state.lang;
   const pool = signsIn(cat);
   if (pool.length < 4) { toast(T('msg.tooFew')); return; }
   quiz.items = sample(pool, Math.min(count, pool.length));
@@ -546,11 +546,12 @@ function renderQuizQuestion() {
   const samePool = signsIn(s.category).filter(x => x.id !== s.id);
   const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
   const opts = shuffle([s, ...distractors]);
-  const nameKey = quiz.lang === 'ar' ? 'nameAr' : 'nameSv';
-
   $('quiz-sign').innerHTML = s.svg;
   $('quiz-options').innerHTML = opts.map(o =>
-    `<button class="quiz-option" data-id="${o.id}">${o[nameKey]}</button>`
+    `<button class="quiz-option" data-id="${o.id}">
+      <span class="opt-ar" dir="rtl" lang="ar">${o.nameAr}</span>
+      <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
+    </button>`
   ).join('');
   $('quiz-position').textContent = `${quiz.idx + 1}/${quiz.items.length}`;
   $('quiz-progress').style.width = `${(quiz.idx / quiz.items.length) * 100}%`;
