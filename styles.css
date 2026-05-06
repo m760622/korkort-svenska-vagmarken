@@ -781,6 +781,7 @@ body {
   color: var(--text);
   transform: rotateY(180deg);
   overflow: hidden;
+  flex-direction: column;
 }
 .memory-face-back svg { width: 85%; height: 85%; filter: drop-shadow(0 4px 6px rgba(0,0,0,.1)); }
 .memory-card.matched .memory-face-back { 
@@ -1154,11 +1155,18 @@ html[lang="sv"] .quiz-option.scenario-btn {
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 12px;
-  padding: 15px;
+  padding: 12px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  cursor: grab;
-  transition: all 0.2s;
+  cursor: pointer;
+  transition: all .2s;
   user-select: none;
+}
+.m-name {
+  flex-direction: column;
 }
 .match-item:active {
   cursor: grabbing;
