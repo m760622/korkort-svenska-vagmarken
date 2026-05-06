@@ -262,6 +262,7 @@ body {
   border-top: 1px solid var(--border);
 }
 .modal-nav .btn { flex: 1; padding: 10px 14px; font-size: 14px; }
+.btn-nav { font-size: 22px; font-weight: 700; max-width: 80px; }
 .modal-pos {
   font-size: 13px;
   color: var(--text-soft);

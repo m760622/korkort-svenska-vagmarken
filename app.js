@@ -491,6 +491,8 @@ function renderModalSign() {
   $('modal-name-ar-data').textContent = s.nameAr;
   document.querySelectorAll('#modal .btn-tts').forEach(b => b.dataset.signId = s.id);
   $('modal-pos').textContent = `${modalIdx + 1} / ${modalList.length}`;
+  $('modal-prev').textContent = state.lang === 'ar' ? '→' : '←';
+  $('modal-next').textContent = state.lang === 'ar' ? '←' : '→';
   document.querySelector('.modal-content')?.scrollTo({ top: 0, behavior: 'instant' });
 }
 
