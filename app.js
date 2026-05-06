@@ -13,7 +13,9 @@ const state = {
 const I18N = {
   ar: {
     'app.title': 'علامات الطرق السويدية — Svenska Vägmärken',
-    'tab.browse': 'تصفّح', 'tab.quiz': 'اختيار من متعدد', 'tab.flip': 'قلب البطاقات', 'tab.memory': 'لعبة الذاكرة',
+    'tab.browse': 'تصفّح', 'tab.dashboard': 'إنجازاتي', 'tab.quiz': 'اختبار', 'tab.flip': 'قلب البطاقات', 'tab.memory': 'لعبة الذاكرة',
+    'dash.streak': 'أيام متتالية', 'dash.xp': 'نقاط (XP)', 'dash.known': 'تم الحفظ', 'dash.progress': 'مستوى التقدم في الفئات', 'dash.badges': 'الأوسمة (Badges)',
+    'quiz.type': 'نوع الاختبار', 'quiz.type.signs': 'العلامات المرورية', 'quiz.type.scenarios': 'مواقف مرورية (سيناريوهات)',
     'lang.toggle': 'تغيير اللغة', 'lang.ar': 'العربية', 'lang.sv': 'السويدية',
     'tts.settings': 'إعدادات النطق', 'tts.title': '🔊 إعدادات النطق', 'tts.loading': 'جاري تحميل الأصوات...',
     'tts.voiceAr': 'الصوت العربي:', 'tts.voiceSv': 'الصوت السويدي:', 'tts.rate': 'السرعة:', 'tts.pitch': 'الدرجة:',
@@ -50,7 +52,9 @@ const I18N = {
   },
   sv: {
     'app.title': 'Svenska Vägmärken — علامات الطرق السويدية',
-    'tab.browse': 'Bläddra', 'tab.quiz': 'Flerval', 'tab.flip': 'Vändkort', 'tab.memory': 'Memory',
+    'tab.browse': 'Bläddra', 'tab.dashboard': 'Mina Framsteg', 'tab.quiz': 'Quiz', 'tab.flip': 'Vändkort', 'tab.memory': 'Memory',
+    'dash.streak': 'Dagar i rad', 'dash.xp': 'Erfarenhet (XP)', 'dash.known': 'Inlärda', 'dash.progress': 'Framsteg per Kategori', 'dash.badges': 'Utmärkelser',
+    'quiz.type': 'Typ av Quiz', 'quiz.type.signs': 'Vägmärken', 'quiz.type.scenarios': 'Trafiksituationer',
     'lang.toggle': 'Byt språk', 'lang.ar': 'Arabiska', 'lang.sv': 'Svenska',
     'tts.settings': 'Röstinställningar', 'tts.title': '🔊 Röstinställningar', 'tts.loading': 'Laddar röster...',
     'tts.voiceAr': 'Arabisk röst:', 'tts.voiceSv': 'Svensk röst:', 'tts.rate': 'Hastighet:', 'tts.pitch': 'Tonhöjd:',
@@ -122,16 +126,57 @@ function applyLang() {
   fillCategoryFilter('quiz-category');
   fillCategoryFilter('flip-category');
   if (state.view === 'browse') renderBrowse();
+  if (state.view === 'dashboard') renderDashboard();
 }
 
 const STORAGE_KEY = 'korkort_progress_v1';
-const progress = loadProgress();
+const defaultProgress = { known: {}, review: {}, stats: { xp: 0, streak: 0, lastLogin: '', badges: [] } };
+let progress = loadProgress();
 
 function loadProgress() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { known: {}, review: {} }; }
-  catch { return { known: {}, review: {} }; }
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!data) return JSON.parse(JSON.stringify(defaultProgress));
+    if (!data.stats) data.stats = { xp: 0, streak: 0, lastLogin: '', badges: [] };
+    if (!data.stats.badges) data.stats.badges = [];
+    return data;
+  } catch { return JSON.parse(JSON.stringify(defaultProgress)); }
 }
 function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
+
+function checkStreak() {
+  const today = new Date().toISOString().split('T')[0];
+  const last = progress.stats.lastLogin;
+  if (last === today) return; // already logged in today
+  if (last) {
+    const lastDate = new Date(last);
+    const currDate = new Date(today);
+    const diffDays = Math.floor((currDate - lastDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) progress.stats.streak++;
+    else progress.stats.streak = 1;
+  } else {
+    progress.stats.streak = 1;
+  }
+  progress.stats.lastLogin = today;
+  saveProgress();
+}
+
+function addXP(amount) {
+  progress.stats.xp += amount;
+  saveProgress();
+  xpToast(amount);
+  if (state.view === 'dashboard') renderDashboard();
+}
+
+function xpToast(amount) {
+  const el = document.createElement('div');
+  el.className = 'xp-toast';
+  el.textContent = `+${amount} XP`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+checkStreak();
 
 // ===== HELPERS =====
 const $ = (id) => document.getElementById(id);
@@ -347,6 +392,52 @@ function switchView(view) {
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
   $$('.view').forEach(v => v.classList.toggle('active', v.id === `view-${view}`));
   if (view === 'browse') renderBrowse();
+  if (view === 'dashboard') renderDashboard();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  $('dash-streak').textContent = progress.stats.streak;
+  $('dash-xp').textContent = progress.stats.xp;
+  const knownCount = Object.keys(progress.known).length;
+  $('dash-known').textContent = knownCount;
+
+  // Categories progress
+  let catHtml = '';
+  CATEGORIES.forEach(c => {
+    const signs = signsIn(c.key);
+    const total = signs.length;
+    const known = signs.filter(s => progress.known[s.id]).length;
+    const pct = total ? Math.round((known / total) * 100) : 0;
+    const name = state.lang === 'ar' ? c.nameAr : c.nameSv;
+    
+    catHtml += `
+      <div class="dash-cat-row">
+        <div class="dash-cat-header">
+          <div class="dash-cat-name"><span style="color:${c.color}">${c.icon}</span> ${name}</div>
+          <div>${pct}% (${known}/${total})</div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${pct}%; background:${c.color}"></div>
+        </div>
+      </div>
+    `;
+  });
+  $('dash-categories').innerHTML = catHtml;
+
+  // Badges calculation
+  const badges = [
+    { id: 'first_blood', icon: '🩸', nameAr: 'البداية', nameSv: 'Första steget', cond: knownCount > 0 },
+    { id: 'streak_3', icon: '🔥', nameAr: 'شعلة 3 أيام', nameSv: '3 dagar', cond: progress.stats.streak >= 3 },
+    { id: 'master_50', icon: '🎓', nameAr: 'خبير (50)', nameSv: 'Expert (50)', cond: knownCount >= 50 },
+    { id: 'xp_1000', icon: '⭐', nameAr: 'نجم 1000', nameSv: 'Stjärna 1000', cond: progress.stats.xp >= 1000 }
+  ];
+  $('dash-badges').innerHTML = badges.map(b => `
+    <div class="badge-item ${b.cond ? 'unlocked' : ''}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${state.lang === 'ar' ? b.nameAr : b.nameSv}</div>
+    </div>
+  `).join('');
 }
 
 // ===== BROWSE =====
@@ -524,15 +615,24 @@ $('lang-toggle').addEventListener('click', () => {
 });
 
 // ===== QUIZ — Multiple Choice =====
-const quiz = { items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', wrongPool: [] };
+const quiz = { items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', wrongPool: [], type: 'signs' };
 
 $('quiz-start').addEventListener('click', () => {
   const cat = $('quiz-category').value;
   const count = parseInt($('quiz-count').value, 10);
+  const quizType = $('quiz-type') ? $('quiz-type').value : 'signs';
   quiz.lang = state.lang;
-  const pool = signsIn(cat);
-  if (pool.length < 4) { toast(T('msg.tooFew')); return; }
-  quiz.items = sample(pool, Math.min(count, pool.length));
+  quiz.type = quizType;
+  
+  if (quizType === 'scenarios') {
+    if (typeof SCENARIOS === 'undefined' || SCENARIOS.length === 0) { toast(T('msg.tooFew')); return; }
+    quiz.items = shuffle(SCENARIOS).slice(0, Math.min(count, SCENARIOS.length));
+  } else {
+    const pool = signsIn(cat);
+    if (pool.length < 4) { toast(T('msg.tooFew')); return; }
+    quiz.items = sample(pool, Math.min(count, pool.length));
+  }
+  
   quiz.idx = 0; quiz.correct = 0; quiz.wrong = 0; quiz.wrongPool = [];
   $('quiz-setup').classList.add('hidden');
   $('quiz-game').classList.remove('hidden');
@@ -541,25 +641,73 @@ $('quiz-start').addEventListener('click', () => {
 });
 
 function renderQuizQuestion() {
-  const s = quiz.items[quiz.idx];
-  const cat = catBy(s.category);
-  const samePool = signsIn(s.category).filter(x => x.id !== s.id);
-  const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
-  const opts = shuffle([s, ...distractors]);
-  $('quiz-sign').innerHTML = s.svg;
-  $('quiz-options').innerHTML = opts.map(o =>
-    `<button class="quiz-option" data-id="${o.id}">
-      <span class="opt-ar" dir="rtl" lang="ar">${o.nameAr}</span>
-      <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
-    </button>`
-  ).join('');
+  if (quiz.type === 'scenarios') {
+    const sc = quiz.items[quiz.idx];
+    const qText = quiz.lang === 'ar' ? sc.questionAr : sc.questionSv;
+    const opts = quiz.lang === 'ar' ? sc.optionsAr : sc.optionsSv;
+    
+    $('quiz-sign').className = 'quiz-sign scenario-img';
+    $('quiz-sign').innerHTML = sc.img;
+    
+    $('quiz-question-text').textContent = qText;
+    $('quiz-question-text').classList.remove('hidden');
+    
+    $('quiz-options').className = 'quiz-options scenario-options';
+    $('quiz-options').innerHTML = opts.map((optText, i) =>
+      `<button class="quiz-option scenario-btn" data-idx="${i}">
+        <span>${optText}</span>
+      </button>`
+    ).join('');
+    
+    $$('.quiz-option', $('quiz-options')).forEach(btn => {
+      btn.addEventListener('click', () => handleQuizAnswerScenario(btn, sc));
+    });
+  } else {
+    $('quiz-sign').className = 'quiz-sign';
+    $('quiz-question-text').classList.add('hidden');
+    $('quiz-options').className = 'quiz-options';
+    
+    const s = quiz.items[quiz.idx];
+    const cat = catBy(s.category);
+    const samePool = signsIn(s.category).filter(x => x.id !== s.id);
+    const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
+    const opts = shuffle([s, ...distractors]);
+    $('quiz-sign').innerHTML = s.svg;
+    $('quiz-options').innerHTML = opts.map(o =>
+      `<button class="quiz-option" data-id="${o.id}">
+        <span class="opt-ar" dir="rtl" lang="ar">${o.nameAr}</span>
+        <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
+      </button>`
+    ).join('');
+    $$('.quiz-option', $('quiz-options')).forEach(btn => {
+      btn.addEventListener('click', () => handleQuizAnswer(btn, s));
+    });
+  }
+
   $('quiz-position').textContent = `${quiz.idx + 1}/${quiz.items.length}`;
   $('quiz-progress').style.width = `${(quiz.idx / quiz.items.length) * 100}%`;
   $('quiz-next').classList.add('hidden');
+}
 
-  $$('.quiz-option', $('quiz-options')).forEach(btn => {
-    btn.addEventListener('click', () => handleQuizAnswer(btn, s));
+function handleQuizAnswerScenario(btn, sc) {
+  const chosenIdx = parseInt(btn.dataset.idx, 10);
+  const correct = chosenIdx === sc.correctIdx;
+  $$('.quiz-option').forEach(b => {
+    b.classList.add('disabled');
+    const idx = parseInt(b.dataset.idx, 10);
+    if (idx === sc.correctIdx) b.classList.add('correct');
+    else if (b === btn && !correct) b.classList.add('wrong');
   });
+  if (correct) {
+    quiz.correct++;
+    $('quiz-correct').textContent = quiz.correct;
+    speak(quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE');
+  } else {
+    quiz.wrong++;
+    quiz.wrongPool.push(sc);
+    $('quiz-wrong').textContent = quiz.wrong;
+  }
+  $('quiz-next').classList.remove('hidden');
 }
 
 function handleQuizAnswer(btn, sign) {
@@ -582,6 +730,14 @@ function handleQuizAnswer(btn, sign) {
   $('quiz-next').classList.remove('hidden');
 }
 
+$('quiz-type').addEventListener('change', (e) => {
+  if (e.target.value === 'scenarios') {
+    $('quiz-cat-wrapper').style.display = 'none';
+  } else {
+    $('quiz-cat-wrapper').style.display = 'block';
+  }
+});
+
 $('quiz-next').addEventListener('click', () => {
   quiz.idx++;
   if (quiz.idx >= quiz.items.length) {
@@ -600,6 +756,7 @@ $('quiz-next').addEventListener('click', () => {
 });
 
 function finishQuiz() {
+  if (quiz.correct > 0) addXP(quiz.correct * 10);
   $('quiz-game').classList.add('hidden');
   $('quiz-result').classList.remove('hidden');
   const total = quiz.correct + quiz.wrong;
@@ -686,6 +843,7 @@ $('flip-known-btn').addEventListener('click', () => {
   progress.known[s.id] = Date.now();
   delete progress.review[s.id];
   saveProgress();
+  addXP(5);
   nextFlip();
 });
 
@@ -802,6 +960,7 @@ function onMemoryFlip(card) {
 
 function finishMemory() {
   clearInterval(memory.timer);
+  addXP(memory.total * 5);
   const sec = Math.floor((Date.now() - memory.startedAt) / 1000);
   const time = `${String(Math.floor(sec / 60)).padStart(2,'0')}:${String(sec % 60).padStart(2,'0')}`;
   const tLbl = state.lang === 'ar' ? 'الزمن' : 'Tid';

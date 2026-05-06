@@ -71,12 +71,42 @@
 
   <nav class="tabs" role="tablist">
     <button class="tab active" data-view="browse" role="tab">📚 <span data-i18n="tab.browse">تصفّح</span></button>
+    <button class="tab" data-view="dashboard" role="tab">🏆 <span data-i18n="tab.dashboard">إنجازاتي</span></button>
     <button class="tab" data-view="quiz" role="tab">🎯 <span data-i18n="tab.quiz">اختيار من متعدد</span></button>
     <button class="tab" data-view="flip" role="tab">🔄 <span data-i18n="tab.flip">قلب البطاقات</span></button>
     <button class="tab" data-view="memory" role="tab">🧠 <span data-i18n="tab.memory">لعبة الذاكرة</span></button>
   </nav>
 
   <main id="main">
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view">
+      <div class="dashboard-header">
+        <div class="dash-stat">
+          <div class="dash-icon">🔥</div>
+          <div class="dash-val" id="dash-streak">0</div>
+          <div class="dash-lbl" data-i18n="dash.streak">أيام متتالية</div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-icon">⭐</div>
+          <div class="dash-val" id="dash-xp">0</div>
+          <div class="dash-lbl" data-i18n="dash.xp">نقاط (XP)</div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-icon">🎓</div>
+          <div class="dash-val" id="dash-known">0</div>
+          <div class="dash-lbl" data-i18n="dash.known">تم الحفظ</div>
+        </div>
+      </div>
+      <div class="section-title">
+        <h2 data-i18n="dash.progress">مستوى التقدم في الفئات</h2>
+      </div>
+      <div id="dash-categories" class="dash-categories"></div>
+      <div class="section-title" style="margin-top: 30px;">
+        <h2 data-i18n="dash.badges">الأوسمة (Badges)</h2>
+      </div>
+      <div id="dash-badges" class="dash-badges"></div>
+    </section>
+
     <!-- BROWSE -->
     <section id="view-browse" class="view active">
       <div class="search-row">
@@ -92,12 +122,24 @@
 
     <!-- QUIZ (Multiple Choice) -->
     <section id="view-quiz" class="view">
-      <div id="quiz-setup" class="game-setup">
-        <h2 data-i18n="quiz.title">🎯 اختيار من متعدد</h2>
-        <p data-i18n="quiz.intro">شاهد العلامة واختر المعنى الصحيح من بين 4 خيارات.</p>
-        <label><span data-i18n="label.category">الفئة:</span>
-          <select id="quiz-category"><option value="" data-i18n="filter.all">كل الفئات</option></select>
-        </label>
+      <div id="quiz-setup" class="quiz-setup">
+        <h2 data-i18n="tab.quiz">اختبار من متعدد</h2>
+        
+        <div class="control-group">
+          <label data-i18n="quiz.type">نوع الاختبار</label>
+          <select id="quiz-type">
+            <option value="signs" data-i18n="quiz.type.signs">العلامات المرورية</option>
+            <option value="scenarios" data-i18n="quiz.type.scenarios">المواقف المرورية (سيناريوهات)</option>
+          </select>
+        </div>
+
+        <div class="control-group" id="quiz-cat-wrapper">
+          <p data-i18n="quiz.intro">شاهد العلامة واختر المعنى الصحيح من بين 4 خيارات.</p>
+          <label><span data-i18n="label.category">الفئة:</span>
+            <select id="quiz-category"><option value="" data-i18n="filter.all">كل الفئات</option></select>
+          </label>
+        </div>
+        
         <label><span data-i18n="quiz.count">عدد الأسئلة:</span>
           <select id="quiz-count">
             <option>10</option><option>20</option><option selected>15</option><option>30</option>
@@ -116,6 +158,7 @@
           </div>
         </div>
         <div id="quiz-sign" class="quiz-sign"></div>
+        <h3 id="quiz-question-text" class="quiz-question-text hidden"></h3>
         <div id="quiz-options" class="quiz-options"></div>
         <button id="quiz-next" class="btn btn-primary hidden" data-i18n="btn.next">التالي ←</button>
       </div>
@@ -244,7 +287,8 @@
 
   <div id="toast" class="toast hidden"></div>
 
-  <script src="signs-data.js?v=9"></script>
-  <script src="app.js?v=9"></script>
+  <script src="signs-data.js"></script>
+  <script src="scenarios-data.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
