@@ -904,9 +904,8 @@ $('memory-start').addEventListener('click', () => {
   $('memory-total').textContent = pairs;
   $('memory-tries').textContent = '0';
 
-  const cols = pairs <= 4 ? 4 : pairs <= 6 ? 4 : pairs <= 8 ? 4 : 5;
   const board = $('memory-board');
-  board.className = `memory-board cols-${cols}`;
+  board.className = 'memory-board';
   board.innerHTML = memory.cards.map((c, i) => `
     <div class="memory-card" data-i="${i}" data-id="${c.id}">
       <div class="memory-card-inner">

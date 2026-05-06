@@ -729,15 +729,13 @@ body {
 /* MEMORY */
 .memory-board {
   display: grid;
-  gap: 12px;
-  padding: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  padding: 20px;
   background: var(--surface-2);
   border-radius: 24px;
   box-shadow: inset 0 4px 12px rgba(0,0,0,.05);
 }
-.memory-board.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.memory-board.cols-4 { grid-template-columns: repeat(4, 1fr); }
-.memory-board.cols-5 { grid-template-columns: repeat(5, 1fr); }
 .memory-card {
   aspect-ratio: 1;
   perspective: 1000px;
@@ -769,12 +767,12 @@ body {
 .memory-face-front {
   background: linear-gradient(135deg, var(--primary), var(--primary-light));
   color: white;
-  font-size: 32px;
+  font-size: 40px;
   border: 2px solid rgba(255,255,255,0.1);
 }
 .memory-face-front::after {
   content: '?';
-  font-size: 36px;
+  font-size: 48px;
   opacity: 0.5;
 }
 .memory-face-back {
