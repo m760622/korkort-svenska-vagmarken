@@ -997,6 +997,12 @@ function openGame(gameId) {
 function closeGame() {
   $$('.sub-game').forEach(g => g.classList.add('hidden'));
   $('games-menu').classList.remove('hidden');
+  
+  clearInterval(memory.timer);
+  $('memory-game').classList.add('hidden');
+  $('memory-result').classList.add('hidden');
+  $('memory-setup').classList.remove('hidden');
+  
   clearInterval(timeAtt.timer);
   $('time-game').classList.add('hidden');
   $('time-result').classList.add('hidden');
