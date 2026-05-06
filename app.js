@@ -894,7 +894,10 @@ $('memory-start').addEventListener('click', () => {
   const cards = [];
   pool.forEach(s => {
     cards.push({ id: s.id, type: 'img', html: s.svg });
-    cards.push({ id: s.id, type: 'text', html: `<div>${lang === 'ar' ? s.nameAr : s.nameSv}</div>` });
+    cards.push({ id: s.id, type: 'text', html: `
+      <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:8px;">${s.nameAr}</div>
+      <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
+    ` });
   });
   memory.cards = shuffle(cards);
 
@@ -1106,7 +1109,11 @@ function startMatchRound() {
   
   $('match-board').innerHTML = `
     <div class="match-col" id="match-names">
-      ${names.map(s => `<div class="match-item m-name" data-id="${s.id}">${isAr ? s.nameAr : s.nameSv}</div>`).join('')}
+      ${names.map(s => `
+        <div class="match-item m-name" data-id="${s.id}">
+          <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:4px;">${s.nameAr}</div>
+          <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
+        </div>`).join('')}
     </div>
     <div class="match-col" id="match-signs">
       ${signs.map(s => `<div class="match-item m-sign" data-id="${s.id}" style="width:70px; height:70px; margin:0 auto; padding:5px;">${s.svg}</div>`).join('')}
@@ -1166,7 +1173,10 @@ $('swipe-start').addEventListener('click', () => {
   const isAr = state.lang === 'ar';
   const mainCats = CATEGORIES.slice(0, 6);
   $('swipe-buttons').innerHTML = mainCats.map(c => 
-    `<button class="btn btn-secondary" data-cat="${c.key}" style="border-color:${c.color}; font-size:14px; padding:10px;">${c.icon} ${isAr ? c.nameAr : c.nameSv}</button>`
+    `<button class="btn btn-secondary" data-cat="${c.key}" style="border-color:${c.color}; padding:10px; display:flex; flex-direction:column; align-items:center; gap:4px;">
+      <span style="font-weight:bold;">${c.icon} <span dir="rtl" lang="ar">${c.nameAr}</span></span>
+      <span dir="ltr" lang="sv" style="font-size:0.85em; opacity:0.9;">${c.nameSv}</span>
+    </button>`
   ).join('');
   
   $$('#swipe-buttons button').forEach(btn => {
