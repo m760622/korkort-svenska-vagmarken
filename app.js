@@ -627,6 +627,23 @@ $('lang-toggle').addEventListener('click', () => {
   applyLang();
 });
 
+// ===== THEME TOGGLE =====
+const THEME_KEY = 'korkort_theme';
+let currentTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+applyTheme(currentTheme);
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = $('theme-toggle');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+$('theme-toggle').addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, currentTheme);
+  applyTheme(currentTheme);
+});
+
 // ===== QUIZ — Multiple Choice =====
 const quiz = { items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', wrongPool: [], type: 'signs' };
 
