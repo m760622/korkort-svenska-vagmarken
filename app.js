@@ -593,6 +593,11 @@ function renderModalSign() {
   $('modal-prev').textContent = state.lang === 'ar' ? '→' : '←';
   $('modal-next').textContent = state.lang === 'ar' ? '←' : '→';
   document.querySelector('.modal-content')?.scrollTo({ top: 0, behavior: 'instant' });
+
+  // Auto-play Swedish TTS
+  const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
+  const textSv = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
+  speak(textSv, 'sv-SE', svBtn);
 }
 
 function modalNext() {
