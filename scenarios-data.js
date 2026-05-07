@@ -429,171 +429,220 @@ const SCENARIOS = [
   {
     id: "sc13",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#bdbdbd"/>
-      <rect x="70" y="0" width="60" height="150" fill="#455a64"/>
-      <!-- Blue Car -->
-      <g transform="translate(85, 110)">
-        <rect width="30" height="30" rx="3" fill="#2196f3"/>
-      </g>
-      <!-- No Entry Sign -->
-      <g transform="translate(85, 20)">
-        <circle cx="15" cy="15" r="14" fill="#d32f2f"/>
-        <rect x="5" y="12" width="20" height="6" fill="#fff"/>
-      </g>
-    </svg>`,
-    questionAr: "ماذا تعني هذه العلامة الحمراء ذات الخط الأبيض الأفقي؟",
-    questionSv: "Vad betyder detta märke (röd cirkel med vitt horisontellt streck)?",
-    optionsAr: [
-      "ممنوع الوقوف.",
-      "ممنوع الدخول (اتجاه واحد معاكس).",
-      "ممنوع التوقف.",
-      "نهاية الطريق."
-    ],
-    optionsSv: [
-      "Förbud mot att parkera.",
-      "Förbud mot infart med fordon.",
-      "Förbud mot att stanna.",
-      "Vägen upphör."
-    ],
-    correctIdx: 1
-  },
-  {
-    id: "sc14",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#81c784"/>
-      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
-      <!-- Double Solid Lines -->
-      <line x1="0" y1="73" x2="200" y2="73" stroke="#fff" stroke-width="1.5"/>
-      <line x1="0" y1="77" x2="200" y2="77" stroke="#fff" stroke-width="1.5"/>
-      <!-- Blue Car -->
-      <g transform="translate(30, 78)">
-        <rect width="32" height="18" rx="3" fill="#2196f3"/>
-      </g>
-      <!-- Red Car -->
-      <g transform="translate(100, 78)">
-        <rect width="32" height="18" rx="3" fill="#f44336"/>
-      </g>
-    </svg>`,
-    questionAr: "هل يسمح لك بتجاوز السيارة التي أمامك هنا؟",
-    questionSv: "Får du köra om bilen framför dig här?",
-    optionsAr: [
-      "نعم، إذا كانت تسير ببطء.",
-      "لا، لوجود خطين متصلين يمنعان التجاوز.",
-      "نعم، ولكن فقط في النهار.",
-      "نعم، إذا كان الطريق خالياً."
-    ],
-    optionsSv: [
-      "Ja, om den kör sakta.",
-      "Nej, de dubbla heldragna linjerna förbjuder omkörning.",
-      "Ja, men bara på dagen.",
-      "Ja, om vägen är fri."
-    ],
-    correctIdx: 1
-  },
-  {
+      <rec  {
     id: "sc15",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="70" width="200" height="40" fill="#455a64"/>
-      <rect x="80" y="60" width="40" height="60" fill="#78909c"/>
-      <line x1="80" y1="90" x2="120" y2="90" stroke="#ffeb3b" stroke-width="4"/>
-      <line x1="80" y1="80" x2="120" y2="80" stroke="#ffeb3b" stroke-width="4"/>
-      <line x1="80" y1="100" x2="120" y2="100" stroke="#ffeb3b" stroke-width="4"/>
-      <rect x="30" y="82" width="28" height="14" rx="3" fill="#2196f3"/>
-      <g transform="translate(140, 20)">
-        <polygon points="15,0 30,30 0,30" fill="#fff" stroke="#d32f2f" stroke-width="3"/>
-        <rect x="10" y="10" width="10" height="15" fill="#000"/>
-        <rect x="12" y="5" width="6" height="5" fill="#000"/>
+      <rect width="200" height="150" fill="#a5d6a7"/>
+      <!-- Road -->
+      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
+      <rect x="0" y="73" width="200" height="2" fill="#fff" stroke-dasharray="8,4"/>
+      <!-- Ambulance (White with Blue Flash) -->
+      <g transform="translate(130, 60)">
+        <rect width="35" height="20" rx="2" fill="#ffffff"/>
+        <rect x="5" y="5" width="25" height="10" fill="#e3f2fd" opacity="0.6"/>
+        <rect x="0" y="8" width="35" height="4" fill="#d32f2f"/>
+        <rect x="25" y="0" width="8" height="3" fill="#2196f3">
+          <animate attributeName="opacity" values="1;0.2;1" dur="0.4s" repeatCount="indefinite"/>
+        </rect>
+      </g>
+      <!-- Your Car -->
+      <g transform="translate(30, 68)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
+        <rect x="18" y="2" width="5" height="12" fill="#e3f2fd" opacity="0.7"/>
       </g>
     </svg>`,
-    questionAr: "أنت تقترب من تقاطع مع سكة حديد بدون حواجز. ماذا تفعل؟",
-    questionSv: "Du närmar dig en järnvägskorsning utan bommar. Vad gör du?",
+    questionAr: "سيارة إسعاف تقترب منك من الخلف مع تشغيل الأضواء الزرقاء الوامضة. ماذا تفعل؟",
+    questionSv: "En ambulans närmar sig bakifrån med blåljus påslagna. Vad gör du?",
     optionsAr: [
-      "أعبر بسرعة لأتجنب القطار.",
-      "أخفض السرعة، أنظر جيداً لليسار واليمين وأستمع لأي صوت قطار قبل العبور.",
-      "أستمر بنفس السرعة، القطار سيعطي تنبيهاً.",
-      "أتوقف تماماً لمدة دقيقة ثم أعبر."
+      "أسرع لأبتعد عنها.",
+      "أتوقف فوراً في مكاني.",
+      "أفسح لها الطريق فوراً دون تعريض حركة المرور للخطر، وإذا لزم الأمر أتوقف على الرصيف.",
+      "أنتظر حتى تطلب مني عبر مكبر الصوت."
     ],
     optionsSv: [
-      "Jag kör snabbt över för att undvika tåget.",
-      "Jag sänker farten, tittar noga åt båda hållen och lyssnar efter tåg innan jag kör över.",
-      "Jag fortsätter i samma fart, tåget kommer tuta.",
-      "Jag stannar helt i en minut innan jag kör över."
+      "Kör fortare för att komma undan.",
+      "Stannar omedelbart där jag är.",
+      "Underlättar framkomligheten genom att köra åt sidan eller stanna på lämplig plats.",
+      "Väntar tills de ber mig flytta på mig."
     ],
-    correctIdx: 1
+    correctIdx: 2
   },
   {
     id: "sc16",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#a5d6a7"/>
-      <rect x="0" y="60" width="200" height="40" fill="#455a64"/>
-      <line x1="0" y1="80" x2="200" y2="80" stroke="#fff" stroke-width="2" stroke-dasharray="10,10"/>
-      <rect x="100" y="65" width="40" height="20" rx="4" fill="#f44336"/>
-      <rect x="40" y="72" width="30" height="16" rx="3" fill="#2196f3"/>
-      <path d="M 75 75 L 120 45" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="4,2" fill="none" marker-end="url(#arrow)"/>
-      <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ffeb3b"/></marker></defs>
+      <rect width="200" height="150" fill="#81c784"/>
+      <!-- Intersection -->
+      <rect x="75" y="0" width="50" height="150" fill="#455a64"/>
+      <rect x="0" y="50" width="200" height="50" fill="#455a64"/>
+      <!-- Yellow Car from Right -->
+      <g transform="translate(140, 67)">
+        <rect width="25" height="16" rx="3" fill="#ffeb3b"/>
+        <rect x="2" y="2" width="6" height="12" fill="#fff9c4" opacity="0.7"/>
+      </g>
+      <!-- Your Car -->
+      <g transform="translate(88, 120)">
+        <rect width="24" height="28" rx="4" fill="#2196f3"/>
+        <rect x="4" y="5" width="16" height="8" fill="#e3f2fd" opacity="0.7"/>
+      </g>
     </svg>`,
-    questionAr: "أنت تنوي تجاوز هذه السيارة الحمراء. متى يمنع عليك البدء بالتجاوز؟",
-    questionSv: "Du tänker köra om den röda bilen. När är det förbjudet att påbörja omkörningen?",
+    questionAr: "أنت تقترب من تقاطع متساوي الأضلاع لا توجد فيه إشارات أو لوحات. سيارة قادمة من اليمين. من له الأولوية؟",
+    questionSv: "Du närmar dig en korsning utan skyltar eller signaler. En bil kommer från höger. Vem har företräde?",
     optionsAr: [
-      "إذا كان هناك سيارة خلفي بدأت بالفعل في تجاوزي.",
-      "إذا كانت السيارة أمامي تسير ببطء شديد.",
-      "إذا كان الطريق مستقيماً وواضحاً.",
-      "إذا كنت أسير في طريق رئيسي."
+      "أنا، لأنني أسير في طريق مستقيم.",
+      "السيارة القادمة من اليمين (قاعدة اليمين).",
+      "السيارة الأكبر حجماً.",
+      "من يطلق البوق أولاً."
     ],
     optionsSv: [
-      "Om ett fordon bakom dig redan har påbörjat en omkörning av dig.",
-      "Om bilen framför kör väldigt sakta.",
-      "Om vägen är rak och sikten är god.",
-      "Om jag kör på en huvudled."
+      "Jag, eftersom jag kör rakt fram.",
+      "Bilen från höger (högerregeln).",
+      "Det största fordonet.",
+      "Den som tutar först."
     ],
-    correctIdx: 0
+    correctIdx: 1
   },
   {
     id: "sc17",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="20" y="0" width="160" height="150" fill="#455a64"/>
-      <rect x="25" y="20" width="10" height="110" fill="#fff"/>
-      <text x="30" y="75" transform="rotate(90,30,75)" font-size="10" fill="#000">BUS</text>
-      <rect x="50" y="100" width="30" height="16" rx="3" fill="#2196f3"/>
+      <rect width="200" height="150" fill="#81c784"/>
+      <rect x="0" y="50" width="200" height="50" fill="#455a64"/>
+      <!-- Zebra Crossing -->
+      <g fill="#fff">
+        <rect x="80" y="50" width="8" height="50"/>
+        <rect x="95" y="50" width="8" height="50"/>
+        <rect x="110" y="50" width="8" height="50"/>
+      </g>
+      <!-- Pedestrian -->
+      <circle cx="100" cy="40" r="5" fill="#f44336"/>
+      <rect x="98" y="45" width="4" height="8" fill="#f44336"/>
+      <!-- Your Car -->
+      <g transform="translate(20, 67)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
+        <rect x="15" y="2" width="6" height="12" fill="#e3f2fd" opacity="0.7"/>
+      </g>
     </svg>`,
-    questionAr: "هل يسمح لك كقائد سيارة ملاكي بالقيادة في المسار المخصص للباصات (BUS)؟",
-    questionSv: "Får du som personbilsförare köra i ett körfält reserverat för bussar (BUS)?",
+    questionAr: "أنت تقترب من ممر مشاة (Övergångsställe) وهناك شخص يستعد للعبور. ماذا تفعل؟",
+    questionSv: "Du närmar dig ett övergångsställe och en person ska gå över. Vad gör du?",
     optionsAr: [
-      "نعم، إذا كان هناك زحام مروري.",
-      "نعم، ولكن فقط للالتفاف يميناً في التقاطع القادم.",
-      "لا، المسار مخصص للباصات ومركبات معينة فقط.",
-      "نعم، خلال ساعات الليل فقط."
+      "أسرع قبل أن يبدأ بالعبور.",
+      "أطلق البوق لتنبيهه.",
+      "أخفض السرعة أو أتوقف لأظهر بوضوح أنني سأسمح له بالمرور.",
+      "أستمر بالقيادة إذا كان هناك مجال."
     ],
     optionsSv: [
-      "Ja, om det är bilkö.",
-      "Ja, men bara för att svänga höger i nästa korsning.",
-      "Nej, körfältet är endast för bussar och vissa fordon.",
-      "Ja, under nattetid."
+      "Kör fortare för att hinna före.",
+      "Tutar för att varna.",
+      "Saktar ner eller stannar för att visa att jag lämnar företräde.",
+      "Kör vidare om det finns plats."
     ],
     correctIdx: 2
   },
   {
     id: "sc18",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#a5d6a7"/>
-      <rect x="80" y="0" width="40" height="150" fill="#455a64"/>
-      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
-      <circle cx="100" cy="75" r="5" fill="#f44336"/>
-      <circle cx="100" cy="75" r="3" fill="#fff"/>
-      <rect x="90" y="125" width="20" height="10" rx="2" fill="#2196f3"/>
-      <g transform="translate(130, 100) scale(0.6)">
-        <polygon points="25,50 0,0 50,0" fill="#fff" stroke="#d32f2f" stroke-width="6"/>
-        <rect x="22" y="10" width="6" height="20" fill="#000"/>
-        <rect x="22" y="35" width="6" height="6" fill="#000"/>
+      <rect width="200" height="150" fill="#90a4ae"/>
+      <rect x="0" y="60" width="200" height="30" fill="#455a64"/>
+      <!-- Railway -->
+      <rect x="90" y="0" width="20" height="150" fill="#37474f"/>
+      <rect x="90" y="0" width="2" height="150" fill="#9e9e9e"/>
+      <rect x="108" y="0" width="2" height="150" fill="#9e9e9e"/>
+      <g stroke="#9e9e9e" stroke-width="1">
+        <line x1="90" y1="20" x2="110" y2="20"/><line x1="90" y1="40" x2="110" y2="40"/>
+        <line x1="90" y1="60" x2="110" y2="60"/><line x1="90" y1="80" x2="110" y2="80"/>
+      </g>
+      <!-- Barriers (Red/White) -->
+      <rect x="75" y="55" width="5" height="40" fill="#d32f2f"/>
+      <rect x="75" y="65" width="5" height="10" fill="#fff"/>
+      <rect x="75" y="85" width="5" height="10" fill="#fff"/>
+      <!-- Your Car -->
+      <g transform="translate(30, 67)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
       </g>
     </svg>`,
-    questionAr: "تصل إلى تقاطع وتوجد علامة (أعطِ الأولوية) ورؤية غير واضحة. ماذا تفعل؟",
-    questionSv: "Du kommer till en korsning med väjningsplikt och sikten är skymd. Vad gör du?",
+    questionAr: "أنت تقترب من تقاطع سكة حديد والأضواء الحمراء تومض. ماذا تفعل؟",
+    questionSv: "Du närmar dig en plankorsning och de röda lamporna blinkar. Vad gör du?",
     optionsAr: [
-      "أستمر بالقيادة ببطء مع الضغط على البوق.",
-      "أخفض سرعتي بشدة وأستعد للتوقف إذا لزم الأمر للتأكد من خلو الطريق.",
+      "أعبر بسرعة قبل وصول القطار.",
+      "أتوقف فوراً قبل خط التوقف أو الحاجز.",
+      "أعبر إذا كان الحاجز لا يزال مرفوعاً.",
+      "أتوقف فقط إذا رأيت القطار."
+    ],
+    optionsSv: [
+      "Kör över snabbt.",
+      "Stannar före stopplinjen eller bommen.",
+      "Kör över om bommen fortfarande är uppe.",
+      "Stannar bara om jag ser tåget."
+    ],
+    correctIdx: 1
+  },
+  {
+    id: "sc19",
+    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="#81c784"/>
+      <rect x="0" y="50" width="200" height="50" fill="#455a64"/>
+      <!-- Bus Stop -->
+      <rect x="100" y="45" width="50" height="5" fill="#ffeb3b"/>
+      <!-- Bus -->
+      <g transform="translate(110, 60)">
+        <rect width="45" height="22" rx="2" fill="#ff9800"/>
+        <rect x="5" y="3" width="10" height="16" fill="#e3f2fd" opacity="0.6"/>
+        <rect x="35" y="2" width="6" height="4" fill="#ffeb3b">
+          <animate attributeName="opacity" values="1;0;1" dur="0.6s" repeatCount="indefinite"/>
+        </rect>
+      </g>
+      <!-- Your Car -->
+      <g transform="translate(20, 67)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
+      </g>
+    </svg>`,
+    questionAr: "حافلة (Bus) تعطي إشارة للخروج من محطة الحافلات في طريق سرعته 50 كم/س أو أقل. ماذا تفعل؟",
+    questionSv: "En buss blinkar ut från en hållplats på en väg med hastighetsgräns 50 km/h eller lägre. Vad gör du?",
+    optionsAr: [
+      "أتجاوزها بسرعة.",
+      "أطلق البوق لتنبيه السائق.",
+      "أبطئ أو أتوقف للسماح لها بالخروج (الأولوية للحافلة).",
+      "ليس لي علاقة بها."
+    ],
+    optionsSv: [
+      "Kör om snabbt.",
+      "Tutar.",
+      "Saktar ner eller stannar för att släppa ut bussen (bussregeln).",
+      "Bryr mig inte."
+    ],
+    correctIdx: 2
+  },
+  {
+    id: "sc20",
+    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="#81c784"/>
+      <!-- T-Junction -->
+      <rect x="75" y="0" width="50" height="150" fill="#455a64"/>
+      <rect x="0" y="50" width="75" height="50" fill="#455a64"/>
+      <!-- Your Car (at bottom) -->
+      <g transform="translate(88, 120)">
+        <rect width="24" height="28" rx="4" fill="#2196f3"/>
+      </g>
+      <!-- Car from left -->
+      <g transform="translate(20, 67)">
+        <rect width="25" height="16" rx="3" fill="#ff9800"/>
+      </g>
+    </svg>`,
+    questionAr: "أنت تقترب من تقاطع T (T-korsning) ولا توجد لوحات. سيارة قادمة من اليسار. ماذا تفعل؟",
+    questionSv: "Du närmar dig en T-korsning utan skyltar. En bil kommer från vänster. Vad gör du?",
+    optionsAr: [
+      "أستمر بالقيادة، السيارة من اليسار يجب أن تتوقف لي.",
+      "أتوقف تماماً، لأنني أنا من يواجه التقاطع.",
+      "أستمر بحذر، قاعدة اليمين تعني أنني لي الأولوية على السيارة القادمة من اليسار.",
+      "أعطي الأولوية للسيارة القادمة من اليسار دائماً."
+    ],
+    optionsSv: [
+      "Jag kör vidare, bilen från vänster ska stanna.",
+      "Jag stannar helt.",
+      "Jag kör vidare med försiktighet, högerregeln ger mig företräde framför bilen från vänster.",
+      "Jag lämnar alltid företräده till bilen från vänster."
+    ],
+    correctIdx: 2
+  },    "أخفض سرعتي بشدة وأستعد للتوقف إذا لزم الأمر للتأكد من خلو الطريق.",
       "لي الأولوية طالما لا توجد سيارة قريبة.",
       "أتوقف تماماً لمدة 3 ثوانٍ دائماً."
     ],
@@ -662,12 +711,25 @@ const SCENARIOS = [
   {
     id: "sc21",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="60" width="200" height="40" fill="#455a64"/>
-      <rect x="90" y="65" width="20" height="30" fill="#f44336"/>
-      <circle cx="100" cy="50" r="12" fill="#fff" stroke="#d32f2f" stroke-width="3"/>
-      <text x="100" y="55" font-size="10" text-anchor="middle" font-weight="bold">!</text>
-      <rect x="30" y="72" width="28" height="14" rx="3" fill="#2196f3"/>
+      <rect width="200" height="150" fill="#90a4ae"/>
+      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
+      <!-- Breakdown Car -->
+      <g transform="translate(140, 68)">
+        <rect width="30" height="18" rx="3" fill="#f44336"/>
+        <rect x="2" y="2" width="6" height="14" fill="#e3f2fd" opacity="0.6"/>
+        <rect x="25" y="2" width="4" height="4" fill="#ffeb3b">
+          <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+        </rect>
+      </g>
+      <!-- Warning Triangle -->
+      <g transform="translate(70, 75)">
+        <polygon points="0,15 7.5,0 15,15" fill="#d32f2f"/>
+        <polygon points="3,13 7.5,4 12,13" fill="#fff"/>
+      </g>
+      <!-- Your Car -->
+      <g transform="translate(20, 68)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
+      </g>
     </svg>`,
     questionAr: "تتعطل سيارتك في طريق سريع (Motorway). أين يجب وضع مثلث التحذير؟",
     questionSv: "Din bil går sönder på en motorväg. Var ska du placera varningstriangeln?",
@@ -688,103 +750,134 @@ const SCENARIOS = [
   {
     id: "sc22",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#a5d6a7"/>
-      <rect x="0" y="60" width="200" height="40" fill="#455a64"/>
-      <rect x="140" y="65" width="40" height="30" fill="#ffeb3b"/>
-      <rect x="145" y="72" width="30" height="16" rx="3" fill="#2196f3"/>
-      <circle cx="170" cy="65" r="5" fill="#ff9800"/>
+      <rect width="200" height="150" fill="#455a64"/>
+      <!-- Night Scene -->
+      <rect x="0" y="55" width="200" height="40" fill="#263238"/>
+      <!-- Car with Headlights -->
+      <g transform="translate(40, 68)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
+        <path d="M 25 2 L 60 -10 L 60 28 L 25 14" fill="yellow" opacity="0.2"/>
+      </g>
+      <!-- Pedestrian with Reflector -->
+      <circle cx="150" cy="50" r="4" fill="#cfd8dc"/>
+      <rect x="149" y="54" width="2" height="10" fill="#fff">
+        <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+      </rect>
     </svg>`,
-    questionAr: "سيارة أمامك أعطت إشارة (غماز) لليمين وبدأت في تباطؤ سرعتها. هل يسمح لك بتجاوزها من جهة اليمين؟",
-    questionSv: "Bilen framför blinkar höger och saktar ner. Får du köra om den på höger sida?",
+    questionAr: "أنت تقود في الليل. ما هي أهمية استخدام العاكس (Reflex) للمشاة؟",
+    questionSv: "Du kör i mörker. Vad är viktigast med reflexer för fotgängare?",
     optionsAr: [
-      "لا، التجاوز دائماً من اليسار.",
-      "نعم، إذا كان هناك مساحة كافية وبأمان.",
-      "نعم، ولكن فقط إذا كنت تستخدم البوق.",
-      "نعم، ولكن فقط في الطرق السريعة."
+      "يجعلهم يظهرون بوضوح من مسافة أكبر بكثير (حوالي 125 متراً).",
+      "يجعلهم يبدون أكثر أناقة.",
+      "ليس له أهمية إذا كانت هناك إنارة شوارع.",
+      "يستخدم فقط في الطرق السريعة."
     ],
     optionsSv: [
-      "Nej, omkörning sker alltid till vänster.",
-      "Ja, om det finns tillräckligt med plats och det kan ske säkert.",
-      "Ja, men bara om jag tutar.",
-      "Ja, men bara på motorvägar."
+      "Det gör att de syns på mycket längre håll (ca 125 meter).",
+      "Det ser snyggt ut.",
+      "Det behövs inte om det finns gatubelysning.",
+      "Det används bara på motorvägar."
     ],
-    correctIdx: 1
+    correctIdx: 0
   },
   {
     id: "sc23",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="40" y="0" width="120" height="150" fill="#455a64"/>
-      <line x1="100" y1="0" x2="100" y2="150" stroke="#fff" stroke-width="4" stroke-dasharray="10,10"/>
-      <rect x="110" y="80" width="30" height="16" rx="3" fill="#2196f3"/>
-      <path d="M 125 70 L 125 30" stroke="#2196f3" stroke-width="2" marker-end="url(#arrowB)"/>
-      <defs><marker id="arrowB" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2196f3"/></marker></defs>
+      <rect width="200" height="150" fill="#81c784"/>
+      <!-- Highway Merge -->
+      <path d="M 0 60 L 120 60 Q 150 60 180 100 L 200 100 L 200 140 L 0 140 Z" fill="#455a64"/>
+      <rect x="180" y="100" width="20" height="40" fill="#455a64"/>
+      <line x1="0" y1="120" x2="200" y2="120" stroke="#fff" stroke-dasharray="10,5"/>
+      <!-- Merging Car -->
+      <g transform="translate(130, 80) rotate(30)">
+        <rect width="25" height="16" rx="3" fill="#ff9800"/>
+      </g>
+      <!-- Main Road Car -->
+      <g transform="translate(50, 125)">
+        <rect width="30" height="18" rx="4" fill="#2196f3"/>
+      </g>
     </svg>`,
-    questionAr: "أنت تقود في طريق ذو مسارين في نفس الاتجاه. في أي مسار يجب أن تقود بشكل أساسي؟",
-    questionSv: "Du kör på en väg med två körfält i samma riktning. Vilket körfält ska du främst köra i?",
+    questionAr: "أنت تقود في الطريق الرئيسي وسيارته تندمج من ممر التسارع. من المسؤول عن الاندماج الآمن؟",
+    questionSv: "Du kör på huvudleden och en bil kör in från accelerationsfältet. Vem ansvarar för att det sker säkert?",
     optionsAr: [
-      "المسار الأيسر دائماً.",
-      "المسار الأيمن، ويستخدم الأيسر للتجاوز.",
-      "أي مسار، لا يهم.",
-      "المسار الأيسر إذا كانت سرعتي عالية."
+      "السائق المندمج فقط.",
+      "أنا فقط.",
+      "المسؤولية مشتركة، يجب على الطرفين التعاون لتسهيل الاندماج.",
+      "من يملك السيارة الأسرع."
     ],
     optionsSv: [
-      "Vänster körfält alltid.",
-      "Höger körfält, vänster används för omkörning.",
-      "Vilket som helst, det spelar ingen roll.",
-      "Vänster körfält om jag kör fort."
+      "Endast den som kör in.",
+      "Endast jag.",
+      "Gemensamt ansvar, båda ska samarbeta för att underlätta.",
+      "Den med snabbast bil."
     ],
-    correctIdx: 1
+    correctIdx: 2
   },
   {
-    id: "sc24_dup",
+    id: "sc24",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#a5d6a7"/>
-      <rect x="0" y="60" width="200" height="40" fill="#455a64"/>
-      <rect x="50" y="60" width="10" height="40" fill="#fff"/>
-      <rect x="70" y="60" width="10" height="40" fill="#fff"/>
-      <rect x="150" y="72" width="30" height="16" rx="3" fill="#2196f3"/>
-      <rect x="20" y="72" width="30" height="16" rx="3" fill="#f44336"/>
+      <rect width="200" height="150" fill="#cfd8dc"/>
+      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
+      <!-- Parking Exit -->
+      <rect x="80" y="95" width="40" height="55" fill="#455a64"/>
+      <!-- Car exiting parking -->
+      <g transform="translate(88, 110)">
+        <rect width="24" height="28" rx="4" fill="#ffeb3b"/>
+      </g>
+      <!-- Car on main road -->
+      <g transform="translate(20, 67)">
+        <rect width="25" height="16" rx="3" fill="#2196f3"/>
+      </g>
     </svg>`,
-    questionAr: "سيارة أمامك توقفت فجأة قبل معبر مشاة غير محمي. ماذا تفعل؟",
-    questionSv: "En bil framför dig stannar plötsligt före ett obevakat övergångsställe. Vad gör du?",
+    questionAr: "أنت تخرج من موقف سيارات (Parkering) وتدخل طريقاً عاماً. من له الأولوية؟",
+    questionSv: "Du kör ut från en parkering till en gata. Vem har företräde?",
     optionsAr: [
-      "أتجاوزها بسرعة من اليسار.",
-      "يجب أن أتوقف أنا أيضاً ولا أتجاوزها إلا بعد التأكد من خلو المعبر تماماً.",
-      "أستخدم البوق لأعرف لماذا توقفت.",
-      "أستمر بالقيادة بحذر دون توقف."
+      "أنا، لأنني بدأت بالحركة.",
+      "المرور الموجود على الطريق العام (قاعدة الخروج/Utfartsregeln).",
+      "من يعطي إشارة أولاً.",
+      "قاعدة اليمين تطبق هنا."
     ],
     optionsSv: [
-      "Jag kör om den snabbt till vänster.",
-      "Jag måste också stanna och får inte köra om förrän jag vet att det är fritt.",
-      "Jag tutar för att fråga varför den stannade.",
-      "Jag fortsätter köra försiktigt utan att stanna."
+      "Jag, eftersom jag började köra.",
+      "Trafiken på gatan (utfartsregeln).",
+      "Den som blinkar först.",
+      "Högerregeln gäller."
     ],
     correctIdx: 1
   },
   {
     id: "sc25",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="40" width="200" height="70" fill="#455a64"/>
-      <rect x="40" y="85" width="40" height="20" rx="3" fill="#2196f3"/>
-      <rect x="45" y="82" width="10" height="5" fill="#ff9800"/>
+      <rect width="200" height="150" fill="#81c784"/>
+      <rect x="60" y="0" width="80" height="150" fill="#455a64"/>
+      <!-- One Way Sign -->
+      <g transform="translate(150, 60)">
+        <rect width="20" height="30" fill="#2196f3"/>
+        <path d="M 10 5 L 10 25 M 5 10 L 10 5 L 15 10" stroke="#fff" stroke-width="2" fill="none"/>
+      </g>
+      <!-- Your Car (positioning for left turn) -->
+      <g transform="translate(65, 110)">
+        <rect width="24" height="28" rx="4" fill="#2196f3"/>
+        <rect x="2" y="2" width="5" height="5" fill="#ff9800">
+          <animate attributeName="opacity" values="1;0;1" dur="0.6s" repeatCount="indefinite"/>
+        </rect>
+      </g>
     </svg>`,
-    questionAr: "تريد ركن سيارتك في شارع منحدر. كيف يجب أن توجه العجلات الأمامية (للأمان)؟",
-    questionSv: "Du ska parkera i en nedförsbacke. Hur ska du vrida framhjulen (för säkerhet)?",
+    questionAr: "أنت في شارع ذو اتجاه واحد (Enkelriktad) وتريد الانعطاف يساراً في التقاطع القادم. كيف تتموضع؟",
+    questionSv: "Du kör på en enkelriktad gata och ska svänga vänster. Var placerar du dig?",
     optionsAr: [
-      "باتجاه رصيف المشاة (يميناً).",
-      "بعيداً عن الرصيف (يساراً).",
-      "للأمام مباشرة.",
-      "لا يهم، طالما سحبت مكابح اليد."
+      "في منتصف الطريق.",
+      "إلى أقصى جهة اليمين.",
+      "إلى أقصى جهة اليسار.",
+      "لا يهم التموضع في الشوارع ذات الاتجاه الواحد."
     ],
     optionsSv: [
-      "Mot trottoarkanten (höger).",
-      "Bort från trottoarkanten (vänster).",
-      "Rakt fram.",
-      "Det spelar ingen roll om handbromsen är dragen."
+      "I mitten av vägen.",
+      "Längst till höger.",
+      "Längst till vänster.",
+      "Placeringen spelar ingen roll på enkelriktade gator."
     ],
-    correctIdx: 0
+    correctIdx: 2
   },
   {
     id: "sc26",
