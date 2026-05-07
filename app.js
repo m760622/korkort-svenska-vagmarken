@@ -212,7 +212,7 @@ function toast(msg, ms = 2200) {
 // ===== TTS — نظام نطق محسّن =====
 const TTS_KEY = 'korkort_tts_v1';
 const ttsSettings = Object.assign(
-  { rate: 0.85, pitch: 1.0, voiceSv: '', voiceAr: '' },
+  { rate: 1.0, pitch: 1.0, voiceSv: '', voiceAr: '' },
   (() => { try { return JSON.parse(localStorage.getItem(TTS_KEY)) || {}; } catch { return {}; } })()
 );
 function saveTtsSettings() { localStorage.setItem(TTS_KEY, JSON.stringify(ttsSettings)); }
@@ -250,10 +250,12 @@ function scoreVoice(v, prefLangs) {
   else if (startsIdx >= 0) s += 500 - startsIdx * 20;
   else return -1;
   const name = (v.name || '').toLowerCase();
-  if (/premium|enhanced|neural|natural|hd|wavenet/.test(name)) s += 200;
-  if (/google|microsoft|apple/.test(name)) s += 100;
+  // Priority for high-quality/neural voices
+  if (/premium|enhanced|neural|natural|hd|wavenet|online/.test(name)) s += 300;
+  if (/siri|alva|oskar|klara/.test(name)) s += 400; // Best Swedish voices on Apple/Google
+  if (/google|microsoft|apple/.test(name)) s += 150;
   if (v.localService) s += 50;
-  if (/compact|eloquence|fred|albert/.test(name)) s -= 80;
+  if (/compact|eloquence|fred|albert/.test(name)) s -= 100;
   if (v.default) s += 10;
   return s;
 }
