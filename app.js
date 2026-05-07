@@ -728,8 +728,11 @@ $('quiz-start').addEventListener('click', () => startQuiz(false));
 $('quiz-mock-start').addEventListener('click', () => startQuiz(true));
 
 function renderQuizQuestion() {
-  if (quiz.type === 'scenarios') {
-    const sc = quiz.items[quiz.idx];
+  const item = quiz.items[quiz.idx];
+  const isScenario = !!item.img;
+
+  if (isScenario) {
+    const sc = item;
     const qText = quiz.lang === 'ar' ? sc.questionAr : sc.questionSv;
     const opts = quiz.lang === 'ar' ? sc.optionsAr : sc.optionsSv;
     
