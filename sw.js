@@ -1,9 +1,10 @@
-const CACHE_NAME = 'korkort-v4';
+const CACHE_NAME = 'korkort-v6';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './signs-data.js',
+  './scenarios-data.js',
   './app.js',
   './manifest.json',
   './icons/icon.svg',

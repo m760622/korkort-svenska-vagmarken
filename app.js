@@ -16,7 +16,7 @@ const I18N = {
     'tab.browse': 'تصفّح', 'tab.dashboard': 'إنجازاتي', 'tab.quiz': 'اختبار', 'tab.flip': 'قلب البطاقات', 'tab.games': 'الألعاب',
     'dash.streak': 'أيام متتالية', 'dash.xp': 'نقاط (XP)', 'dash.known': 'تم الحفظ', 'dash.progress': 'مستوى التقدم في الفئات', 'dash.badges': 'الأوسمة (Badges)', 'dash.mistakes': 'تحليل نقاط الضعف (أخطائي)',
     'quiz.type': 'نوع الاختبار', 'quiz.type.signs': 'العلامات المرورية', 'quiz.type.scenarios': 'مواقف مرورية (سيناريوهات)', 'quiz.type.mistakes': 'مراجعة أخطائي',
-    'quiz.mock.title': '🏆 محاكي الاختبار الشامل', 'quiz.mock.pass': '🎉 مبروك! لقد نجحت في الاختبار', 'quiz.mock.fail': '❌ للأسف لم تنجح، حاول مرة أخرى',
+    'quiz.mock.title': '🏆 محاكي الاختبار الشامل (70 سؤال)', 'quiz.mock.pass': '🎉 مبروك! لقد نجحت في الاختبار', 'quiz.mock.fail': '❌ للأسف لم تنجح، حاول مرة أخرى',
     'games.title': '🕹️ ألعاب التحدي', 'game.memory': 'لعبة الذاكرة', 'game.memory.desc': 'ابحث عن أزواج العلامات المتطابقة',
     'game.time': 'سباق الزمن', 'game.time.desc': 'أجب بأسرع ما يمكن خلال 60 ثانية', 'game.time.intro': 'أجب بأسرع ما يمكن خلال 60 ثانية. (+2 ثانية للصح، -5 للخطأ)', 'time.done': 'انتهى الوقت!',
     'game.match': 'التوصيل', 'game.match.desc': 'اضغط على الاسم ثم على العلامة المطابقة', 'game.match.intro': 'اضغط على الاسم ثم على العلامة التي تطابقه.', 'match.done': 'عمل رائع!',
@@ -31,7 +31,7 @@ const I18N = {
     'label.category': 'الفئة:',
     'quiz.title': '🎯 اختيار من متعدد', 'quiz.intro': 'شاهد العلامة واختر المعنى الصحيح من بين 4 خيارات.',
     'quiz.count': 'عدد الأسئلة:', 'quiz.optsLang': 'لغة الخيارات:',
-    'btn.start': 'ابدأ ▶', 'btn.next': 'التالي ←', 'btn.prev': '← السابق', 'btn.playAgain': 'العب مرة أخرى', 'btn.close': 'إغلاق',
+    'btn.start': 'ابدأ ▶', 'quiz.btn.start': 'ابدأ الاختبار ▶', 'btn.next': 'التالي ←', 'btn.prev': '← السابق', 'btn.playAgain': 'العب مرة أخرى', 'btn.close': 'إغلاق',
     'btn.speakSv': '🔊 سويدي', 'btn.speakAr': '🔊 عربي',
     'game.over': '🎉 انتهت اللعبة',
     'flip.title': '🔄 قلب البطاقات', 'flip.intro': 'شاهد العلامة، فكّر بالمعنى، ثم اقلب البطاقة للتأكد. حدد ما تعرفه وما تحتاج لمراجعته.',
@@ -60,7 +60,7 @@ const I18N = {
     'tab.browse': 'Bläddra', 'tab.dashboard': 'Mina Framsteg', 'tab.quiz': 'Quiz', 'tab.flip': 'Vändkort', 'tab.games': 'Spel',
     'dash.streak': 'Dagar i rad', 'dash.xp': 'Erfarenhet (XP)', 'dash.known': 'Inlärda', 'dash.progress': 'Framsteg per Kategori', 'dash.badges': 'Utmärkelser', 'dash.mistakes': 'Analys av misstag',
     'quiz.type': 'Typ av Quiz', 'quiz.type.signs': 'Vägmärken', 'quiz.type.scenarios': 'Trafiksituationer', 'quiz.type.mistakes': 'Repetera mina fel',
-    'quiz.mock.title': '🏆 Fullständigt Teoriprov', 'quiz.mock.pass': '🎉 Grattis! Du klarade provet', 'quiz.mock.fail': '❌ Tyvärr, du blev inte godkänd',
+    'quiz.mock.title': '🏆 Fullständigt Teoriprov (70 frågor)', 'quiz.mock.pass': '🎉 Grattis! Du klarade provet', 'quiz.mock.fail': '❌ Tyvärr, du blev inte godkänd',
     'games.title': '🕹️ Utmaningsspel', 'game.memory': 'Memory', 'game.memory.desc': 'Hitta matchande par',
     'game.time': 'Tidsutmaning', 'game.time.desc': 'Svara så snabbt du kan på 60 sekunder', 'game.time.intro': 'Svara så snabbt du kan på 60 sekunder. (+2 sek för rätt, -5 för fel)', 'time.done': 'Tiden är slut!',
     'game.match': 'Matcha', 'game.match.desc': 'Klicka på namnet och sedan på rätt märke', 'game.match.intro': 'Klicka på ett namn och sedan på rätt vägmärke.', 'match.done': 'Bra jobbat!',
@@ -75,7 +75,7 @@ const I18N = {
     'label.category': 'Kategori:',
     'quiz.title': '🎯 Flervalsfrågor', 'quiz.intro': 'Titta på skylten och välj rätt betydelse av 4 alternativ.',
     'quiz.count': 'Antal frågor:', 'quiz.optsLang': 'Alternativens språk:',
-    'btn.start': 'Starta ▶', 'btn.next': 'Nästa →', 'btn.prev': '← Föregående', 'btn.playAgain': 'Spela igen', 'btn.close': 'Stäng',
+    'btn.start': 'Starta ▶', 'quiz.btn.start': 'Starta Quiz ▶', 'btn.next': 'Nästa →', 'btn.prev': '← Föregående', 'btn.playAgain': 'Spela igen', 'btn.close': 'Stäng',
     'btn.speakSv': '🔊 Svenska', 'btn.speakAr': '🔊 Arabiska',
     'game.over': '🎉 Spelet är slut',
     'flip.title': '🔄 Vändkort', 'flip.intro': 'Titta på skylten, tänk på betydelsen och vänd kortet. Markera vad du kan och vad du behöver repetera.',
@@ -671,36 +671,60 @@ const quiz = {
 };
 
 function startQuiz(isMock = false) {
-  const quizType = $('quiz-type').value;
+  const quizTypeEl = $('quiz-type');
+  const quizType = quizTypeEl ? quizTypeEl.value : 'signs';
+  
   quiz.isMock = isMock;
   quiz.lang = state.lang;
   quiz.type = isMock ? 'signs' : quizType;
   
   if (isMock) {
+    if (typeof SIGNS === 'undefined' || typeof SCENARIOS === 'undefined') {
+      toast(state.lang === 'ar' ? 'جاري تحميل البيانات... حاول ثانية' : 'Laddar data... försök igen');
+      return;
+    }
     // Select 55 random signs and 15 scenarios (or all if fewer)
     const signPool = sample(SIGNS, Math.min(55, SIGNS.length));
     const scenarioPool = sample(SCENARIOS, Math.min(15, SCENARIOS.length));
     quiz.items = shuffle([...signPool, ...scenarioPool]);
     quiz.timeLeft = 50 * 60;
-    $('quiz-timer').classList.remove('hidden');
+    const timerEl = $('quiz-timer');
+    if (timerEl) timerEl.classList.remove('hidden');
     startTimer();
   } else if (quizType === 'mistakes') {
     const mistakeIds = Object.keys(progress.mistakes);
-    if (mistakeIds.length === 0) { toast(state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً' : 'Inga fel sparade än'); return; }
+    if (mistakeIds.length === 0) { 
+      toast(state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً' : 'Inga fel sparade än'); 
+      return; 
+    }
     quiz.items = shuffle(SIGNS.filter(s => progress.mistakes[s.id])).slice(0, 30);
-    $('quiz-timer').classList.add('hidden');
+    const timerEl = $('quiz-timer');
+    if (timerEl) timerEl.classList.add('hidden');
   } else if (quizType === 'scenarios') {
-    if (typeof SCENARIOS === 'undefined' || SCENARIOS.length === 0) { toast(T('msg.tooFew')); return; }
-    const count = parseInt($('quiz-count').value, 10);
+    if (typeof SCENARIOS === 'undefined' || SCENARIOS.length === 0) { 
+      toast(T('msg.tooFew')); 
+      return; 
+    }
+    const countEl = $('quiz-count');
+    const count = countEl ? parseInt(countEl.value, 10) : 15;
     quiz.items = shuffle(SCENARIOS).slice(0, Math.min(count, SCENARIOS.length));
-    $('quiz-timer').classList.add('hidden');
+    const timerEl = $('quiz-timer');
+    if (timerEl) timerEl.classList.add('hidden');
   } else {
-    const cat = $('quiz-category').value;
-    const count = parseInt($('quiz-count').value, 10);
+    const catEl = $('quiz-category');
+    const cat = catEl ? catEl.value : '';
+    const countEl = $('quiz-count');
+    const count = countEl ? parseInt(countEl.value, 10) : 15;
     const pool = signsIn(cat);
     if (pool.length < 4) { toast(T('msg.tooFew')); return; }
     quiz.items = sample(pool, Math.min(count, pool.length));
-    $('quiz-timer').classList.add('hidden');
+    const timerEl = $('quiz-timer');
+    if (timerEl) timerEl.classList.add('hidden');
+  }
+
+  if (!quiz.items || quiz.items.length === 0) {
+    toast(T('msg.tooFew'));
+    return;
   }
 
   quiz.idx = 0; quiz.correct = 0; quiz.wrong = 0; quiz.wrongPool = [];
@@ -737,7 +761,11 @@ function renderQuizQuestion() {
     const opts = quiz.lang === 'ar' ? sc.optionsAr : sc.optionsSv;
     
     $('quiz-sign').className = 'quiz-sign scenario-img';
-    $('quiz-sign').innerHTML = sc.img;
+    if (sc.img.trim().startsWith('<svg')) {
+      $('quiz-sign').innerHTML = sc.img;
+    } else {
+      $('quiz-sign').innerHTML = `<img src="${sc.img}" class="scenario-img-actual" style="width:100%; height:100%; object-fit:cover; display:block;">`;
+    }
     
     $('quiz-question-text').textContent = qText;
     $('quiz-question-text').classList.remove('hidden');
