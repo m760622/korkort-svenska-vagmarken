@@ -14,8 +14,9 @@ const I18N = {
   ar: {
     'app.title': 'علامات الطرق السويدية — Svenska Vägmärken',
     'tab.browse': 'تصفّح', 'tab.dashboard': 'إنجازاتي', 'tab.quiz': 'اختبار', 'tab.flip': 'قلب البطاقات', 'tab.games': 'الألعاب',
-    'dash.streak': 'أيام متتالية', 'dash.xp': 'نقاط (XP)', 'dash.known': 'تم الحفظ', 'dash.progress': 'مستوى التقدم في الفئات', 'dash.badges': 'الأوسمة (Badges)',
-    'quiz.type': 'نوع الاختبار', 'quiz.type.signs': 'العلامات المرورية', 'quiz.type.scenarios': 'مواقف مرورية (سيناريوهات)',
+    'dash.streak': 'أيام متتالية', 'dash.xp': 'نقاط (XP)', 'dash.known': 'تم الحفظ', 'dash.progress': 'مستوى التقدم في الفئات', 'dash.badges': 'الأوسمة (Badges)', 'dash.mistakes': 'تحليل نقاط الضعف (أخطائي)',
+    'quiz.type': 'نوع الاختبار', 'quiz.type.signs': 'العلامات المرورية', 'quiz.type.scenarios': 'مواقف مرورية (سيناريوهات)', 'quiz.type.mistakes': 'مراجعة أخطائي',
+    'quiz.mock.title': '🏆 محاكي الاختبار الشامل', 'quiz.mock.pass': '🎉 مبروك! لقد نجحت في الاختبار', 'quiz.mock.fail': '❌ للأسف لم تنجح، حاول مرة أخرى',
     'games.title': '🕹️ ألعاب التحدي', 'game.memory': 'لعبة الذاكرة', 'game.memory.desc': 'ابحث عن أزواج العلامات المتطابقة',
     'game.time': 'سباق الزمن', 'game.time.desc': 'أجب بأسرع ما يمكن خلال 60 ثانية', 'game.time.intro': 'أجب بأسرع ما يمكن خلال 60 ثانية. (+2 ثانية للصح، -5 للخطأ)', 'time.done': 'انتهى الوقت!',
     'game.match': 'التوصيل', 'game.match.desc': 'اضغط على الاسم ثم على العلامة المطابقة', 'game.match.intro': 'اضغط على الاسم ثم على العلامة التي تطابقه.', 'match.done': 'عمل رائع!',
@@ -57,8 +58,9 @@ const I18N = {
   sv: {
     'app.title': 'Svenska Vägmärken — علامات الطرق السويدية',
     'tab.browse': 'Bläddra', 'tab.dashboard': 'Mina Framsteg', 'tab.quiz': 'Quiz', 'tab.flip': 'Vändkort', 'tab.games': 'Spel',
-    'dash.streak': 'Dagar i rad', 'dash.xp': 'Erfarenhet (XP)', 'dash.known': 'Inlärda', 'dash.progress': 'Framsteg per Kategori', 'dash.badges': 'Utmärkelser',
-    'quiz.type': 'Typ av Quiz', 'quiz.type.signs': 'Vägmärken', 'quiz.type.scenarios': 'Trafiksituationer',
+    'dash.streak': 'Dagar i rad', 'dash.xp': 'Erfarenhet (XP)', 'dash.known': 'Inlärda', 'dash.progress': 'Framsteg per Kategori', 'dash.badges': 'Utmärkelser', 'dash.mistakes': 'Analys av misstag',
+    'quiz.type': 'Typ av Quiz', 'quiz.type.signs': 'Vägmärken', 'quiz.type.scenarios': 'Trafiksituationer', 'quiz.type.mistakes': 'Repetera mina fel',
+    'quiz.mock.title': '🏆 Fullständigt Teoriprov', 'quiz.mock.pass': '🎉 Grattis! Du klarade provet', 'quiz.mock.fail': '❌ Tyvärr, du blev inte godkänd',
     'games.title': '🕹️ Utmaningsspel', 'game.memory': 'Memory', 'game.memory.desc': 'Hitta matchande par',
     'game.time': 'Tidsutmaning', 'game.time.desc': 'Svara så snabbt du kan på 60 sekunder', 'game.time.intro': 'Svara så snabbt du kan på 60 sekunder. (+2 sek för rätt, -5 för fel)', 'time.done': 'Tiden är slut!',
     'game.match': 'Matcha', 'game.match.desc': 'Klicka på namnet och sedan på rätt märke', 'game.match.intro': 'Klicka på ett namn och sedan på rätt vägmärke.', 'match.done': 'Bra jobbat!',
@@ -138,7 +140,7 @@ function applyLang() {
 }
 
 const STORAGE_KEY = 'korkort_progress_v1';
-const defaultProgress = { known: {}, review: {}, stats: { xp: 0, streak: 0, lastLogin: '', badges: [] } };
+const defaultProgress = { known: {}, review: {}, mistakes: {}, stats: { xp: 0, streak: 0, lastLogin: '', badges: [] } };
 let progress = loadProgress();
 
 function loadProgress() {
@@ -147,6 +149,7 @@ function loadProgress() {
     if (!data) return JSON.parse(JSON.stringify(defaultProgress));
     if (!data.stats) data.stats = { xp: 0, streak: 0, lastLogin: '', badges: [] };
     if (!data.stats.badges) data.stats.badges = [];
+    if (!data.mistakes) data.mistakes = {};
     return data;
   } catch { return JSON.parse(JSON.stringify(defaultProgress)); }
 }
@@ -448,6 +451,20 @@ function renderDashboard() {
       <div class="badge-name">${state.lang === 'ar' ? b.nameAr : b.nameSv}</div>
     </div>
   `).join('');
+
+  // Mistakes analysis
+  const mistakeIds = Object.keys(progress.mistakes);
+  if (mistakeIds.length === 0) {
+    $('dash-mistakes').innerHTML = `<p style="color:var(--text-soft); width:100%; text-align:center;">${state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً. استمر في العمل الرائع!' : 'Inga fel sparade än. Bra jobbat!'}</p>`;
+  } else {
+    $('dash-mistakes').innerHTML = mistakeIds.slice(0, 12).map(id => {
+      const s = SIGNS.find(x => x.id === id);
+      if (!s) return '';
+      return `<div class="mistake-sign-thumb" onclick="openModal('${s.id}')" style="width:50px; height:50px; cursor:pointer; background:var(--surface-2); border-radius:8px; padding:5px; border:1px solid var(--border);">
+        <img src="assets/signs/all/${s.id}.png" style="width:100%; height:100%; object-fit:contain;" alt="${s.id}">
+      </div>`;
+    }).join('') + (mistakeIds.length > 12 ? `<div style="display:flex; align-items:center; justify-content:center; padding:10px; color:var(--primary); font-weight:bold;">+${mistakeIds.length - 12}</div>` : '');
+  }
 }
 
 // ===== BROWSE =====
@@ -647,30 +664,68 @@ $('theme-toggle').addEventListener('click', () => {
 });
 
 // ===== QUIZ — Multiple Choice =====
-const quiz = { items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', wrongPool: [], type: 'signs' };
+const quiz = { 
+  items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', 
+  wrongPool: [], type: 'signs', isMock: false, 
+  timerInterval: null, timeLeft: 3000 // 50 mins in seconds
+};
 
-$('quiz-start').addEventListener('click', () => {
-  const cat = $('quiz-category').value;
-  const count = parseInt($('quiz-count').value, 10);
-  const quizType = $('quiz-type') ? $('quiz-type').value : 'signs';
+function startQuiz(isMock = false) {
+  const quizType = $('quiz-type').value;
+  quiz.isMock = isMock;
   quiz.lang = state.lang;
-  quiz.type = quizType;
+  quiz.type = isMock ? 'signs' : quizType;
   
-  if (quizType === 'scenarios') {
+  if (isMock) {
+    // Select 55 random signs and 15 scenarios (or all if fewer)
+    const signPool = sample(SIGNS, Math.min(55, SIGNS.length));
+    const scenarioPool = sample(SCENARIOS, Math.min(15, SCENARIOS.length));
+    quiz.items = shuffle([...signPool, ...scenarioPool]);
+    quiz.timeLeft = 50 * 60;
+    $('quiz-timer').classList.remove('hidden');
+    startTimer();
+  } else if (quizType === 'mistakes') {
+    const mistakeIds = Object.keys(progress.mistakes);
+    if (mistakeIds.length === 0) { toast(state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً' : 'Inga fel sparade än'); return; }
+    quiz.items = shuffle(SIGNS.filter(s => progress.mistakes[s.id])).slice(0, 30);
+    $('quiz-timer').classList.add('hidden');
+  } else if (quizType === 'scenarios') {
     if (typeof SCENARIOS === 'undefined' || SCENARIOS.length === 0) { toast(T('msg.tooFew')); return; }
+    const count = parseInt($('quiz-count').value, 10);
     quiz.items = shuffle(SCENARIOS).slice(0, Math.min(count, SCENARIOS.length));
+    $('quiz-timer').classList.add('hidden');
   } else {
+    const cat = $('quiz-category').value;
+    const count = parseInt($('quiz-count').value, 10);
     const pool = signsIn(cat);
     if (pool.length < 4) { toast(T('msg.tooFew')); return; }
     quiz.items = sample(pool, Math.min(count, pool.length));
+    $('quiz-timer').classList.add('hidden');
   }
-  
+
   quiz.idx = 0; quiz.correct = 0; quiz.wrong = 0; quiz.wrongPool = [];
   $('quiz-setup').classList.add('hidden');
   $('quiz-game').classList.remove('hidden');
   $('quiz-result').classList.add('hidden');
   renderQuizQuestion();
-});
+}
+
+function startTimer() {
+  if (quiz.timerInterval) clearInterval(quiz.timerInterval);
+  quiz.timerInterval = setInterval(() => {
+    quiz.timeLeft--;
+    const m = Math.floor(quiz.timeLeft / 60);
+    const s = quiz.timeLeft % 60;
+    $('timer-val').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    if (quiz.timeLeft <= 0) {
+      clearInterval(quiz.timerInterval);
+      finishQuiz();
+    }
+  }, 1000);
+}
+
+$('quiz-start').addEventListener('click', () => startQuiz(false));
+$('quiz-mock-start').addEventListener('click', () => startQuiz(true));
 
 function renderQuizQuestion() {
   if (quiz.type === 'scenarios') {
@@ -732,13 +787,16 @@ function handleQuizAnswerScenario(btn, sc) {
   });
   if (correct) {
     quiz.correct++;
+    delete progress.mistakes[sc.id]; // Remove from mistakes if correct now
     $('quiz-correct').textContent = quiz.correct;
     speak(quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE');
   } else {
     quiz.wrong++;
     quiz.wrongPool.push(sc);
+    progress.mistakes[sc.id] = true; // Save mistake
     $('quiz-wrong').textContent = quiz.wrong;
   }
+  saveProgress();
   $('quiz-next').classList.remove('hidden');
 }
 
@@ -752,13 +810,16 @@ function handleQuizAnswer(btn, sign) {
   });
   if (correct) {
     quiz.correct++;
+    delete progress.mistakes[sign.id]; // Remove from mistakes if correct now
     $('quiz-correct').textContent = quiz.correct;
     speak(quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE');
   } else {
     quiz.wrong++;
     quiz.wrongPool.push(sign);
+    progress.mistakes[sign.id] = true; // Save mistake
     $('quiz-wrong').textContent = quiz.wrong;
   }
+  saveProgress();
   $('quiz-next').classList.remove('hidden');
 }
 
@@ -788,13 +849,34 @@ $('quiz-next').addEventListener('click', () => {
 });
 
 function finishQuiz() {
+  if (quiz.timerInterval) clearInterval(quiz.timerInterval);
   if (quiz.correct > 0) addXP(quiz.correct * 10);
+  
   $('quiz-game').classList.add('hidden');
   $('quiz-result').classList.remove('hidden');
+  
   const total = quiz.correct + quiz.wrong;
   const pct = total ? Math.round((quiz.correct / total) * 100) : 0;
+  
+  if (quiz.isMock) {
+    const passed = quiz.correct >= 56; // 80% pass mark for 70 questions
+    $('quiz-result-title').textContent = passed ? T('quiz.mock.pass') : T('quiz.mock.fail');
+    $('quiz-result-title').style.color = passed ? 'var(--success)' : 'var(--danger)';
+  } else {
+    $('quiz-result-title').textContent = T('game.over');
+    $('quiz-result-title').style.color = 'inherit';
+  }
+
   const lbl = state.lang === 'ar' ? 'النسبة' : 'Resultat';
   $('quiz-score-final').innerHTML = `${quiz.correct} ✓ / ${total} <br><span style="font-size:18px; color:var(--text-soft)">${lbl}: ${pct}%</span>`;
+  
+  if (quiz.isMock && quiz.correct < 56) {
+    $('quiz-result-meta').innerHTML = state.lang === 'ar' 
+      ? `<p style="color:var(--text-soft)">درجة النجاح هي 56/70. لا تيأس، استمر في التدريب!</p>`
+      : `<p style="color:var(--text-soft)">Gränsen för godkänt är 56/70. Ge inte upp, fortsätt öva!</p>`;
+  } else {
+    $('quiz-result-meta').innerHTML = '';
+  }
 }
 
 $('quiz-restart').addEventListener('click', () => {

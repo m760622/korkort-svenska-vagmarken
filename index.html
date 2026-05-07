@@ -102,10 +102,12 @@
         <h2 data-i18n="dash.progress">مستوى التقدم في الفئات</h2>
       </div>
       <div id="dash-categories" class="dash-categories"></div>
-      <div class="section-title" style="margin-top: 30px;">
-        <h2 data-i18n="dash.badges">الأوسمة (Badges)</h2>
-      </div>
       <div id="dash-badges" class="dash-badges"></div>
+      
+      <div class="section-title" style="margin-top: 30px;">
+        <h2 data-i18n="dash.mistakes">تحليل نقاط الضعف (أخطائي)</h2>
+      </div>
+      <div id="dash-mistakes" class="dash-mistakes card" style="display:flex; flex-wrap:wrap; gap:10px; padding:15px;"></div>
     </section>
 
     <!-- BROWSE -->
@@ -131,6 +133,7 @@
           <select id="quiz-type">
             <option value="signs" data-i18n="quiz.type.signs">العلامات المرورية</option>
             <option value="scenarios" data-i18n="quiz.type.scenarios">المواقف المرورية (سيناريوهات)</option>
+            <option value="mistakes" id="opt-mistakes" data-i18n="quiz.type.mistakes">مراجعة أخطائي</option>
           </select>
         </div>
 
@@ -141,16 +144,23 @@
           </label>
         </div>
         
-        <label><span data-i18n="quiz.count">عدد الأسئلة:</span>
-          <select id="quiz-count">
-            <option>10</option><option>20</option><option selected>15</option><option>30</option>
-          </select>
-        </label>
-        <button id="quiz-start" class="btn btn-primary" data-i18n="btn.start">ابدأ ▶</button>
+        <div class="control-group" id="quiz-count-wrapper">
+          <label><span data-i18n="quiz.count">عدد الأسئلة:</span>
+            <select id="quiz-count">
+              <option>10</option><option>20</option><option selected>15</option><option>30</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="quiz-actions" style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
+          <button id="quiz-start" class="btn btn-primary" data-i18n="btn.start">ابدأ الاختبار ▶</button>
+          <button id="quiz-mock-start" class="btn btn-outline" style="border-color:var(--warning); color:var(--warning)">🏆 محاكي الاختبار الشامل (70 سؤال)</button>
+        </div>
       </div>
 
       <div id="quiz-game" class="game hidden">
         <div class="game-header">
+          <div id="quiz-timer" class="quiz-timer hidden" style="font-family:monospace; font-size:1.2rem; color:var(--danger); font-weight:bold; margin-bottom:10px;">⏱️ <span id="timer-val">50:00</span></div>
           <div class="progress"><div id="quiz-progress" class="progress-bar"></div></div>
           <div class="score">
             <span>✓ <b id="quiz-correct">0</b></span>
@@ -165,8 +175,9 @@
       </div>
 
       <div id="quiz-result" class="game-result hidden">
-        <h2 data-i18n="game.over">🎉 انتهت اللعبة</h2>
+        <h2 id="quiz-result-title" data-i18n="game.over">🎉 انتهت اللعبة</h2>
         <div id="quiz-score-final" class="big-score"></div>
+        <div id="quiz-result-meta" style="margin-bottom:20px;"></div>
         <button id="quiz-restart" class="btn btn-primary" data-i18n="btn.playAgain">العب مرة أخرى</button>
       </div>
     </section>
