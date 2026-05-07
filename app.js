@@ -774,8 +774,12 @@ function renderQuizQuestion() {
     });
   }
 
+  // Update counters and progress bar
+  $('quiz-correct').textContent = quiz.correct;
+  $('quiz-wrong').textContent = quiz.wrong;
   $('quiz-position').textContent = `${quiz.idx + 1}/${quiz.items.length}`;
-  $('quiz-progress').style.width = `${(quiz.idx / quiz.items.length) * 100}%`;
+  const pct = ((quiz.idx + 1) / quiz.items.length) * 100;
+  $('quiz-progress').style.width = pct + '%';
   $('quiz-next').classList.add('hidden');
 }
 
