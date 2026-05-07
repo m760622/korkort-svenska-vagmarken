@@ -429,7 +429,68 @@ const SCENARIOS = [
   {
     id: "sc13",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rec  {
+      <rect width="200" height="150" fill="#bdbdbd"/>
+      <rect x="70" y="0" width="60" height="150" fill="#455a64"/>
+      <!-- Blue Car -->
+      <g transform="translate(85, 110)">
+        <rect width="30" height="30" rx="3" fill="#2196f3"/>
+      </g>
+      <!-- No Entry Sign -->
+      <g transform="translate(85, 20)">
+        <circle cx="15" cy="15" r="14" fill="#d32f2f"/>
+        <rect x="5" y="12" width="20" height="6" fill="#fff"/>
+      </g>
+    </svg>`,
+    questionAr: "ماذا تعني هذه العلامة الحمراء ذات الخط الأبيض الأفقي؟",
+    questionSv: "Vad betyder detta märke (röd cirkel med vitt horisontellt streck)?",
+    optionsAr: [
+      "ممنوع الوقوف.",
+      "ممنوع الدخول (اتجاه واحد معاكس).",
+      "ممنوع التوقف.",
+      "نهاية الطريق."
+    ],
+    optionsSv: [
+      "Förbud mot att parkera.",
+      "Förbud mot infart med fordon.",
+      "Förbud mot att stanna.",
+      "Vägen upphör."
+    ],
+    correctIdx: 1
+  },
+  {
+    id: "sc14",
+    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="150" fill="#81c784"/>
+      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
+      <!-- Double Solid Lines -->
+      <line x1="0" y1="73" x2="200" y2="73" stroke="#fff" stroke-width="1.5"/>
+      <line x1="0" y1="77" x2="200" y2="77" stroke="#fff" stroke-width="1.5"/>
+      <!-- Blue Car -->
+      <g transform="translate(30, 78)">
+        <rect width="32" height="18" rx="3" fill="#2196f3"/>
+      </g>
+      <!-- Red Car -->
+      <g transform="translate(100, 78)">
+        <rect width="32" height="18" rx="3" fill="#f44336"/>
+      </g>
+    </svg>`,
+    questionAr: "هل يسمح لك بتجاوز السيارة التي أمامك هنا؟",
+    questionSv: "Får du köra om bilen framför dig här?",
+    optionsAr: [
+      "نعم، إذا كانت تسير ببطء.",
+      "لا، لوجود خطين متصلين يمنعان التجاوز.",
+      "نعم، ولكن فقط في النهار.",
+      "نعم، إذا كان الطريق خالياً."
+    ],
+    optionsSv: [
+      "Ja, om den kör sakta.",
+      "Nej, de dubbla heldragna linjerna förbjuder omkörning.",
+      "Ja, men bara på dagen.",
+      "Ja, om vägen är fri."
+    ],
+    correctIdx: 1
+  },
+  {
     id: "sc15",
     img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
       <rect width="200" height="150" fill="#a5d6a7"/>
@@ -642,71 +703,6 @@ const SCENARIOS = [
       "Jag lämnar alltid företräده till bilen från vänster."
     ],
     correctIdx: 2
-  },    "أخفض سرعتي بشدة وأستعد للتوقف إذا لزم الأمر للتأكد من خلو الطريق.",
-      "لي الأولوية طالما لا توجد سيارة قريبة.",
-      "أتوقف تماماً لمدة 3 ثوانٍ دائماً."
-    ],
-    optionsSv: [
-      "Jag fortsätter köra sakta och tutar.",
-      "Jag sänker farten kraftigt och är beredd att stanna för att kontrollera trafiken.",
-      "Jag har företräde så länge ingen bil är nära.",
-      "Jag stannar alltid helt i 3 sekunder."
-    ],
-    correctIdx: 1
-  },
-  {
-    id: "sc19",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="30" width="200" height="90" fill="#455a64"/>
-      <rect x="20" y="40" width="30" height="15" fill="#fff" stroke="#000"/>
-      <text x="35" y="51" font-size="8" text-anchor="middle">17</text>
-      <rect x="60" y="40" width="30" height="15" fill="#fff" stroke="#000"/>
-      <text x="75" y="51" font-size="8" text-anchor="middle">19</text>
-      <rect x="120" y="80" width="30" height="16" rx="3" fill="#2196f3"/>
-    </svg>`,
-    questionAr: "اليوم هو تاريخ 17 من الشهر. أين يسمح لك بركن سيارتك في شارع يطبق نظام (الركن التاريخي - Datumparkering)؟",
-    questionSv: "Idag är det den 17:e i månaden. Var får du parkera på en gata med datumparkering?",
-    optionsAr: [
-      "على الجانب الذي يحتوي على أرقام منازل زوجية.",
-      "على الجانب الذي يحتوي على أرقام منازل فردية.",
-      "يمنع الركن تماماً في هذا التاريخ.",
-      "يمكن الركن على أي جانب."
-    ],
-    optionsSv: [
-      "På sidan med jämna husnummer.",
-      "På sidan med udda husnummer.",
-      "Parkering är helt förbjuden detta datum.",
-      "Man får parkera på valfri sida."
-    ],
-    correctIdx: 0
-  },
-  {
-    id: "sc20",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#a5d6a7"/>
-      <path d="M 0 60 Q 100 60 100 0 L 140 0 Q 140 100 200 100 L 200 140 L 0 140 Z" fill="#455a64"/>
-      <rect x="40" y="110" width="30" height="16" rx="3" fill="#2196f3"/>
-      <g transform="translate(150, 40) scale(0.6)">
-        <circle cx="25" cy="25" r="23" fill="#ffeb3b" stroke="#d32f2f" stroke-width="4"/>
-        <path d="M 10 25 L 40 25 M 30 15 L 40 25 L 30 35" stroke="#000" stroke-width="4" fill="none"/>
-      </g>
-    </svg>`,
-    questionAr: "أنت على وشك دخول طريق رئيسي عبر ممر تسارع. كيف تتصرف؟",
-    questionSv: "Du ska köra in på en huvudled via ett accelerationsfält. Hur agerar du?",
-    optionsAr: [
-      "أتوقف وأنتظر فجوة في المرور.",
-      "أزيد سرعتي لتناسب سرعة المرور وأندمج بسلاسة دون التسبب في إعاقة.",
-      "لي الأولوية، السيارات في الطريق الرئيسي يجب أن تفسح لي المجال.",
-      "أستخدم أضواء التنبيه (فلشر) وأدخل الطريق ببطء."
-    ],
-    optionsSv: [
-      "Jag stannar och väntar på en lucka.",
-      "Jag accelererar till trafikens fart och anpassar mig smidigt utan att störa.",
-      "Jag har företräde, bilarna på huvudleden måste lämna företräde.",
-      "Jag använder varningsblinkers och kör in långsamt."
-    ],
-    correctIdx: 1
   },
   {
     id: "sc21",

@@ -23,11 +23,43 @@
       </div>
     </div>
     <div class="header-actions">
+      <button id="changelog-btn" class="lang-btn" title="سجل التحديثات">📜</button>
       <button id="theme-toggle" class="lang-btn" aria-label="تبديل المظهر" title="تبديل المظهر">🌙</button>
       <button id="tts-settings-btn" class="lang-btn" data-i18n-aria="tts.settings" aria-label="إعدادات النطق" title="إعدادات النطق">🔊⚙️</button>
       <button id="lang-toggle" class="lang-btn" data-i18n-aria="lang.toggle" aria-label="تغيير اللغة">العربية / Svenska</button>
     </div>
   </header>
+
+  <!-- Changelog Modal -->
+  <div id="changelog-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" id="changelog-close">✕</button>
+      <h2 style="margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">📜 سجل التحديثات (Update Log)</h2>
+      <div id="changelog-body" class="changelog-body">
+        <div class="update-item">
+          <div class="update-header">
+            <span class="update-version">v1.2.0</span>
+            <span class="update-date">2026-05-08</span>
+          </div>
+          <ul>
+            <li><strong>رسومات واقعية:</strong> تحديث السيناريوهات 1-25 برسومات SVG تفصيلية.</li>
+            <li><strong>إصلاح العلامات:</strong> تصحيح اتجاهات الأسهم في علامات الإلزام.</li>
+            <li><strong>نظام الكاش:</strong> تحديث تلقائي للملفات لضمان وصول التحديثات فوراً.</li>
+          </ul>
+        </div>
+        <div class="update-item">
+          <div class="update-header">
+            <span class="update-version">v1.1.0</span>
+            <span class="update-date">2026-05-07</span>
+          </div>
+          <ul>
+            <li>إضافة نظام الألعاب (Arcade Mode).</li>
+            <li>تحسين الترجمة العربية والسويدية.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- TTS Settings Panel -->
   <div id="tts-panel" class="tts-panel hidden">

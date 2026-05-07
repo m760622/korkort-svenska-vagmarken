@@ -1342,6 +1342,17 @@ $('swipe-restart').addEventListener('click', () => {
   $('swipe-setup').classList.remove('hidden');
 });
 
+// ===== CHANGELOG MODAL =====
+$('changelog-btn').addEventListener('click', () => {
+  $('changelog-modal').classList.remove('hidden');
+});
+$('changelog-close').addEventListener('click', () => {
+  $('changelog-modal').classList.add('hidden');
+});
+$('changelog-modal').addEventListener('click', (e) => {
+  if (e.target === $('changelog-modal')) $('changelog-modal').classList.add('hidden');
+});
+
 // ===== TTS SETTINGS PANEL =====
 $('tts-settings-btn').addEventListener('click', () => {
   $('tts-panel').classList.remove('hidden');

@@ -1279,6 +1279,57 @@ html[lang="sv"] .quiz-setup select, html[lang="sv"] .game-setup select {
 .quiz-setup button.btn-primary:hover, .game-setup button.btn-primary:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 25px rgba(0, 114, 206, 0.4);
+}/* Changelog Styles */
+.changelog-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  text-align: right;
+  padding: 5px;
 }
 
+.update-item {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
 
+.update-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.update-version {
+  font-weight: 800;
+  color: var(--primary);
+  font-family: 'Inter', sans-serif;
+}
+
+.update-date {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+.update-item ul {
+  list-style: none;
+  padding: 0;
+}
+
+.update-item li {
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-right: 1.2rem;
+}
+
+.update-item li::before {
+  content: '•';
+  position: absolute;
+  right: 0;
+  color: var(--primary);
+  font-weight: bold;
+}
