@@ -400,25 +400,7 @@ const SCENARIOS = [
   },
   {
     id: "sc22",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#263238"/> <!-- Night -->
-      <rect x="0" y="70" width="200" height="50" fill="#212121"/>
-      
-      <!-- Car with Headlights -->
-      <g transform="translate(40, 85)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <path d="M 35 4 L 100 -10 L 100 28 L 35 14" fill="yellow" opacity="0.2"/>
-        <rect x="33" y="2" width="2" height="4" fill="#fff"/>
-        <rect x="33" y="12" width="2" height="4" fill="#fff"/>
-      </g>
-      
-      <!-- Pedestrian with Reflex -->
-      <g transform="translate(150, 80)">
-        <circle cx="5" cy="5" r="4" fill="#ffccbc"/>
-        <rect x="2" y="10" width="6" height="15" fill="#333"/>
-        <rect x="3" y="18" width="4" height="2" fill="#fff"><animate attributeName="opacity" values="1;0.2;1" dur="1s" repeatCount="indefinite"/></rect>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc22.png",
     questionAr: "أنت تقود في الليل. ما هي أهمية استخدام العاكس (Reflex) للمشاة؟",
     questionSv: "Du kör i mörker. Vad är viktigast med reflexer för fotgängare?",
     optionsAr: [
@@ -437,23 +419,7 @@ const SCENARIOS = [
   },
   {
     id: "sc23",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <path d="M 0 60 L 120 60 Q 150 60 180 100 L 200 100 L 200 140 L 0 140 Z" fill="#37474f"/>
-      <rect x="180" y="100" width="20" height="40" fill="#37474f"/>
-      <line x1="0" y1="120" x2="200" y2="120" stroke="#fff" stroke-dasharray="10,5"/>
-      
-      <!-- Car Merging (Yellow) -->
-      <g transform="translate(130, 80) rotate(30)">
-        <rect width="32" height="18" rx="4" fill="#ffeb3b"/>
-        <rect x="22" y="2" width="8" height="14" fill="#fff9c4" opacity="0.8"/>
-      </g>
-      
-      <!-- Your Car (Blue) -->
-      <g transform="translate(50, 125)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc23.png",
     questionAr: "أنت تقود في الطريق الرئيسي وسيارته تندمج من ممر التسارع. من المسؤول عن الاندماج الآمن؟",
     questionSv: "Du kör på huvudleden och en bil kör in från accelerationsfältet. Vem ansvarar för att det sker säkert?",
     optionsAr: [
@@ -472,25 +438,7 @@ const SCENARIOS = [
   },
   {
     id: "sc24",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="55" width="200" height="40" fill="#455a64"/>
-      <rect x="80" y="95" width="40" height="55" fill="#455a64"/>
-      <!-- Pavement edge -->
-      <rect x="80" y="95" width="2" height="55" fill="#9e9e9e"/>
-      <rect x="118" y="95" width="2" height="55" fill="#9e9e9e"/>
-      
-      <!-- Car exiting parking (Yellow) -->
-      <g transform="translate(88, 110)">
-        <rect width="24" height="32" rx="4" fill="#ffeb3b"/>
-        <rect x="2" y="5" width="20" height="8" fill="#fff9c4" opacity="0.8"/>
-      </g>
-      
-      <!-- Car on main road (Blue) -->
-      <g transform="translate(20, 67)">
-        <rect width="32" height="18" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc24.png",
     questionAr: "أنت تخرج من موقف سيارات (Parkering) وتدخل طريقاً عاماً. من له الأولوية؟",
     questionSv: "Du kör ut från en parkering till en gata. Vem har företräde?",
     optionsAr: [
@@ -509,25 +457,7 @@ const SCENARIOS = [
   },
   {
     id: "sc25",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="60" y="0" width="80" height="150" fill="#37474f"/>
-      <rect x="98" y="0" width="4" height="150" fill="#fff" stroke-dasharray="10,10"/>
-      
-      <!-- One Way Sign -->
-      <g transform="translate(150, 60)">
-        <rect width="20" height="30" fill="#1e88e5" rx="2"/>
-        <path d="M 10 5 L 10 25 M 5 10 L 10 5 L 15 10" stroke="#fff" stroke-width="2" fill="none"/>
-      </g>
-      
-      <!-- Your Car (positioning for left turn) -->
-      <g transform="translate(65, 110)">
-        <rect width="28" height="35" rx="5" fill="#1e88e5"/>
-        <rect x="2" y="4" width="24" height="10" fill="#e3f2fd" opacity="0.8"/>
-        <!-- Left indicator -->
-        <rect x="1" y="1" width="4" height="3" fill="#ff9800"><animate attributeName="opacity" values="1;0;1" dur="0.6s" repeatCount="indefinite"/></rect>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc25.png",
     questionAr: "أنت في شارع ذو اتجاه واحد (Enkelriktad) وتريد الانعطاف يساراً في التقاطع القادم. كيف تتموضع؟",
     questionSv: "Du kör på en enkelriktad gata och ska svänga vänster. Var placerar du dig?",
     optionsAr: [
@@ -546,30 +476,7 @@ const SCENARIOS = [
   },
   {
     id: "sc26",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#a5d6a7"/>
-      <rect x="0" y="60" width="200" height="50" fill="#37474f"/>
-      
-      <!-- Zebra Crossing -->
-      <g fill="#fff">
-        <rect x="100" y="60" width="10" height="50"/>
-        <rect x="115" y="60" width="10" height="50"/>
-        <rect x="130" y="60" width="10" height="50"/>
-      </g>
-      
-      <!-- Child Pedestrian -->
-      <g transform="translate(120, 35)">
-        <circle cx="5" cy="5" r="3" fill="#ffccbc"/>
-        <rect x="3" y="8" width="4" height="10" fill="#ff7043"/>
-        <line x1="4" y1="18" x2="4" y2="25" stroke="#000" stroke-width="1.5"/>
-      </g>
-      
-      <!-- Car -->
-      <g transform="translate(20, 75)">
-        <rect width="35" height="20" rx="4" fill="#1e88e5"/>
-        <rect x="25" y="2" width="8" height="16" fill="#e3f2fd" opacity="0.8"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc26.png",
     questionAr: "أنت تقترب من ممر مشاة وهناك طفل يستعد للعبور. ماذا تفعل؟",
     questionSv: "Du närmar dig ett övergångsställe och ett barn förbereder sig för att gå över. Vad gör du?",
     optionsAr: [
@@ -588,27 +495,7 @@ const SCENARIOS = [
   },
   {
     id: "sc27",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="40" fill="#455a64"/>
-      
-      <!-- Bus Stop -->
-      <rect x="120" y="45" width="60" height="15" fill="#fbc02d"/>
-      <text x="150" y="55" font-size="8" fill="#000" text-anchor="middle">BUS</text>
-      
-      <!-- Bus (Yellow) -->
-      <g transform="translate(130, 60)">
-        <rect width="55" height="22" rx="2" fill="#ffeb3b"/>
-        <!-- Left indicator -->
-        <rect x="1" y="1" width="4" height="4" fill="#ff9800"><animate attributeName="opacity" values="1;0;1" dur="0.6s" repeatCount="indefinite"/></rect>
-        <rect x="40" y="2" width="12" height="18" fill="#fff9c4" opacity="0.8"/>
-      </g>
-      
-      <!-- Your Car -->
-      <g transform="translate(40, 72)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc27.png",
     questionAr: "باص بدأ بإعطاء إشارة للانطلاق من الموقف في طريق سرعته 50 كم/ساعة. كيف تتصرف؟",
     questionSv: "En buss blinkar för att köra ut från en hållplats på en 50-väg. Vad gör du?",
     optionsAr: [
@@ -627,22 +514,7 @@ const SCENARIOS = [
   },
   {
     id: "sc28",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="85" y="0" width="30" height="150" fill="#455a64"/>
-      <rect x="0" y="85" width="200" height="30" fill="#455a64"/>
-      
-      <!-- Parked Car -->
-      <g transform="translate(125, 90)">
-        <rect width="32" height="18" rx="3" fill="#9e9e9e"/>
-        <rect x="22" y="2" width="8" height="14" fill="#cfd8dc" opacity="0.6"/>
-      </g>
-      
-      <!-- Measurement -->
-      <line x1="115" y1="125" x2="160" y2="125" stroke="#d32f2f" stroke-width="1.5"/>
-      <path d="M 115 120 L 115 130 M 160 120 L 160 130" stroke="#d32f2f" stroke-width="1.5"/>
-      <text x="137" y="140" font-size="10" fill="#d32f2f" text-anchor="middle" font-weight="bold">7 m</text>
-    </svg>`,
+    img: "assets/scenarios/sc28.png",
     questionAr: "هل يسمح بركن السيارة على بعد 7 أمتار من تقاطع طرق؟",
     questionSv: "Får man parkera 7 meter från en korsning?",
     optionsAr: [
