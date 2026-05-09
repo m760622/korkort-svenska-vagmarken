@@ -7,6 +7,8 @@ const state = {
   category: '',
   search: '',
   lang: localStorage.getItem(LANG_KEY) || 'ar',
+  autoplay: false,
+  autoplayIdx: -1,
 };
 
 // ===== I18N =====
@@ -52,6 +54,7 @@ const I18N = {
     'msg.noTtsSupport': 'متصفحك لا يدعم النطق الصوتي',
     'browse.signs': 'علامة',
     'browse.back': '← العودة لكل الفئات',
+    'browse.playAll': 'تشغيل الكل', 'browse.stop': 'إيقاف',
     'voicesAvail': (ar, sv) => `الأصوات المتاحة: عربي ${ar} • سويدي ${sv}`,
     'speakRight': 'إجابة صحيحة',
   },
@@ -96,6 +99,7 @@ const I18N = {
     'msg.noTtsSupport': 'Din webbläsare stöder inte tal',
     'browse.signs': 'skyltar',
     'browse.back': '← Tillbaka till alla kategorier',
+    'browse.playAll': 'Spela alla', 'browse.stop': 'Stoppa',
     'voicesAvail': (ar, sv) => `Tillgängliga röster: arabiska ${ar} • svenska ${sv}`,
     'speakRight': 'Rätt',
   },
@@ -480,6 +484,88 @@ function fillCategoryFilter(selectId, includeAll = true) {
   if (cur) sel.value = cur;
 }
 
+function switchCategory(offset) {
+  stopAutoplay();
+  const catIdx = CATEGORIES.findIndex(c => c.key === state.category);
+  if (catIdx === -1) return;
+  const nextIdx = (catIdx + offset + CATEGORIES.length) % CATEGORIES.length;
+  const nextCat = CATEGORIES[nextIdx];
+  state.category = nextCat.key;
+  const filter = $('category-filter');
+  if (filter) filter.value = nextCat.key;
+  renderBrowse();
+}
+
+function toggleAutoplay() {
+  if (state.autoplay) stopAutoplay();
+  else startAutoplay();
+}
+
+function startAutoplay() {
+  const search = state.search.trim().toLowerCase();
+  let filtered = signsIn(state.category);
+  if (search) {
+    filtered = filtered.filter(s =>
+      s.nameSv.toLowerCase().includes(search) ||
+      s.nameAr.includes(state.search.trim()) ||
+      s.id.toLowerCase().includes(search)
+    );
+  }
+  if (!filtered.length) return;
+  state.autoplay = true;
+  state.autoplayIdx = 0;
+  renderBrowse();
+  playSignAutoplay(filtered[state.autoplayIdx]);
+}
+
+function stopAutoplay() {
+  state.autoplay = false;
+  state.autoplayIdx = -1;
+  speechSynthesis.cancel();
+  renderBrowse();
+}
+
+function playSignAutoplay(s) {
+  if (!state.autoplay || !s) return;
+  
+  // Highlight card
+  $$('.sign-card').forEach(c => {
+    const active = c.dataset.id === s.id;
+    c.classList.toggle('autoplay-active', active);
+    if (active) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  const text = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
+  const voice = _voiceCache.sv || pickVoiceSync('sv-SE');
+  const u = new SpeechSynthesisUtterance(text);
+  if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'sv-SE'; }
+  u.rate = ttsSettings.rate;
+  u.pitch = ttsSettings.pitch;
+  
+  u.onend = () => {
+    if (!state.autoplay) return;
+    state.autoplayIdx++;
+    
+    const search = state.search.trim().toLowerCase();
+    let filtered = signsIn(state.category);
+    if (search) {
+      filtered = filtered.filter(x =>
+        x.nameSv.toLowerCase().includes(search) ||
+        x.nameAr.includes(state.search.trim()) ||
+        x.id.toLowerCase().includes(search)
+      );
+    }
+    
+    if (state.autoplayIdx < filtered.length) {
+      setTimeout(() => playSignAutoplay(filtered[state.autoplayIdx]), 1000);
+    } else {
+      stopAutoplay();
+    }
+  };
+  u.onerror = () => stopAutoplay();
+  speechSynthesis.speak(u);
+}
+
 function renderBrowse() {
   const grid = $('categories-grid');
   const signsGrid = $('signs-grid');
@@ -501,9 +587,22 @@ function renderBrowse() {
     if (cat && !search) {
       const c = catBy(cat);
       const catName = state.lang === 'ar' ? c.nameAr : c.nameSv;
+      const prevIcon = state.lang === 'ar' ? '→' : '←';
+      const nextIcon = state.lang === 'ar' ? '←' : '→';
+      
+      const playLabel = state.autoplay ? T('browse.stop') : T('browse.playAll');
+      const playIcon = state.autoplay ? '⏹' : '🔊▶';
+      
       signsGrid.innerHTML = `<div class="section-title" style="grid-column:1/-1">
-        <h2>${c.icon} ${catName} <span style="color:var(--text-soft); font-size:13px">(${filtered.length})</span></h2>
-        <button class="btn-back" onclick="state.category=''; document.getElementById('category-filter').value=''; renderBrowse();">${T('browse.back')}</button>
+        <div class="title-nav-group">
+          <button class="btn-nav-small" onclick="switchCategory(-1)" title="${T('btn.prev')}">${prevIcon}</button>
+          <h2>${c.icon} ${catName} <span style="color:var(--text-soft); font-size:13px">(${filtered.length})</span></h2>
+          <button class="btn-nav-small" onclick="switchCategory(1)" title="${T('btn.next')}">${nextIcon}</button>
+          <button class="btn-autoplay ${state.autoplay ? 'playing' : ''}" onclick="toggleAutoplay()">
+            <span>${playIcon}</span> ${playLabel}
+          </button>
+        </div>
+        <button class="btn-back" onclick="state.category=''; document.getElementById('category-filter').value=''; stopAutoplay(); renderBrowse();">${T('browse.back')}</button>
       </div>` + filtered.map(signCardHTML).join('');
     } else {
       signsGrid.innerHTML = filtered.length
@@ -530,7 +629,9 @@ function renderBrowse() {
 function signCardHTML(s) {
   const primary = state.lang === 'ar' ? s.nameAr : s.nameSv;
   const secondary = state.lang === 'ar' ? s.nameSv : s.nameAr;
-  return `<div class="sign-card" onclick="openModal('${s.id}')">
+  const activeClass = (state.autoplay && state.autoplayIdx !== -1 && signsIn(state.category)[state.autoplayIdx]?.id === s.id) ? 'autoplay-active' : '';
+  
+  return `<div class="sign-card ${activeClass}" data-id="${s.id}" onclick="openModal('${s.id}')">
     <div class="sign-img">${s.svg}</div>
     <div class="sign-name">${primary}</div>
     <div class="sign-name-sv">${secondary}</div>
