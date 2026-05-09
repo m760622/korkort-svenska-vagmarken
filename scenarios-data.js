@@ -533,20 +533,7 @@ const SCENARIOS = [
   },
   {
     id: "sc29",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="20" width="200" height="60" fill="#37474f"/>
-      <rect x="0" y="50" width="200" height="2" fill="#fff" stroke-dasharray="10,10"/>
-      
-      <!-- Acceleration lane -->
-      <path d="M 0 130 Q 100 130 150 80 L 200 80" stroke="#37474f" stroke-width="30" fill="none"/>
-      
-      <!-- Your Car in lane -->
-      <g transform="translate(60, 115) rotate(-15)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <rect x="24" y="2" width="9" height="14" fill="#e3f2fd" opacity="0.8"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc29.png",
     questionAr: "كيف يجب أن يكون تصرفك عند الدخول إلى طريق سريع عبر ممر التسارع؟",
     questionSv: "Hur ska du agera när du kör in på en motorväg via ett accelerationsfält?",
     optionsAr: [
@@ -565,27 +552,7 @@ const SCENARIOS = [
   },
   {
     id: "sc30",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#212121"/>
-      <rect x="0" y="65" width="200" height="40" fill="#000"/>
-      
-      <!-- Night High Beam Cone -->
-      <path d="M 55 85 L 180 50 L 180 120 Z" fill="#fff59d" opacity="0.4"/>
-      
-      <!-- Your Car -->
-      <g transform="translate(20, 77)">
-        <rect width="35" height="16" rx="4" fill="#1e88e5"/>
-        <rect x="33" y="1" width="2" height="4" fill="#fff"/>
-        <rect x="33" y="11" width="2" height="4" fill="#fff"/>
-      </g>
-      
-      <!-- Opposing Car -->
-      <g transform="translate(160, 70)">
-        <rect width="32" height="16" rx="4" fill="#e53935"/>
-        <rect x="1" y="2" width="4" height="4" fill="#fff"/>
-        <rect x="1" y="10" width="4" height="4" fill="#fff"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc30.png",
     questionAr: "أنت تقود في الليل وتقترب سيارة من الاتجاه المعاكس. متى يجب إطفاء الضوء العالي (Helljus)؟",
     questionSv: "Du kör i mörker och en bil närmar sig från motsatt håll. När ska du blända av till halvljus?",
     optionsAr: [
@@ -604,25 +571,7 @@ const SCENARIOS = [
   },
   {
     id: "sc31",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#eceff1"/>
-      <rect x="0" y="70" width="200" height="40" fill="#455a64"/>
-      
-      <!-- Svartis Effect (Glassy patches) -->
-      <ellipse cx="60" cy="90" rx="30" ry="10" fill="#fff" opacity="0.4"/>
-      <ellipse cx="140" cy="85" rx="25" ry="8" fill="#fff" opacity="0.3"/>
-      
-      <!-- Bridge style -->
-      <rect x="0" y="110" width="200" height="10" fill="#78909c"/>
-      <rect x="20" y="110" width="4" height="20" fill="#546e7a"/>
-      <rect x="170" y="110" width="4" height="20" fill="#546e7a"/>
-      
-      <!-- Car sliding -->
-      <g transform="translate(100, 75) rotate(10)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <rect x="24" y="2" width="10" height="14" fill="#e3f2fd" opacity="0.8"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc31.png",
     questionAr: "ما هو الانزلاق المفاجئ (Black ice / Svartis) وأين يكثر حدوثه؟",
     questionSv: "Vad är 'svartis' och var är risken störst att den uppstår?",
     optionsAr: [
@@ -641,25 +590,7 @@ const SCENARIOS = [
   },
   {
     id: "sc32",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <!-- Railway Crossing Realistic -->
-      <rect x="100" y="0" width="30" height="150" fill="#78909c"/>
-      <rect x="108" y="0" width="1" height="150" fill="#000"/>
-      <rect x="122" y="0" width="1" height="150" fill="#000"/>
-      
-      <rect x="0" y="70" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Warning Lights -->
-      <g transform="translate(140, 30)">
-        <rect width="12" height="22" fill="#333" rx="2"/>
-        <circle cx="6" cy="7" r="4" fill="#d32f2f"><animate attributeName="opacity" values="1;0;1" dur="0.4s" repeatCount="indefinite"/></circle>
-        <circle cx="6" cy="15" r="4" fill="#d32f2f"><animate attributeName="opacity" values="0;1;0" dur="0.4s" repeatCount="indefinite"/></circle>
-      </g>
-      
-      <!-- Boms (Still up) -->
-      <rect x="135" y="60" width="5" height="50" fill="#fff" stroke="#d32f2f" stroke-width="2" transform="rotate(-70, 137.5, 110)"/>
-    </svg>`,
+    img: "assets/scenarios/sc32.png",
     questionAr: "أنت تقترب من سكة حديد والأضواء الحمراء تومض لكن الحواجز لا تزال مرفوعة. ماذا تفعل؟",
     questionSv: "Du närmar dig en järnvägskorsning. De röda lamporna blinkar men bommarna är fortfarande uppe. Vad gör du?",
     optionsAr: [
@@ -678,26 +609,7 @@ const SCENARIOS = [
   },
   {
     id: "sc33",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#2e7d32"/> <!-- Dense Forest -->
-      <rect x="0" y="70" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Trees -->
-      <circle cx="30" cy="40" r="15" fill="#1b5e20"/>
-      <circle cx="170" cy="40" r="15" fill="#1b5e20"/>
-      
-      <!-- Moose/Vilt Sign -->
-      <g transform="translate(130, 20)">
-        <polygon points="15,0 30,25 0,25" fill="#fff" stroke="#d32f2f" stroke-width="2"/>
-        <path d="M 10 15 Q 15 10 20 15" stroke="#000" fill="none"/>
-      </g>
-      
-      <!-- Car in twilight -->
-      <g transform="translate(40, 80)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <rect x="33" y="3" width="2" height="4" fill="#fff" opacity="0.5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc33.png",
     questionAr: "في أي وقت من اليوم يزداد خطر اصطدام الحيوانات البرية (مثل الموظ) بالسيارات؟",
     questionSv: "Vid vilken tid på dygnet är risken störst för viltolyckor (t.ex. med älg)?",
     optionsAr: [
@@ -716,32 +628,7 @@ const SCENARIOS = [
   },
   {
     id: "sc34",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="50" fill="#37474f"/>
-      
-      <!-- Cykelöverfart Markings -->
-      <g fill="#fff">
-        <rect x="100" y="60" width="40" height="5"/>
-        <rect x="100" y="75" width="40" height="5"/>
-        <rect x="100" y="90" width="40" height="5"/>
-        <rect x="100" y="105" width="40" height="5"/>
-      </g>
-      
-      <!-- Cyclist -->
-      <g transform="translate(110, 30)">
-        <circle cx="10" cy="5" r="3" fill="#ffccbc"/>
-        <rect x="8" y="8" width="4" height="10" fill="#1e88e5"/>
-        <circle cx="5" cy="22" r="4" fill="none" stroke="#000" stroke-width="1.5"/>
-        <circle cx="15" cy="22" r="4" fill="none" stroke="#000" stroke-width="1.5"/>
-        <line x1="5" y1="22" x2="15" y2="22" stroke="#000"/>
-      </g>
-      
-      <!-- Car -->
-      <g transform="translate(30, 75)">
-        <rect width="35" height="20" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc34.png",
     questionAr: "أنت تعبر ممر دراجات هوائية (Cykelöverfart). من له الأولوية؟",
     questionSv: "Du korsar en cykelöverfart. Vem har företräde?",
     optionsAr: [
@@ -760,17 +647,7 @@ const SCENARIOS = [
   },
   {
     id: "sc35",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#90a4ae"/>
-      <!-- Parking Sign Realistic -->
-      <g transform="translate(75, 20)">
-        <rect width="50" height="70" fill="#1e88e5" rx="3" stroke="#fff" stroke-width="2"/>
-        <text x="25" y="35" font-family="Arial" font-size="30" fill="#fff" text-anchor="middle" font-weight="bold">P</text>
-        <rect x="5" y="45" width="40" height="20" fill="#fff" rx="1"/>
-        <text x="25" y="58" font-family="Arial" font-size="10" fill="#000" text-anchor="middle" font-weight="bold">9 - 18</text>
-      </g>
-      <rect x="98" y="90" width="4" height="40" fill="#78909c"/>
-    </svg>`,
+    img: "assets/scenarios/sc35.png",
     questionAr: "ماذا تعني اللوحة الإضافية (9-18) تحت علامة مواقف السيارات (P)؟",
     questionSv: "Vad betyder tilläggstavlan (9-18) under ett P-märke?",
     optionsAr: [
@@ -789,26 +666,7 @@ const SCENARIOS = [
   },
   {
     id: "sc36",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="50" width="200" height="60" fill="#37474f"/>
-      <rect x="0" y="78" width="200" height="4" fill="#fff" stroke-dasharray="10,5"/>
-      
-      <!-- Your Car (Blue) - Starting to pull out -->
-      <g transform="translate(40, 85) rotate(-5)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <rect x="33" y="1" width="2" height="4" fill="#ff9800"><animate attributeName="opacity" values="1;0;1" dur="0.5s" repeatCount="indefinite"/></rect>
-      </g>
-      
-      <!-- Car ahead (Red) -->
-      <g transform="translate(130, 82)">
-        <rect width="35" height="18" rx="4" fill="#e53935"/>
-      </g>
-      
-      <!-- Checking Mirror Context -->
-      <circle cx="20" cy="20" r="15" fill="#fff" stroke="#90a4ae" stroke-width="2"/>
-      <path d="M 10 20 L 30 20 M 20 10 L 20 30" stroke="#90a4ae" stroke-width="1"/>
-    </svg>`,
+    img: "assets/scenarios/sc36.png",
     questionAr: "عندما تشرع في تجاوز سيارة أخرى، ما هو أهم شيء يجب التأكد منه؟",
     questionSv: "Vad är viktigast att kontrollera innan du påbörjar en omkörning?",
     optionsAr: [
@@ -827,22 +685,7 @@ const SCENARIOS = [
   },
   {
     id: "sc37",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <circle cx="100" cy="75" r="50" fill="#455a64"/>
-      <circle cx="100" cy="75" r="25" fill="#7cb342"/>
-      
-      <!-- Roads -->
-      <rect x="90" y="0" width="20" height="30" fill="#455a64"/>
-      <rect x="170" y="65" width="30" height="20" fill="#455a64"/>
-      
-      <!-- Your Car leaving -->
-      <g transform="translate(140, 60) rotate(45)">
-        <rect width="28" height="16" rx="4" fill="#1e88e5"/>
-        <!-- Right Indicator -->
-        <rect x="23" y="13" width="4" height="4" fill="#ff9800"><animate attributeName="opacity" values="1;0;1" dur="0.5s" repeatCount="indefinite"/></rect>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc37.png",
     questionAr: "متى يجب عليك استخدام الغماز (الإشارة الضوئية) عند القيادة في الدوار؟",
     questionSv: "När måste du använda blinkers i en cirkulationsplats?",
     optionsAr: [
@@ -861,21 +704,7 @@ const SCENARIOS = [
   },
   {
     id: "sc38",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#9ccc65"/>
-      <rect x="0" y="60" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Huvudled upphör Sign -->
-      <g transform="translate(130, 20)">
-        <rect width="30" height="30" fill="#ffeb3b" stroke="#000" stroke-width="2" transform="rotate(45, 15, 15)"/>
-        <line x1="-5" y1="35" x2="35" y2="-5" stroke="#000" stroke-width="3"/>
-      </g>
-      
-      <!-- Car -->
-      <g transform="translate(40, 72)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc38.png",
     questionAr: "ماذا تعني هذه اللوحة (مربع أصفر مع خط أسود مائل)؟",
     questionSv: "Vad betyder detta märke (gul romb med ett svart diagonalt streck)?",
     optionsAr: [
