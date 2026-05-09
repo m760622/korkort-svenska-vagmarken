@@ -894,25 +894,7 @@ const SCENARIOS = [
   },
   {
     id: "sc39",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="40" width="200" height="80" fill="#37474f"/>
-      <rect x="0" y="80" width="200" height="2" fill="#fff" stroke-dasharray="10,10"/>
-      
-      <!-- Blind Spot Highlight -->
-      <path d="M 60 90 L 140 120 L 140 150 L 20 150 Z" fill="#f44336" opacity="0.3"/>
-      
-      <!-- Your Car -->
-      <g transform="translate(40, 85)">
-        <rect width="35" height="20" rx="4" fill="#1e88e5"/>
-        <rect x="2" y="2" width="6" height="16" fill="#e3f2fd" opacity="0.6"/>
-      </g>
-      
-      <!-- Car in blind spot -->
-      <g transform="translate(120, 120)">
-        <rect width="32" height="18" rx="4" fill="#e53935" opacity="0.5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc39.png",
     questionAr: "ماذا تعني 'المنطقة العمياء' (Blind spot) عند تغيير المسار؟",
     questionSv: "Vad menas med 'döda vinkeln' vid körfältsbyte?",
     optionsAr: [
@@ -931,31 +913,7 @@ const SCENARIOS = [
   },
   {
     id: "sc40",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#f5f5f5"/>
-      <rect x="0" y="100" width="200" height="20" fill="#455a64"/>
-      
-      <!-- Speed 1 -->
-      <g transform="translate(10, 85)">
-        <rect width="25" height="14" rx="2" fill="#1e88e5"/>
-        <text x="12" y="-5" font-size="8" fill="#1e88e5" text-anchor="middle">50 km/h</text>
-        <line x1="25" y1="7" x2="50" y2="7" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
-        <rect x="50" y="115" width="2" height="5" fill="#f44336"/> <!-- End of stop -->
-      </g>
-      
-      <!-- Speed 2 (Double) -->
-      <g transform="translate(10, 50)">
-        <rect width="25" height="14" rx="2" fill="#e53935"/>
-        <text x="12" y="-5" font-size="8" fill="#e53935" text-anchor="middle">100 km/h</text>
-        <line x1="25" y1="7" x2="150" y2="7" stroke="#333" stroke-width="1" stroke-dasharray="2,2"/>
-        <rect x="150" y="115" width="2" height="5" fill="#f44336"/> <!-- Much longer stop -->
-      </g>
-      
-      <!-- Visualization of 1x vs 4x -->
-      <rect x="25" y="102" width="25" height="4" fill="#1e88e5" opacity="0.5"/>
-      <rect x="25" y="110" width="125" height="4" fill="#e53935" opacity="0.5"/>
-      <text x="100" y="135" font-size="10" fill="#333" text-anchor="middle">Distance x 4</text>
-    </svg>`,
+    img: "assets/scenarios/sc40.png",
     questionAr: "إذا تضاعفت سرعة السيارة مرتين، كم مرة تزداد مسافة الكبح (Bromssträcka)؟",
     questionSv: "Om du dubblerar farten, hur många gånger ökar bromssträckan?",
     optionsAr: [
@@ -974,25 +932,7 @@ const SCENARIOS = [
   },
   {
     id: "sc41",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="70" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Car with Trailer -->
-      <g transform="translate(40, 82)">
-        <rect width="32" height="18" rx="4" fill="#1e88e5"/>
-        <line x1="0" y1="9" x2="-8" y2="9" stroke="#333" stroke-width="2"/>
-        <rect x="-35" y="4" width="28" height="22" rx="2" fill="#90a4ae"/>
-        <circle cx="-10" cy="24" r="3" fill="#000"/>
-        <circle cx="-30" cy="24" r="3" fill="#000"/>
-      </g>
-      
-      <!-- 80 Sign -->
-      <g transform="translate(140, 20)">
-        <circle cx="20" cy="20" r="18" fill="#ffeb3b" stroke="#d32f2f" stroke-width="4"/>
-        <text x="20" y="26" font-family="Arial" font-size="16" font-weight="bold" fill="#000" text-anchor="middle">80</text>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc41.png",
     questionAr: "ما هي السرعة القصوى المسموح بها لسيارة تسحب مقطورة (Släpvagn)؟",
     questionSv: "Vilken är den högsta tillåtna hastigheten för en bil med släpvagn?",
     optionsAr: [
@@ -1011,15 +951,7 @@ const SCENARIOS = [
   },
   {
     id: "sc42",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#e8f5e9"/>
-      <circle cx="100" cy="75" r="50" fill="none" stroke="#4caf50" stroke-width="4" stroke-dasharray="10,5"/>
-      <path d="M 80 80 Q 100 40 120 80" stroke="#4caf50" stroke-width="5" fill="none"/>
-      <text x="100" y="110" font-family="Arial" font-size="14" fill="#2e7d32" text-anchor="middle" font-weight="bold">ECO DRIVING</text>
-      
-      <!-- Leaf icon -->
-      <path d="M 100 40 Q 110 30 120 40 Q 110 50 100 40" fill="#4caf50"/>
-    </svg>`,
+    img: "assets/scenarios/sc42.png",
     questionAr: "أي من هذه التصرفات يعتبر من أساليب القيادة الاقتصادية (Eco-driving)؟",
     questionSv: "Vilket av följande är ett exempel på sparsam körning (Eco-driving)?",
     optionsAr: [
@@ -1038,18 +970,7 @@ const SCENARIOS = [
   },
   {
     id: "sc43",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#ffebee"/>
-      <circle cx="100" cy="75" r="40" fill="none" stroke="#d32f2f" stroke-width="6"/>
-      <line x1="75" y1="50" x2="125" y2="100" stroke="#d32f2f" stroke-width="6"/>
-      <text x="100" y="80" font-family="Arial" font-size="18" fill="#d32f2f" text-anchor="middle" font-weight="bold">0.2 ‰</text>
-      
-      <!-- Glass icon with prohibition -->
-      <g transform="translate(140, 20)">
-        <path d="M 5 0 L 25 0 L 15 20 L 15 30 L 5 30 L 25 30" stroke="#333" fill="none"/>
-        <line x1="0" y1="0" x2="30" y2="30" stroke="#d32f2f" stroke-width="3"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc43.png",
     questionAr: "ما هو الحد القانوني لنسبة الكحول في الدم للقيادة في السويد؟",
     questionSv: "Vilken är den lagliga gränsen för promille i blodet vid bilkörning i Sverige?",
     optionsAr: [
@@ -1068,21 +989,7 @@ const SCENARIOS = [
   },
   {
     id: "sc44",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#fffde7"/>
-      <rect x="0" y="80" width="200" height="40" fill="#455a64"/>
-      
-      <!-- Car with long load -->
-      <g transform="translate(60, 92)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <!-- Load -->
-        <rect x="10" y="-10" width="60" height="6" fill="#795548"/>
-        <!-- Red Flag -->
-        <rect x="68" y="-10" width="8" height="6" fill="#d32f2f"/>
-      </g>
-      
-      <text x="100" y="60" font-size="12" fill="#d32f2f" text-anchor="middle" font-weight="bold">> 1 meter</text>
-    </svg>`,
+    img: "assets/scenarios/sc44.png",
     questionAr: "إذا كانت الحمولة تبرز من مقدمة السيارة بأكثر من متر واحد، فماذا يجب عليك فعله؟",
     questionSv: "Om lasten sticker ut mer än en meter framför bilen, vad måste du göra?",
     optionsAr: [
@@ -1101,22 +1008,7 @@ const SCENARIOS = [
   },
   {
     id: "sc45",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="60" fill="#37474f"/>
-      <rect x="0" y="90" width="200" height="2" fill="#fff" stroke-dasharray="10,10"/>
-      
-      <!-- Mandatory Lane Sign -->
-      <g transform="translate(130, 15)">
-        <circle cx="20" cy="20" r="18" fill="#1e88e5" stroke="#fff" stroke-width="2"/>
-        <path d="M 20 5 L 20 30 M 12 15 L 20 5 L 28 15" stroke="#fff" stroke-width="3" fill="none"/>
-      </g>
-      
-      <!-- Car in lane -->
-      <g transform="translate(40, 92)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc45.png",
     questionAr: "ماذا تعني علامة 'طريق مخصص لمركبات معينة'؟",
     questionSv: "Vad betyder märket 'påbjudet körfält för vissa fordon'?",
     optionsAr: [
