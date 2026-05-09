@@ -464,8 +464,11 @@ function renderDashboard() {
     $('dash-mistakes').innerHTML = mistakeIds.slice(0, 12).map(id => {
       const s = SIGNS.find(x => x.id === id);
       if (!s) return '';
+      // Extract URL from img tag in s.svg
+      const match = s.svg.match(/src='([^']+)'/);
+      const url = match ? match[1] : '';
       return `<div class="mistake-sign-thumb" onclick="openModal('${s.id}')" style="width:50px; height:50px; cursor:pointer; background:var(--surface-2); border-radius:8px; padding:5px; border:1px solid var(--border);">
-        <img src="assets/signs/all/${s.id}.png" style="width:100%; height:100%; object-fit:contain;" alt="${s.id}">
+        <img src="${url}" style="width:100%; height:100%; object-fit:contain;" alt="${s.id}">
       </div>`;
     }).join('') + (mistakeIds.length > 12 ? `<div style="display:flex; align-items:center; justify-content:center; padding:10px; color:var(--primary); font-weight:bold;">+${mistakeIds.length - 12}</div>` : '');
   }
