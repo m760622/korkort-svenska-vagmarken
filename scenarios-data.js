@@ -856,25 +856,7 @@ const SCENARIOS = [
   },
   {
     id: "sc46",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <!-- Zipper Merge Path -->
-      <path d="M 0 50 L 100 50 Q 140 50 170 80 L 200 80" stroke="#37474f" stroke-width="30" fill="none"/>
-      <path d="M 0 110 L 100 110 Q 140 110 170 80 L 200 80" stroke="#37474f" stroke-width="30" fill="none"/>
-      
-      <!-- Cars merging like a zipper -->
-      <g transform="translate(40, 42)">
-        <rect width="32" height="16" rx="4" fill="#1e88e5"/>
-      </g>
-      <g transform="translate(80, 102)">
-        <rect width="32" height="16" rx="4" fill="#e53935"/>
-      </g>
-      <g transform="translate(130, 45) rotate(25)">
-        <rect width="32" height="16" rx="4" fill="#ffeb3b"/>
-      </g>
-      
-      <text x="100" y="25" font-size="12" fill="#333" text-anchor="middle" font-weight="bold">BLIXTLÅSPRINCIPEN</text>
-    </svg>`,
+    img: "assets/scenarios/sc46.png",
     questionAr: "ما هو 'مبدأ السحاب' (Zipper merge) في المرور؟",
     questionSv: "Vad innebär 'kugghjulsprincipen' (blixtlåsprincipen) i trafiken?",
     optionsAr: [
@@ -893,20 +875,7 @@ const SCENARIOS = [
   },
   {
     id: "sc47",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#263238"/>
-      <rect x="0" y="60" width="200" height="40" fill="#212121"/>
-      
-      <!-- Car with Fog Lights -->
-      <g transform="translate(100, 72)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <rect x="2" y="2" width="4" height="14" fill="#f44336"/> <!-- Rear fog light -->
-        <path d="M 0 5 L -40 -10 L -40 20 Z" fill="#f44336" opacity="0.3"/> <!-- Fog light cone -->
-      </g>
-      
-      <!-- Fog context -->
-      <rect width="200" height="150" fill="#fff" opacity="0.1"/>
-    </svg>`,
+    img: "assets/scenarios/sc47.png",
     questionAr: "متى يجب استخدام أضواء الضباب الخلفية؟",
     questionSv: "När ska dimbakljus användas?",
     optionsAr: [
@@ -925,19 +894,7 @@ const SCENARIOS = [
   },
   {
     id: "sc48",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <rect x="0" y="70" width="200" height="40" fill="#455a64"/>
-      
-      <!-- Water Patches -->
-      <ellipse cx="100" cy="90" rx="40" ry="8" fill="#bbdefb" opacity="0.6"/>
-      
-      <!-- Car Splashing -->
-      <g transform="translate(80, 80)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-        <path d="M 0 18 Q -10 15 -15 25 M 35 18 Q 45 15 50 25" stroke="#bbdefb" stroke-width="2" fill="none"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc48.png",
     questionAr: "ما هو الانزلاق المائي (Aquaplaning) وكيف تتجنبه؟",
     questionSv: "Vad är vattenplaning och hur undviker du det?",
     optionsAr: [
@@ -956,22 +913,7 @@ const SCENARIOS = [
   },
   {
     id: "sc49",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="50" fill="#37474f"/>
-      
-      <!-- Emergency Vehicle -->
-      <g transform="translate(130, 65)">
-        <rect width="55" height="25" rx="2" fill="#fff"/>
-        <rect x="40" y="4" width="10" height="18" fill="#e3f2fd" opacity="0.8"/>
-        <circle cx="50" cy="4" r="4" fill="#2196f3"><animate attributeName="opacity" values="1;0;1" dur="0.3s" repeatCount="indefinite"/></circle>
-      </g>
-      
-      <!-- Your Car pulling to side -->
-      <g transform="translate(30, 95) rotate(15)">
-        <rect width="35" height="18" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc49.png",
     questionAr: "سيارة طوارئ (إسعاف) تقترب مع إطلاق صافرات الإنذار. ماذا تفعل؟",
     questionSv: "Ett utryckningsfordon närmar sig med blåljus och sirener. Vad gör du?",
     optionsAr: [
@@ -990,20 +932,7 @@ const SCENARIOS = [
   },
   {
     id: "sc50",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="80" y="0" width="40" height="150" fill="#37474f"/>
-      <rect x="0" y="70" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Your Car (Bottom) -->
-      <g transform="translate(90, 120)">
-        <rect width="20" height="32" rx="4" fill="#1e88e5"/>
-      </g>
-      <!-- Car from Right -->
-      <g transform="translate(150, 78)">
-        <rect width="35" height="20" rx="4" fill="#e53935"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc50.png",
     questionAr: "في تقاطع طرق لا توجد فيه لوحات مرور، من له الأولوية؟",
     questionSv: "Vem har företräde i en korsning utan skyltar?",
     optionsAr: [
@@ -1022,17 +951,7 @@ const SCENARIOS = [
   },
   {
     id: "sc51",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#cfd8dc"/>
-      <!-- Traffic Light Realistic -->
-      <g transform="translate(90, 20)">
-        <rect width="20" height="60" fill="#333" rx="4"/>
-        <circle cx="10" cy="12" r="7" fill="#d32f2f"/>
-        <circle cx="10" cy="30" r="7" fill="#fbc02d"/>
-        <circle cx="10" cy="48" r="7" fill="#388e3c"/>
-        <rect x="9" y="60" width="2" height="40" fill="#546e7a"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc51.png",
     questionAr: "ما هو ترتيب ألون إشارة المرور من الأعلى إلى الأسفل؟",
     questionSv: "I vilken ordning sitter färgerna i ett trafikljus uppifrån och ner?",
     optionsAr: [
@@ -1051,24 +970,7 @@ const SCENARIOS = [
   },
   {
     id: "sc52",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="50" fill="#37474f"/>
-      
-      <!-- Thick Stop Line -->
-      <rect x="120" y="60" width="10" height="50" fill="#fff"/>
-      
-      <!-- Stop Sign -->
-      <g transform="translate(140, 20)">
-        <polygon points="10,0 30,0 40,10 40,30 30,40 10,40 0,30 0,10" fill="#d32f2f" stroke="#fff" stroke-width="2"/>
-        <text x="20" y="26" font-family="Arial" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">STOP</text>
-      </g>
-      
-      <!-- Your Car -->
-      <g transform="translate(40, 75)">
-        <rect width="35" height="20" rx="4" fill="#1e88e5"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc52.png",
     questionAr: "ماذا تعني الخطوط العرضية البيضاء المتصلة قبل إشارة المرور أو علامة قف؟",
     questionSv: "Vad betyder de tjocka vita tvärgående linjerna på vägen?",
     optionsAr: [
@@ -1087,20 +989,7 @@ const SCENARIOS = [
   },
   {
     id: "sc53",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#fffde7"/>
-      <!-- Sun icon -->
-      <circle cx="170" cy="30" r="15" fill="#fbc02d"/>
-      
-      <!-- Hot Car -->
-      <g transform="translate(50, 70)">
-        <rect width="100" height="50" rx="8" fill="#e53935"/>
-        <rect x="15" y="10" width="70" height="25" fill="#e3f2fd" opacity="0.6"/>
-        <!-- Child head icon in car -->
-        <circle cx="50" cy="20" r="5" fill="#ffccbc"/>
-      </g>
-      <text x="100" y="140" font-size="12" fill="#d32f2f" text-anchor="middle" font-weight="bold">WARNING: HIGH TEMP</text>
-    </svg>`,
+    img: "assets/scenarios/sc53.png",
     questionAr: "هل يسمح بترك الأطفال بمفردهم داخل السيارة في يوم حار؟",
     questionSv: "Är det tillåtet att lämna barn ensamma i en bil en varm dag?",
     optionsAr: [
@@ -1119,15 +1008,7 @@ const SCENARIOS = [
   },
   {
     id: "sc54",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#f5f5f5"/>
-      <!-- Tire cross section -->
-      <circle cx="100" cy="75" r="50" fill="#212121"/>
-      <circle cx="100" cy="75" r="35" fill="#9e9e9e"/>
-      <!-- Grooves -->
-      <path d="M 65 75 L 135 75 M 100 40 L 100 110" stroke="#fff" stroke-width="4" stroke-dasharray="5,5"/>
-      <text x="100" y="78" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">1.6 mm</text>
-    </svg>`,
+    img: "assets/scenarios/sc54.png",
     questionAr: "ما هو الحد الأدنى لعمق نقوش الإطارات الصيفية في السويد؟",
     questionSv: "Vad är det minsta tillåtna mönsterdjupet för sommardäck i Sverige?",
     optionsAr: [
@@ -1146,16 +1027,7 @@ const SCENARIOS = [
   },
   {
     id: "sc55",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#e1f5fe"/>
-      <!-- Winter Tire -->
-      <circle cx="100" cy="75" r="50" fill="#212121"/>
-      <circle cx="100" cy="75" r="35" fill="#9e9e9e"/>
-      <!-- Snowflakes around -->
-      <text x="100" y="78" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">3 mm</text>
-      <text x="30" y="30" font-size="10">❄️</text>
-      <text x="170" y="120" font-size="10">❄️</text>
-    </svg>`,
+    img: "assets/scenarios/sc55.png",
     questionAr: "ما هو الحد الأدنى لعمق نقوش الإطارات الشتوية؟",
     questionSv: "Vad är det minsta tillåtna mönsterdjupet för vinterdäck?",
     optionsAr: [
@@ -1174,15 +1046,7 @@ const SCENARIOS = [
   },
   {
     id: "sc56",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#90a4ae"/>
-      <!-- P-skiva Realistic -->
-      <rect x="60" y="20" width="80" height="110" fill="#1e88e5" rx="5" stroke="#fff" stroke-width="2"/>
-      <circle cx="100" cy="75" r="30" fill="#fff"/>
-      <text x="100" y="78" font-size="10" fill="#000" text-anchor="middle">10:30</text>
-      <path d="M 100 75 L 100 55" stroke="#d32f2f" stroke-width="2"/>
-      <text x="100" y="45" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">P-SKIVA</text>
-    </svg>`,
+    img: "assets/scenarios/sc56.png",
     questionAr: "ماذا تعني علامة 'القرص الزمني' (P-skiva) في مواقف السيارات؟",
     questionSv: "Vad innebär kravet på P-skiva?",
     optionsAr: [
@@ -1201,19 +1065,7 @@ const SCENARIOS = [
   },
   {
     id: "sc57",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="70" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Bogsering (Towing) -->
-      <g transform="translate(30, 82)">
-        <rect width="32" height="16" rx="4" fill="#1e88e5"/>
-        <line x1="32" y1="9" x2="60" y2="9" stroke="#ffeb3b" stroke-width="2" stroke-dasharray="4,2"/>
-        <rect x="60" y="8" width="32" height="16" rx="4" fill="#e53935"/>
-      </g>
-      
-      <text x="100" y="60" font-size="14" fill="#d32f2f" text-anchor="middle" font-weight="bold">MAX 30 km/h</text>
-    </svg>`,
+    img: "assets/scenarios/sc57.png",
     questionAr: "ما هي السرعة القصوى المسموح بها عند سحب سيارة أخرى (Bogsering)؟",
     questionSv: "Vilken är den högsta tillåtna hastigheten vid bogsering?",
     optionsAr: [
@@ -1232,22 +1084,7 @@ const SCENARIOS = [
   },
   {
     id: "sc58",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Rain context -->
-      <line x1="20" y1="10" x2="10" y2="25" stroke="#bbdefb" stroke-width="1"/>
-      <line x1="50" y1="5" x2="40" y2="20" stroke="#bbdefb" stroke-width="1"/>
-      
-      <!-- Car slowing down -->
-      <g transform="translate(80, 72)">
-        <rect width="35" height="20" rx="4" fill="#1e88e5"/>
-        <rect x="1" y="2" width="2" height="16" fill="#f44336"/>
-      </g>
-      
-      <text x="100" y="40" font-size="12" fill="#333" text-anchor="middle">Adapt speed to road conditions</text>
-    </svg>`,
+    img: "assets/scenarios/sc58.png",
     questionAr: "ماذا تعني 'سرعة الأمان' (Basic speed rule)؟",
     questionSv: "Vad innebär den grundläggande hastighetsbestämmelsen?",
     optionsAr: [
@@ -1266,23 +1103,7 @@ const SCENARIOS = [
   },
   {
     id: "sc59",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="30" fill="#37474f"/>
-      
-      <!-- Meeting on narrow road -->
-      <rect x="80" y="60" width="40" height="30" fill="#78909c"/> <!-- Obstacle -->
-      
-      <!-- Your Car (Blue) - blocked -->
-      <g transform="translate(40, 67)">
-        <rect width="32" height="16" rx="4" fill="#1e88e5"/>
-      </g>
-      
-      <!-- Opposing Car (Red) - free path -->
-      <g transform="translate(140, 67)">
-        <rect width="32" height="16" rx="4" fill="#e53935"/>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc59.png",
     questionAr: "أنت تقابل سيارة أخرى في طريق ضيق جداً (Meeting). من الذي يجب أن يتوقف؟",
     questionSv: "Du möter ett annat fordon på en mycket smal väg. Vem ska stanna?",
     optionsAr: [
@@ -1301,24 +1122,7 @@ const SCENARIOS = [
   },
   {
     id: "sc60",
-    img: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="150" fill="#7cb342"/>
-      <rect x="0" y="60" width="200" height="40" fill="#37474f"/>
-      
-      <!-- Accident Scene -->
-      <g transform="translate(100, 72) rotate(45)">
-        <rect width="35" height="18" rx="4" fill="#e53935"/>
-      </g>
-      <g transform="translate(150, 40)">
-        <polygon points="0,15 10,0 20,15" fill="#d32f2f"/>
-      </g>
-      
-      <!-- Emergency Call icon -->
-      <g transform="translate(20, 20)">
-        <rect width="20" height="30" fill="#333" rx="3"/>
-        <text x="10" y="20" font-size="8" fill="#fff" text-anchor="middle">112</text>
-      </g>
-    </svg>`,
+    img: "assets/scenarios/sc60.png",
     questionAr: "ما هو التصرف الصحيح إذا شاهدت حادثاً مرورياً على الطريق؟",
     questionSv: "Vad är rätt handlande om du kommer först till en olycksplats?",
     optionsAr: [
