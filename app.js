@@ -34,7 +34,7 @@ const I18N = {
     'quiz.title': '🎯 اختيار من متعدد', 'quiz.intro': 'شاهد العلامة واختر المعنى الصحيح من بين 4 خيارات.',
     'quiz.count': 'عدد الأسئلة:', 'quiz.optsLang': 'لغة الخيارات:',
     'btn.start': 'ابدأ ▶', 'quiz.btn.start': 'ابدأ الاختبار ▶', 'btn.next': 'التالي ←', 'btn.prev': '← السابق', 'btn.playAgain': 'العب مرة أخرى', 'btn.close': 'إغلاق',
-    'btn.speakSv': '🔊 سويدي', 'btn.speakAr': '🔊 عربي',
+    'btn.speakSv': '🔊 سويدي', 'btn.speakAr': '🔊 عربي', 'btn.playAll': 'تشغيل الكل',
     'game.over': '🎉 انتهت اللعبة',
     'flip.title': '🔄 قلب البطاقات', 'flip.intro': 'شاهد العلامة، فكّر بالمعنى، ثم اقلب البطاقة للتأكد. حدد ما تعرفه وما تحتاج لمراجعته.',
     'flip.onlyReview': 'أظهر فقط ما حدّدته «راجعني لاحقاً»', 'flip.reset': '🗑 محو حالة المعرفة',
@@ -79,7 +79,7 @@ const I18N = {
     'quiz.title': '🎯 Flervalsfrågor', 'quiz.intro': 'Titta på skylten och välj rätt betydelse av 4 alternativ.',
     'quiz.count': 'Antal frågor:', 'quiz.optsLang': 'Alternativens språk:',
     'btn.start': 'Starta ▶', 'quiz.btn.start': 'Starta Quiz ▶', 'btn.next': 'Nästa →', 'btn.prev': '← Föregående', 'btn.playAgain': 'Spela igen', 'btn.close': 'Stäng',
-    'btn.speakSv': '🔊 Svenska', 'btn.speakAr': '🔊 Arabiska',
+    'btn.speakSv': '🔊 Svenska', 'btn.speakAr': '🔊 Arabiska', 'btn.playAll': 'Spela alla',
     'game.over': '🎉 Spelet är slut',
     'flip.title': '🔄 Vändkort', 'flip.intro': 'Titta på skylten, tänk på betydelsen och vänd kortet. Markera vad du kan och vad du behöver repetera.',
     'flip.onlyReview': 'Visa endast «Repetera senare»', 'flip.reset': '🗑 Rensa kunskapsstatus',
@@ -313,7 +313,7 @@ function cleanText(t) {
     .trim();
 }
 
-function speak(text, lang, btn = null) {
+function speak(text, lang, btn = null, cancel = true) {
   if (!('speechSynthesis' in window)) {
     toast(T('msg.noTtsSupport'));
     return;
@@ -322,7 +322,7 @@ function speak(text, lang, btn = null) {
   if (!cleaned) return;
 
   // Sync — must run during user gesture so Chrome doesn't block speech.
-  speechSynthesis.cancel();
+  if (cancel) speechSynthesis.cancel();
   const baseLang = lang.split('-')[0];
   const voice = (baseLang === 'sv' ? _voiceCache.sv : _voiceCache.ar) || pickVoiceSync(lang);
   if (baseLang === 'sv' ? !_voiceCache.sv : !_voiceCache.ar) {
@@ -738,8 +738,46 @@ function modalPrev() {
 function closeModal() { $('modal').classList.add('hidden'); }
 $('modal-close').addEventListener('click', closeModal);
 $('modal').querySelector('.modal-backdrop').addEventListener('click', closeModal);
-$('modal-prev').addEventListener('click', modalPrev);
+ $('modal-prev').addEventListener('click', modalPrev);
 $('modal-next').addEventListener('click', modalNext);
+
+$('modal-play-all').addEventListener('click', () => {
+  const s = modalList[modalIdx];
+  if (!s) return;
+  
+  const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
+  const arBtn = document.querySelector('#modal .btn-tts[data-lang="ar-SA"]');
+  
+  const textSv = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
+  const textAr = s.descAr && !isDuplicate(s.nameAr, s.descAr) ? `${s.nameAr}. ${s.descAr}` : s.nameAr;
+
+  // Clear any existing speech
+  speechSynthesis.cancel();
+
+  // Create Swedish Utterance
+  const uSv = new SpeechSynthesisUtterance(cleanText(textSv));
+  const vSv = _voiceCache.sv || pickVoiceSync('sv-SE');
+  if (vSv) { uSv.voice = vSv; uSv.lang = vSv.lang; } else uSv.lang = 'sv-SE';
+  uSv.rate = ttsSettings.rate; uSv.pitch = ttsSettings.pitch;
+  
+  // Create Arabic Utterance
+  const uAr = new SpeechSynthesisUtterance(cleanText(textAr));
+  const vAr = _voiceCache.ar || pickVoiceSync('ar-SA');
+  if (vAr) { uAr.voice = vAr; uAr.lang = vAr.lang; } else uAr.lang = 'ar-SA';
+  uAr.rate = ttsSettings.rate; uAr.pitch = ttsSettings.pitch;
+
+  // Chaining logic
+  uSv.onstart = () => { setSpeakingState(svBtn, true); setSpeakingState($('modal-play-all'), true); };
+  uSv.onend = () => { setSpeakingState(svBtn, false); speechSynthesis.speak(uAr); };
+  uSv.onerror = () => { setSpeakingState(svBtn, false); setSpeakingState($('modal-play-all'), false); };
+
+  uAr.onstart = () => { setSpeakingState(arBtn, true); };
+  uAr.onend = () => { setSpeakingState(arBtn, false); setSpeakingState($('modal-play-all'), false); };
+  uAr.onerror = () => { setSpeakingState(arBtn, false); setSpeakingState($('modal-play-all'), false); };
+
+  if (speechSynthesis.paused) speechSynthesis.resume();
+  speechSynthesis.speak(uSv);
+});
 document.addEventListener('keydown', (e) => {
   if ($('modal').classList.contains('hidden')) return;
   if (e.key === 'Escape') closeModal();
