@@ -574,6 +574,7 @@ function renderBrowse() {
   const signsGrid = $('signs-grid');
   const search = state.search.trim().toLowerCase();
   const cat = state.category;
+  const isAr = state.lang === 'ar';
 
   if (search || cat) {
     grid.innerHTML = '';
@@ -603,6 +604,7 @@ function renderBrowse() {
             <button class="btn-nav-small" onclick="switchCategory(1)" title="${T('btn.next')}">${nextIcon}</button>
           </div>
           <h2>${c.icon} ${catName} <span style="color:var(--text-soft); font-size:13px">(${filtered.length})</span></h2>
+          <p class="cat-desc-text">${isAr ? (c.descAr || '') : (c.descSv || '')}</p>
           <button class="btn-autoplay ${state.autoplay ? 'playing' : ''}" onclick="toggleAutoplay()">
             <span>${playIcon}</span> ${playLabel}
           </button>

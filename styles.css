@@ -97,6 +97,14 @@ body {
 }
 .lang-btn:hover { background: rgba(255,255,255,.25); }
 
+.cat-desc-text {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin: 8px 0 16px;
+  line-height: 1.6;
+  max-width: 800px;
+}
+
 /* TABS */
 .tabs {
   background: rgba(255, 255, 255, 0.7);
