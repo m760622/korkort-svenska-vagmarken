@@ -258,11 +258,12 @@ function scoreVoice(v, prefLangs) {
   else return -1;
   const name = (v.name || '').toLowerCase();
   // Priority for high-quality/neural voices
-  if (/premium|enhanced|neural|natural|hd|wavenet|online/.test(name)) s += 300;
-  if (/siri|alva|oskar|klara/.test(name)) s += 400; // Best Swedish voices on Apple/Google
+  if (/neural|natural|wavenet|online|ai\s|cloud/.test(name)) s += 1000; // Chrome/Edge Neural
+  if (/premium|enhanced|hd/.test(name)) s += 500; // Apple/Android Enhanced
+  if (/siri|alva|oskar|klara|majed|laila|tarik/.test(name)) s += 300; 
   if (/google|microsoft|apple/.test(name)) s += 150;
   if (v.localService) s += 50;
-  if (/compact|eloquence|fred|albert/.test(name)) s -= 100;
+  if (/compact|eloquence|fred|albert/.test(name)) s -= 200;
   if (v.default) s += 10;
   return s;
 }
@@ -370,7 +371,17 @@ function populateVoicePickers(voices) {
   if (!arSel || !svSel) return;
   const arVoices = voices.filter(v => v.lang.toLowerCase().startsWith('ar'));
   const svVoices = voices.filter(v => v.lang.toLowerCase().startsWith('sv'));
-  const opt = (v) => `<option value="${v.voiceURI}">${v.name} (${v.lang})${v.localService ? ' 📱' : ' ☁️'}</option>`;
+  const opt = (v) => {
+    let name = v.name;
+    let label = name;
+    const isAI = /neural|natural|wavenet|online|cloud|google|microsoft|ai\s/.test(name.toLowerCase());
+    const isPremium = /premium|enhanced|hd|siri|apple|alva|oskar|klara|astrid|majed|laila|tarik|maged|hoda|naayf/.test(name.toLowerCase()) && !/compact/.test(name.toLowerCase());
+    
+    if (isAI && !label.includes('✨')) label = '✨ ' + label + (label.toLowerCase().includes('(ai)') ? '' : ' (AI)');
+    else if (isPremium && !label.includes('💎')) label = '💎 ' + label + (label.toLowerCase().includes('(premium)') ? '' : ' (Premium)');
+    
+    return `<option value="${v.voiceURI}">${label} (${v.lang})${v.localService ? ' 📱' : ' ☁️'}</option>`;
+  };
   const auto = state.lang === 'ar' ? '— تلقائي (الأفضل) —' : '— Automatisk (bäst) —';
   arSel.innerHTML = `<option value="">${auto}</option>` + arVoices.map(opt).join('');
   svSel.innerHTML = `<option value="">${auto}</option>` + svVoices.map(opt).join('');
