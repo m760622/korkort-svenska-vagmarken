@@ -478,7 +478,7 @@ body {
 }
 
 /* TTS BUTTONS */
-.tts-row { display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+.tts-row { display: flex; gap: 4px; justify-content: center; margin-top: 16px; flex-wrap: nowrap; width: 100%; }
 .btn-tts {
   background: linear-gradient(135deg, var(--primary-light), var(--primary));
   color: white;
