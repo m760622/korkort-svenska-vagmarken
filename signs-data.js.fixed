@@ -1,0 +1,439 @@
+// Svenska Vägmärken — بيانات علا
+ات الطرق السويدية
+// ال
+صدر: transportstyrelsen.se/sv/vagtrafik/trafikregler-och-vagmarken/vagmarken/
+
+const CATEGORIES = [
+  { key: 'varning',       nameSv: 'Varningsmärken',                            nameAr: 'علا
+ات التحذير',                  color: '#FFC700', icon: '⚠️' },
+  { key: 'vajning',       nameSv: 'Väjningspliktsmärken',                      nameAr: 'علا
+ات الأولوية',                 color: '#E63946', icon: '🛑' },
+  { key: 'forbud',        nameSv: 'Förbudsmärken',                             nameAr: 'علا
+ات الحظر',                    color: '#C8102E', icon: '🚫' },
+  { key: 'pabud',         nameSv: 'Påbudsmärken',                              nameAr: 'علا
+ات الإلزا
+',                  color: '#003F87', icon: '⬆️' },
+  { key: 'anvisning',     nameSv: 'Anvisningsmärken',                          nameAr: 'علا
+ات الإرشاد',                  color: '#0072CE', icon: '
+️' },
+  { key: 'vagvisning',    nameSv: 'Lokaliseringsmärken för vägvisning',        nameAr: 'لافتات التوجيه على الطرق',        color: '#1B5E20', icon: '➡️' },
+  { key: 'service',       nameSv: 'Lokaliseringsmärken för serviceanläggningar', nameAr: 'لافتات الخد
+ات',                color: '#0072CE', icon: '⛽' },
+  { key: 'upplysning',    nameSv: 'Upplysningsmärken',                         nameAr: 'علا
+ات ال
+علو
+ات',                color: '#0072CE', icon: 'ℹ️' },
+  { key: 'vagmark',       nameSv: 'Vägmarkeringar',                            nameAr: 'علا
+ات الطريق على الأرض',        color: '#FFFFFF', icon: '〰️' },
+  { key: 'jarnvag',       nameSv: 'Signaler vid järnvägs- eller spårv  // 1) WARNING (A)
+  { id:'A1-1', category:'varning', nameSv:'Farlig kurva (höger)', nameAr:'تحذير 
+ن 
+نعطف خطير (ي
+ين)', descSv:'Märket anger en farlig kurva. Symbolen är anpassad efter förhållandena på platsen.', descAr:'تحذير 
+ن وجود 
+نعطف خطير نحو الي
+ين. يت
+ تكييف الر
+ز حسب ظروف ال
+وقع.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a01.-varning-for-farlig-kurva/a1-1.png') },
+  { id:'A1-2', category:'varning', nameSv:'Farlig kurva (vänster)', nameAr:'تحذير 
+ن 
+نعطف خطير (يسار)', descSv:'Märket anger en farlig kurva. Symbolen är anpassad efter förhållandena på platsen.', descAr:'تحذير 
+ن وجود 
+نعطف خطير نحو اليسار. يت
+ تكييف الر
+ز حسب ظروف ال
+وقع.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a01.-varning-for-farlig-kurva/a1-2.png') },
+  { id:'A2-1', category:'varning', nameSv:'Flera farliga kurvor (första höger)', nameAr:'عدة 
+نعطفات خطيرة (الأول للي
+ين)', descSv:'Märket anger en serie av fler än två farliga kurvor. Symbolen är anpassad efter förhållandena på platsen.', descAr:'تحذير 
+ن وجود سلسلة 
+ن أكثر 
+ن 
+نعطفين خطرين، يبدأ الأول 
+نها نحو الي
+ين.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a02.-varning-for-flera-farliga-kurvor/a2-1.png') },
+  { id:'A2-2', category:'varning', nameSv:'Flera farliga kurvor (första vänster)', nameAr:'عدة 
+نعطفات خطيرة (الأول لليسار)', descSv:'Märket anger en serie av fler än två farliga kurvor. Symbolen är anpassad efter förhållandena på platsen.', descAr:'تحذير 
+ن وجود سلسلة 
+ن أكثر 
+ن 
+نعطفين خطرين، يبدأ الأول 
+نها نحو اليسار.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a02.-varning-for-flera-farliga-kurvor/a2-2.png') },
+  { id:'A3', category:'varning', nameSv:'Brant backe (nedförslut)', nameAr:'
+نحدر حاد', descSv:'Märket anger en brant nedförslutning. Siffran anger lutningen i procent.', descAr:'تحذير 
+ن وجود 
+نحدر حاد أ
+ا
+ك. الرق
+ يوضح نسبة ال
+يل.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a03.-varning-for-nedforslutning/a3-1.png') },
+  { id:'A4', category:'varning', nameSv:'Brant backe (stigning)', nameAr:'
+رتفع حاد', descSv:'Märket anger en brant stigning. Siffran anger lutningen i procent.', descAr:'تحذير 
+ن وجود 
+رتفع حاد أ
+ا
+ك. الرق
+ يوضح نسبة ال
+يل.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a04.-varning-for-stigning/a4-1.png') },
+  { id:'A5-1', category:'varning', nameSv:'Avsmalnande väg (båda sidor)', nameAr:'طريق يضيق 
+ن الجانبين', descSv:'Märket anger att vägen eller körbanan smalnar av.', descAr:'تحذير 
+ن أن الطريق سيصبح أضيق 
+ن كلا الجانبين.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a05.-varning-for-avsmalnande-vag/a5-1.png') },
+  { id:'A5-2', category:'varning', nameSv:'Avsmalnande väg (höger)', nameAr:'طريق يضيق 
+ن الي
+ين', descSv:'Märket anger att vägen eller körbanan smalnar av från höger.', descAr:'تحذير 
+ن أن الطريق سيصبح أضيق 
+ن الجانب الأي
+ن.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a05.-varning-for-avsmalnande-vag/a5-2.png') },
+  { id:'A5-3', category:'varning', nameSv:'Avsmalnande väg (vänster)', nameAr:'طريق يضيق 
+ن اليسار', descSv:'Märket anger att vägen eller körbanan smalnar av från vänster.', descAr:'تحذير 
+ن أن الطريق سيصبح أضيق 
+ن الجانب الأيسر.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a05.-varning-for-avsmalnande-vag/a5-3.png') },
+  { id:'A6', category:'varning', nameSv:'Öppningsbar bro', nameAr:'جسر قابل للفتح', descSv:'Märket anger en öppningsbar bro.', descAr:'تحذير 
+ن وجود جسر ي
+كن فتحه (جسر 
+تحرك).', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a06.-varning-for-bro/a6-1.png') },
+  { id:'A7', category:'varning', nameSv:'Kaj eller strandkant', nameAr:'رصيف 
+ائي أو شاطئ', descSv:'Märket anger en plats där vägen slutar mot en kaj, en strandkant eller liknande.', descAr:'تحذير 
+ن وجود رصيف 
+يناء أو شاطئ 
+ائي في نهاية الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a07.-varning-for-kaj/a7-1.png') },
+  { id:'A8', category:'varning', nameSv:'Ojämn väg', nameAr:'طريق غير 
+ستوٍ', descSv:'Märket anger att vägen är ojämn och att det kan vara lämpligt att sänka hastigheten.', descAr:'تحذير 
+ن وجود نتوءات أو حفر في الطريق؛ يُنصح بتخفيف السرعة.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a08.-varning-for-ojamn-vag/a8-1.png') },
+  { id:'A9', category:'varning', nameSv:'Vägbula', nameAr:'
+طب صناعي', descSv:'Märket anger en vägbula eller liknande farthinder som anlagts som en fartdämpande åtgärd.', descAr:'تحذير 
+ن وجود 
+طب صناعي أو عائق لتخفيف السرعة ت
+ إنشاؤه لهذا الغرض.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a09.-varning-for-farthinder/a9-1.png') },
+  { id:'A10', category:'varning', nameSv:'Slirig väg', nameAr:'طريق زلق', descSv:'Märket anger att vägen kan vara slirig. Används främst när det finns risk för halka av annat skäl än snö eller is.', descAr:'تحذير 
+ن أن سطح الطريق قد يكون زلقاً؛ يستخد
+ خاصة عند وجود خطر الانزلاق لأسباب غير الثلج والجليد.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a10.-varning-for-slirig-vag/a10-1.png') },
+  { id:'A11', category:'varning', nameSv:'Stensprut', nameAr:'تطاير الحصى', descSv:'Märket anger risk för stensprut.', descAr:'تحذير 
+ن خطر تطاير الحصى 
+ن عجلات السيارات.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a11.-varning-for-stenskott/a11-1.png') },
+  { id:'A12', category:'varning', nameSv:'Stenras', nameAr:'تساقط حجارة', descSv:'Märket anger en vägsträcka där det finns risk för stenfall eller att stenar ligger på vägen.', descAr:'تحذير 
+ن خطر تساقط الحجارة أو وجود صخور على الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a12.-varning-for-stenras/a12-1.png') },
+  { id:'A13', category:'varning', nameSv:'Övergångsställe', nameAr:'
+عبر 
+شاة', descSv:'Märket anger ett övergångsställe där gående kan korsa vägen.', descAr:'تحذير 
+ن وجود 
+عبر 
+شاة أ
+ا
+ك.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a13.-varning-for-overgangsstalle/a13-1.png') },
+  { id:'A14', category:'varning', nameSv:'Gående', nameAr:'
+شاة', descSv:'Märket anger en vägsträcka där gående ofta korsar eller uppehåller sig på vägen.', descAr:'تحذير 
+ن وجود 
+شاة يعبرون أو يتواجدون بكثرة على الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a14.-varning-for-gaende/a14-1.png') },
+  { id:'A15', category:'varning', nameSv:'Barn', nameAr:'أطفال', descSv:'Märket anger en vägsträcka där barn ofta vistas eller korsar vägen.', descAr:'تحذير 
+ن احت
+ال وجود أطفال يعبرون الطريق أو يتواجدون قربه.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a15.-varning-for-barn/a15-1.png') },
+  { id:'A16', category:'varning', nameSv:'Cyklande och mopedförare', nameAr:'دراجات هوائية', descSv:'Märket anger en vägsträcka där cyklande eller mopedförare ofta korsar eller uppehåller sig på körbanan.', descAr:'تحذير 
+ن وجود 
+عبر أو 
+نطقة يكثر فيها ركوب الدراجات.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a16.-varning-for-cyklande-och-mopedforare/a16-1.png') },
+  { id:'A17', category:'varning', nameSv:'Skidåkare', nameAr:'
+تزلجون', descSv:'Märket anger en plats där skidåkare ofta korsar eller uppehåller sig på vägen.', descAr:'تحذير 
+ن وجود 
+تزلجين يعبرون الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a17.-varning-for-skidakare/a17-1.png') },
+  { id:'A18', category:'varning', nameSv:'Ridande', nameAr:'خيالة', descSv:'Märket anger en plats där ridande ofta korsar eller uppehåller sig på vägen.', descAr:'تحذير 
+ن وجود فرسان أو خيالة يعبرون الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a18.-varning-for-ridande/a18-1.png') },
+  { id:'A19-1', category:'varning', nameSv:'Älgar', nameAr:'حيوان الأيل (Elk)', descSv:'Märket anger risk för älgar på vägen.', descAr:'تحذير 
+ن خطر وجود حيوانات الأيل على الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a19.-varning-for-djur/a19-1.png') },
+  { id:'A19-2', category:'varning', nameSv:'Rådjur', nameAr:'الغزال (Deer)', descSv:'Märket anger risk för rådjur på vägen.', descAr:'تحذير 
+ن خطر وجود الغزلان على الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a19.-varning-for-djur/a19-2.png') },
+  { id:'A20', category:'varning', nameSv:'Vägarbete', nameAr:'أع
+ال طريق', descSv:'Märket anger en vägsträcka där vägarbete pågår.', descAr:'تحذير 
+ن وجود أع
+ال طرق جارية أ
+ا
+ك.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a20.-varning-for-vagarbete/a20-1.png') },
+  { id:'A21', category:'varning', nameSv:'Slut på vägarbete', nameAr:'نهاية أع
+ال الطريق', descSv:'Märket anger att en sträcka med vägarbete upphör.', descAr:'يشير إلى نهاية ال
+نطقة التي كانت تجري فيها أع
+ال الطرق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a21.-slut-pa-stracka-med-vagarbete/a21-1.png') },
+  { id:'A22', category:'varning', nameSv:'Flerfärgssignal', nameAr:'إشارات ضوئية', descSv:'Märket anger en plats med trafiksignaler.', descAr:'تحذير 
+ن وجود إشارات ضوئية لتنظي
+ ال
+رور.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a22.-varning-for-flerfargssignal/a22-1.png') },
+  { id:'A23', category:'varning', nameSv:'Lågt flygande flygplan', nameAr:'طائرات 
+نخفضة', descSv:'Märket anger en plats där flygplan kan passera på låg höjd.', descAr:'تحذير 
+ن 
+نطقة قد ت
+ر فيها الطائرات على ارتفاع 
+نخفض.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a23.-varning-for-lagt-flygande-flygplan/a23-1.png') },
+  { id:'A24', category:'varning', nameSv:'Sidvind', nameAr:'رياح جانبية', descSv:'Märket anger en vägsträcka där det ofta förekommer stark sidvind.', descAr:'تحذير 
+ن هبوب رياح جانبية قوية في هذه ال
+نطقة.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a24.-varning-for-sidvind/a24-1.png') },
+  { id:'A25', category:'varning', nameSv:'Mötande trafik', nameAr:'
+رور 
+قابل', descSv:'Märket anger att trafiken på vägen är dubbelriktad.', descAr:'تحذير 
+ن أن الطريق سيصبح ذو اتجاهين (
+رور 
+قابل).', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a25.-varning-for-motande-trafik/a25-1.png') },
+  { id:'A26', category:'varning', nameSv:'Tunnel', nameAr:'نفق', descSv:'Märket anger en tunnel.', descAr:'تحذير 
+ن وجود نفق أ
+ا
+ك.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a26.-varning-for-tunnel/a26-1.png') },
+  { id:'A27', category:'varning', nameSv:'Svag vägkant', nameAr:'حافة طريق ضعيفة', descSv:'Märket anger att vägkanten är svag eller att det finns en hög körbanekant.', descAr:'تحذير 
+ن أن حافة الطريق ضعيفة أو 
+رتفعة بشكل خطر.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a27.-varning-for-svag-vagkant-eller-hog-korbanekant/a27-1.png') },
+  { id:'A28', category:'varning', nameSv:'Vägkorsning', nameAr:'تقاطع طرق', descSv:'Märket anger en vägkorsning där högerregeln gäller.', descAr:'تحذير 
+ن وجود تقاطع طرق حيث تطبق قاعدة الأولوية للقاد
+ 
+ن الي
+ين.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a28.-varning-for-vagkorsning/a28-1.png') },
+  { id:'A29', category:'varning', nameSv:'Korsning med anslutande väg', nameAr:'تقاطع 
+ع طريق فرعي', descSv:'Märket anger en vägkorsning där trafikanter på anslutande vägar har väjningsplikt eller stopplikt.', descAr:'تحذير 
+ن تقاطع حيث تكون الأولوية لك، وعلى القاد
+ين 
+ن الطرق الجانبية إفساح الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a29.-varning-for-vagkorsning-dar-trafikanter-pa-anslutande-vag-har-vajningsplikt-eller-stopplikt/a29-1.png') },
+  { id:'A30', category:'varning', nameSv:'Cirkulationsplats', nameAr:'دوار', descSv:'Märket anger en cirkulationsplats.', descAr:'تحذير 
+ن الاقتراب 
+ن دوار 
+روري.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a30.-varning-for-cirkulationsplats/a30-1.png') },
+  { id:'A31', category:'varning', nameSv:'Långsamtgående fordon', nameAr:'
+ركبات بطيئة', descSv:'Märket anger en plats där långsamtgående fordon ofta korsar eller uppehåller sig på vägen.', descAr:'تحذير 
+ن وجود 
+ركبات بطيئة الحركة (
+ثل الجرارات) تعبر الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a31.-varning-for-langsamtgaende-fordon/a31-1.png') },
+  { id:'A32', category:'varning', nameSv:'Fordon med dragdjur', nameAr:'
+ركبات تجرها حيوانات', descSv:'Märket anger en plats där fordon med förspänt dragdjur ofta korsar eller uppehåller sig på vägen.', descAr:'تحذير 
+ن وجود 
+ركبات تجرها خيول أو حيوانات أخرى.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a32.-varning-for-fordon-med-forspant-dragdjur/a32-1.png') },
+  { id:'A33', category:'varning', nameSv:'Terrängskotertrafik', nameAr:'
+ركبات الثلج/التضاريس', descSv:'Märket anger en plats där terrängskotrar ofta korsar eller uppehåller sig på vägen.', descAr:'تحذير 
+ن وجود 
+ركبات الثلج (Snowmobiles) تعبر الطريق.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a33.-varning-for-terrangskotertrafik/a33-1.png') },
+  { id:'A34', category:'varning', nameSv:'Kö', nameAr:'ازدحا
+ 
+روري', descSv:'Märket anger en risk för köbildning.', descAr:'تحذير 
+ن احت
+ال حدوث ازدحا
+ 
+روري أو طوابير سيارات.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a34.-varning-for-ko/a34-1.png') },
+  { id:'A35', category:'varning', nameSv:'Järnvägskorsning med bommar', nameAr:'
+عبر سكة حديد بحواجز', descSv:'Märket anger en plankorsning med järnväg med bommar.', descAr:'تحذير 
+ن 
+عبر سكة حديدية 
+جهز بحواجز (بوابات).', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a35.-varning-for-jarnvagskorsning-med-bommar/a35-1.png') },
+  { id:'A36', category:'varning', nameSv:'Järnvägskorsning utan bommar', nameAr:'
+عبر سكة حديد بدون حواجز', descSv:'Märket anger en plankorsning med järnväg utan bommar.', descAr:'تحذير 
+ن 
+عبر سكة حديدية غير 
+جهز بحواجز.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a36.-varning-for-jarnvagskorsning-utan-bommar/a36-1.png') },
+  { id:'A37', category:'varning', nameSv:'Korsning med spårväg', nameAr:'
+عبر ترا
+', descSv:'Märket anger en plankorsning med spårväg utan bommar.', descAr:'تحذير 
+ن 
+عبر للسكة الحديدية الخاصة بالترا
+ (بدون حواجز).', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a37.-varning-for-korsning-med-sparvag-utan-bommar/a37-1.png') },
+  { id:'A38', category:'varning', nameSv:'Avstånd till plankorsning', nameAr:'ال
+سافة إلى 
+عبر السكة', descSv:'Märkena anger avståndet till en plankorsning i tredjedelar.', descAr:'تشير اللوحات إلى ال
+سافة ال
+تبقية للوصول إلى 
+عبر السكة الحديدية (بالأثلاث).', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a38.-avstand-till-plankorsning/a38-1.png') },
+  { id:'A39-1', category:'varning', nameSv:'Kryssmärke (enkelspår)', nameAr:'صليب أندرياس (سكة واحدة)', descSv:'Märket anger en plankorsning med ett spår.', descAr:'تحذير 
+ن 
+عبر سكة حديدية ذو 
+سار واحد.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a39.-kryssmarke/a39-1.png') },
+  { id:'A39-2', category:'varning', nameSv:'Kryssmärke (flera spår)', nameAr:'صليب أندرياس (عدة 
+سارات)', descSv:'Märket anger en plankorsning med två eller flera spår.', descAr:'تحذير 
+ن 
+عبر سكة حديدية ذو 
+سارين أو أكثر.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a39.-kryssmarke/a39-2.png') },
+  { id:'A40', category:'varning', nameSv:'Annan fara', nameAr:'خطر آخر', descSv:'Märket anger annan fara än sådan som kan anges med något annat varningsmärke.', descAr:'تحذير 
+ن وجود خطر غير 
+حدد بالعلا
+ات الأخرى. يجب الانتباه.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a40.-varning-for-annan-fara/a40-1.png') },
+  { id:'A41', category:'varning', nameSv:'Olycka', nameAr:'حادث 
+روري', descSv:'Märket anger en olycksplats.', descAr:'تحذير 
+ن وجود حادث 
+روري أ
+ا
+ك.', svg: IMG('https://www.transportstyrelsen.se/globalassets/global/vag/vagmarken2/a.-varningsmarken/a41.-varning-for-olycka/a41-1.png') },
+ود إشارات ضوئية لتنظي
+ ال
+رور.', svg: IMG('https://www.transportstyrelsen.se/link/fcff8fed172e4c5aa479e072765b638e.aspx') },
+  { id:'A24', category:'varning', nameSv:'Mötande trafik', nameAr:'
+رور 
+قابل', descSv:'Dubbelriktad trafik börjar.', descAr:'تحذير 
+ن أن الطريق سيصبح ذو اتجاهين.', svg: IMG('https://www.transportstyrelsen.se/link/7114fe4969c146d4831cfd62d133d943.aspx') },
+  { id:'A32', category:'varning', nameSv:'Annan fara', nameAr:'خطر آخر', descSv:'Annan fara än de som nämnts.', descAr:'تحذير 
+ن وجود خطر غير 
+حدد بالعلا
+ات الأخرى.', svg: IMG('https://www.transportstyrelsen.se/link/adf1f200563c443bb823f7452dff7569.aspx') },
+  { id:'A39-1', category:'varning', nameSv:'Kryssmärke (enkelspår)', nameAr:'صليب أندرياس (سكة واحدة)', descSv:'Varning för järnväg.', descAr:'تحذير 
+ن 
+عبر سكة حديدية ذو 
+سار واحد.', svg: IMG('https://www.transportstyrelsen.se/link/11d00c13a6d64d8584f28985fc45e144.aspx') },
+
+  // 2) PRIORITY (B)
+  { id:'B1', category:'vajning', nameSv:'Väjningsplikt', nameAr:'إفساح الطريق', descSv:'Lämna företräde.', descAr:'أنت 
+لز
+ بإفساح الطريق لحركة ال
+رور على الطريق ال
+تقاطع.', svg: IMG('https://www.transportstyrelsen.se/link/a411f0cd189548eb91d6da0a622295cc.aspx') },
+  { id:'B2', category:'vajning', nameSv:'Stopplikt', nameAr:'قف', descSv:'Stanna vid stopplinjen.', descAr:'الوقوف الإلزا
+ي التا
+ عند خط التوقف.', svg: IMG('https://www.transportstyrelsen.se/link/e56c907ba203404eaf0f3fe2c270d1f3.aspx') },
+  { id:'B3', category:'vajning', nameSv:'Huvudled', nameAr:'طريق رئيسي', descSv:'Du kör på huvudled.', descAr:'أنت تسير على طريق رئيسي.', svg: IMG('https://www.transportstyrelsen.se/link/616451ea419c4fcda058a9994ba6815f.aspx') },
+  { id:'B4', category:'vajning', nameSv:'Huvudled upphör', nameAr:'نهاية الطريق الرئيسي', descSv:'Huvudled slutar.', descAr:'نهاية حق الأولوية الذي ي
+نحه الطريق الرئيسي.', svg: IMG('https://www.transportstyrelsen.se/link/f22f452faa0d46a8932257d7b0006ef9.aspx') },
+  { id:'B5', category:'vajning', nameSv:'Väjningsplikt mot mötande', nameAr:'أولوية ال
+قابل', descSv:'Du ska väja för mötande.', descAr:'يجب عليك إفساح الطريق لحركة ال
+رور القاد
+ة 
+ن الاتجاه ال
+عاكس.', svg: IMG('https://www.transportstyrelsen.se/link/eb840fbfa1dd43d08904c746d87e6965.aspx') },
+  { id:'B6', category:'vajning', nameSv:'Mötande har väjningsplikt', nameAr:'أولويتك تجاه ال
+قابل', descSv:'Mötande ska väja för dig.', descAr:'حركة ال
+رور القاد
+ة 
+ن الاتجاه ال
+عاكس 
+لز
+ة بإفساح الطريق لك.', svg: IMG('https://www.transportstyrelsen.se/link/8b65fc14cb4347a49add999296fc173b.aspx') },
+  { id:'B7', category:'vajning', nameSv:'Cirkulationsplats', nameAr:'دوار', descSv:'Du närmar dig en rondell.', descAr:'تحذير 
+ن الاقتراب 
+ن دوار 
+روري.', svg: IMG('https://www.transportstyrelsen.se/link/7ef925a7b2d04e0b89aee503fa648ab4.aspx') },
+
+  // 3) PROHIBITION (C)
+  { id:'C1', category:'forbud', nameSv:'Förbud mot infart', nameAr:'
+
+نوع الدخول', descSv:'Ingen infart.', descAr:'يُ
+نع دخول ج
+يع ال
+ركبات.', svg: IMG('https://www.transportstyrelsen.se/link/ea7859c843b14a02b8cdfb8950658014.aspx') },
+  { id:'C2', category:'forbud', nameSv:'Förbud mot trafik med fordon', nameAr:'
+
+نوع 
+رور ال
+ركبات', descSv:'All fordonstrafik förbjuden.', descAr:'يُ
+نع 
+رور ج
+يع أنواع ال
+ركبات في هذا الاتجاه.', svg: IMG('https://www.transportstyrelsen.se/link/e08976ca1d13469da5a119d4c4370477.aspx') },
+  { id:'C3', category:'forbud', nameSv:'Förbud mot motordrivet fordon', nameAr:'
+
+نوع ال
+ركبات ذات ال
+حركات', descSv:'Ej motordrivna fordon.', descAr:'يُ
+نع 
+رور ج
+يع ال
+ركبات التي تع
+ل ب
+حرك.', svg: IMG('https://www.transportstyrelsen.se/link/1601c1e1d59e48cbb1faefa7c159610e.aspx') },
+  { id:'C7', category:'forbud', nameSv:'Förbud mot tung lastbil', nameAr:'
+
+نوع الشاحنات الثقيلة', descSv:'Tunga lastbilar förbjudna.', descAr:'يُ
+نع 
+رور الشاحنات التي يتجاوز وزنها الإج
+الي 3.5 طن.', svg: IMG('https://www.transportstyrelsen.se/link/fddb6d2240c74faf9df593d13ee71fef.aspx') },
+  { id:'C19-1', category:'forbud', nameSv:'Förbud mot sväng (vänster)', nameAr:'
+
+نوع اليسار', descSv:'Ej svänga till vänster.', descAr:'يُ
+نع الانعطاف نحو اليسار.', svg: IMG('https://www.transportstyrelsen.se/link/ed9aa211d35a4710bff2a51b6cefed7a.aspx') },
+  { id:'C20', category:'forbud', nameSv:'Förbud mot u-sväng', nameAr:'
+
+نوع الدوران للخلف', descSv:'U-sväng förbjuden.', descAr:'يُ
+نع القيا
+ بدوران للخلف.', svg: IMG('https://www.transportstyrelsen.se/link/4a1ae22f13b045229d477963e4072c50.aspx') },
+  { id:'C25', category:'forbud', nameSv:'Omkörningsförbud', nameAr:'
+
+نوع التجاوز', descSv:'Förbjudet att köra om.', descAr:'يُ
+نع تجاوز ال
+ركبات ذات ال
+حركات.', svg: IMG('https://www.transportstyrelsen.se/link/e64dc8f2231c4721a462a3b3b9aec12c.aspx') },
+  { id:'C31-30', category:'forbud', nameSv:'Begränsning 30', nameAr:'سرعة 30', descSv:'Högsta hastighet 30.', descAr:'الحد الأقصى للسرعة هو ك
+/ساعة.', svg: IMG('https://www.transportstyrelsen.se/link/cf476563cf2f4345a4302283365299bb.aspx') },
+  { id:'C31-50', category:'forbud', nameSv:'Begränsning 50', nameAr:'سرعة 50', descSv:'Högsta hastighet 50.', descAr:'الحد الأقصى للسرعة هو ك
+/ساعة.', svg: IMG('https://www.transportstyrelsen.se/link/6fdf393848974868953163737b98d9e0.aspx') },
+  { id:'C31-70', category:'forbud', nameSv:'Begränsning 70', nameAr:'سرعة 70', descSv:'Högsta hastighet 70.', descAr:'الحد الأقصى للسرعة هو ك
+/ساعة.', svg: IMG('https://www.transportstyrelsen.se/link/cf476563cf2f4345a4302283365299bb.aspx') },
+  { id:'C39', category:'forbud', nameSv:'Förbud mot parkering', nameAr:'
+
+نوع الوقوف', descSv:'Parkering förbjuden.', descAr:'يُ
+نع وقوف السيارات.', svg: IMG('https://www.transportstyrelsen.se/link/03db55ab957640cc97397991c87e999d.aspx') },
+  { id:'C40', category:'forbud', nameSv:'Förbud mot stanna/parkera', nameAr:'
+
+نوع التوقف والوقوف', descSv:'Stoppförbud.', descAr:'يُ
+نع التوقف أو ركن السيارة ت
+ا
+اً.', svg: IMG('https://www.transportstyrelsen.se/link/eb248e65d93b4a479e637991721278db.aspx') },
+
+  // 4) MANDATORY (D)
+  { id:'D1-1', category:'pabud', nameSv:'Rakt fram', nameAr:'للأ
+ا
+ فقط', descSv:'Kör rakt fram.', descAr:'يجب عليك السير في الاتجاه ال
+ستقي
+ فقط.', svg: IMG('https://www.transportstyrelsen.se/link/150ce05730314a6d9b38200a3e989045.aspx') },
+  { id:'D1-2', category:'pabud', nameSv:'Höger', nameAr:'ي
+ين فقط', descSv:'Sväng höger.', descAr:'يجب عليك الانعطاف نحو الي
+ين فقط.', svg: IMG('https://www.transportstyrelsen.se/link/2d8dd142db1444179caa7e8b133f0274.aspx') },
+  { id:'D2-1', category:'pabud', nameSv:'Håll höger', nameAr:'إلزا
+ الي
+ين', descSv:'Håll till höger.', descAr:'يجب عليك البقاء على الجانب الأي
+ن 
+ن العلا
+ة.', svg: IMG('https://www.transportstyrelsen.se/link/2d8dd142db1444179caa7e8b133f0274.aspx') },
+  { id:'D4', category:'pabud', nameSv:'Cykelbana', nameAr:'
+سار دراجات', descSv:'Endast cykel och moped kl II.', descAr:'يُس
+ح فقط ب
+رور الدراجات الهوائية.', svg: IMG('https://www.transportstyrelsen.se/link/70b0999d7a1e4709a2adc1f4c0ccb213.aspx') },
+  { id:'D5', category:'pabud', nameSv:'Gångbana', nameAr:'
+سار 
+شاة', descSv:'Endast gående.', descAr:'يُس
+ح فقط ب
+رور ال
+شاة.', svg: IMG('https://www.transportstyrelsen.se/link/3c104d2e1bec41cea8f6f0b8ef32fed4.aspx') },
+  { id:'D6', category:'pabud', nameSv:'Gång- och cykelbana', nameAr:'
+شاة ودراجات', descSv:'Gående och cyklister.', descAr:'
+سار 
+شترك لل
+شاة والدراجات.', svg: IMG('https://www.transportstyrelsen.se/link/b5720fc30845469b9d2e0b0541e6921c.aspx') },
+
+  // 5) INSTRUCTION (E)
+  { id:'E1', category:'anvisning', nameSv:'Motorväg', nameAr:'طريق سريع', descSv:'Motorväg börjar.', descAr:'بداية الطريق السريع.', svg: IMG('https://www.transportstyrelsen.se/link/3673ef13303c46648e897d1b329249e0.aspx') },
+  { id:'E2', category:'anvisning', nameSv:'Motorväg upphör', nameAr:'نهاية الطريق سريع', descSv:'Motorväg slutar.', descAr:'نهاية قواعد الطريق السريع.', svg: IMG('https://www.transportstyrelsen.se/link/0e0f393848974868953163737b98d9e0.aspx') },
+  { id:'E5-1', category:'anvisning', nameSv:'Tättbebyggt område', nameAr:'
+نطقة سكنية', descSv:'Stadsliknande område.', descAr:'بداية 
+نطقة سكنية.', svg: IMG('https://www.transportstyrelsen.se/link/72669e0e378c4a169b27568f6826629e.aspx') },
+  { id:'E7', category:'anvisning', nameSv:'Gångfartsområde', nameAr:'
+نطقة 
+شاة', descSv:'Fordon på gåendes villkor.', descAr:'
+نطقة يجب أن تسير فيها ال
+ركبات بسرعة ال
+شي.', svg: IMG('https://www.transportstyrelsen.se/link/39832873138b438384813f8899999999.aspx') },
+  { id:'E11', category:'anvisning', nameSv:'Övergångsställe', nameAr:'
+عبر 
+شاة إرشادي', descSv:'Plats för gående.', descAr:'يشير إلى ال
+كان ال
+خصص لعبور ال
+شاة.', svg: IMG('https://www.transportstyrelsen.se/link/113898f86899457896472f8899999999.aspx') },
+  { id:'E19', category:'anvisning', nameSv:'Parkering', nameAr:'
+وقف سيارات', descSv:'Parkering tillåten.', descAr:'يُس
+ح بركن السيارات في هذا ال
+كان.', svg: IMG('https://www.transportstyrelsen.se/link/39832873138b438384813f8899999999.aspx') },
+
+  // 10) SIGNALS (Y)
+  { id:'Y1', category:'jarnvag', nameSv:'Rött blinkande ljus', nameAr:'إشارة ضوئية ح
+راء', descSv:'Stanna vid järnväg.', descAr:'إشارة ضوئية توجب التوقف عند ال
+عبر.', svg: IMG('https://www.transportstyrelsen.se/link/79e4419b40d943188af936b404a3b6f0.aspx') },
+  { id:'Y2', category:'jarnvag', nameSv:'Ljudsignal', nameAr:'إشارة صوتية', descSv:'Ljudvarning vid korsning.', descAr:'تحذير صوتي ينبه لاقتراب القطار.', svg: IMG('https://www.transportstyrelsen.se/link/fdf0e83fa55a43f095cf80a9a7249090.aspx') },
+  { id:'Y3', category:'jarnvag', nameSv:'Bom', nameAr:'حاجز', descSv:'Fysiskt hinder vid spår.', descAr:'حاجز 
+يكانيكي ينخفض ل
+نع عبور ال
+ركبات.', svg: IMG('https://www.transportstyrelsen.se/link/5443078688684afa94b2734df068ff12.aspx') },
+  { id:'Y4', category:'jarnvag', nameSv:'Plankorsningsskärm', nameAr:'لوحة 
+عبر السكة', descSv:'Markering vid korsning.', descAr:'لوحة إرشادية توضح 
+كان ال
+عبر.', svg: IMG('https://www.transportstyrelsen.se/link/166bd3ad3b844025a330097f0ed589f5.aspx') },
+];
+
+if (typeof module !== 'undefined') module.exports = { CATEGORIES, SIGNS };
