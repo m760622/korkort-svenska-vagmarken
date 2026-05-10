@@ -316,8 +316,23 @@ body {
 .title-nav-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
+}
+
+.nav-buttons-group {
+  display: flex;
+  gap: 6px;
+  background: var(--surface-2);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+/* Invert black symbols in dark mode for visibility */
+[data-theme="dark"] .cat-symboler .sign-img img,
+[data-theme="dark"] .cat-vagmark .sign-img img {
+  filter: invert(1) brightness(1.2);
 }
 
 .btn-nav-small {
@@ -438,8 +453,8 @@ body {
 .modal-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: center;
+  gap: 16px;
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid var(--border);

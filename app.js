@@ -598,9 +598,11 @@ function renderBrowse() {
       
       signsGrid.innerHTML = `<div class="section-title" style="grid-column:1/-1">
         <div class="title-nav-group">
-          <button class="btn-nav-small" onclick="switchCategory(-1)" title="${T('btn.prev')}">${prevIcon}</button>
+          <div class="nav-buttons-group">
+            <button class="btn-nav-small" onclick="switchCategory(-1)" title="${T('btn.prev')}">${prevIcon}</button>
+            <button class="btn-nav-small" onclick="switchCategory(1)" title="${T('btn.next')}">${nextIcon}</button>
+          </div>
           <h2>${c.icon} ${catName} <span style="color:var(--text-soft); font-size:13px">(${filtered.length})</span></h2>
-          <button class="btn-nav-small" onclick="switchCategory(1)" title="${T('btn.next')}">${nextIcon}</button>
           <button class="btn-autoplay ${state.autoplay ? 'playing' : ''}" onclick="toggleAutoplay()">
             <span>${playIcon}</span> ${playLabel}
           </button>
@@ -634,7 +636,7 @@ function signCardHTML(s) {
   const secondary = state.lang === 'ar' ? s.nameSv : s.nameAr;
   const activeClass = (state.autoplay && state.autoplayIdx !== -1 && signsIn(state.category)[state.autoplayIdx]?.id === s.id) ? 'autoplay-active' : '';
   
-  return `<div class="sign-card ${activeClass}" data-id="${s.id}" onclick="openModal('${s.id}')">
+  return `<div class="sign-card ${activeClass} cat-${s.category}" data-id="${s.id}" onclick="openModal('${s.id}')">
     <div class="sign-img">${s.svg}</div>
     <div class="sign-name">${primary}</div>
     <div class="sign-name-sv">${secondary}</div>
