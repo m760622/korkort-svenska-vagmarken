@@ -34,7 +34,7 @@ const I18N = {
     'quiz.title': '🎯 اختيار من متعدد', 'quiz.intro': 'شاهد العلامة واختر المعنى الصحيح من بين 4 خيارات.',
     'quiz.count': 'عدد الأسئلة:', 'quiz.optsLang': 'لغة الخيارات:',
     'btn.start': 'ابدأ ▶', 'quiz.btn.start': 'ابدأ الاختبار ▶', 'btn.next': 'التالي ←', 'btn.prev': '← السابق', 'btn.playAgain': 'العب مرة أخرى', 'btn.close': 'إغلاق',
-    'btn.speakSv': '🔊 سويدي', 'btn.speakAr': '🔊 عربي', 'btn.playAll': 'تشغيل الكل',
+    'btn.speakSv': '🔊 سويدي', 'btn.speakAr': '🔊 عربي', 'btn.playAll': 'الكل', 'btn.autoplay': 'مستمر',
     'game.over': '🎉 انتهت اللعبة',
     'flip.title': '🔄 قلب البطاقات', 'flip.intro': 'شاهد العلامة، فكّر بالمعنى، ثم اقلب البطاقة للتأكد. حدد ما تعرفه وما تحتاج لمراجعته.',
     'flip.onlyReview': 'أظهر فقط ما حدّدته «راجعني لاحقاً»', 'flip.reset': '🗑 محو حالة المعرفة',
@@ -79,7 +79,7 @@ const I18N = {
     'quiz.title': '🎯 Flervalsfrågor', 'quiz.intro': 'Titta på skylten och välj rätt betydelse av 4 alternativ.',
     'quiz.count': 'Antal frågor:', 'quiz.optsLang': 'Alternativens språk:',
     'btn.start': 'Starta ▶', 'quiz.btn.start': 'Starta Quiz ▶', 'btn.next': 'Nästa →', 'btn.prev': '← Föregående', 'btn.playAgain': 'Spela igen', 'btn.close': 'Stäng',
-    'btn.speakSv': '🔊 Svenska', 'btn.speakAr': '🔊 Arabiska', 'btn.playAll': 'Spela alla',
+    'btn.speakSv': '🔊 Svenska', 'btn.speakAr': '🔊 Arabiska', 'btn.playAll': 'Spela alla', 'btn.autoplay': 'Auto-spel',
     'game.over': '🎉 Spelet är slut',
     'flip.title': '🔄 Vändkort', 'flip.intro': 'Titta på skylten, tänk på betydelsen och vänd kortet. Markera vad du kan och vad du behöver repetera.',
     'flip.onlyReview': 'Visa endast «Repetera senare»', 'flip.reset': '🗑 Rensa kunskapsstatus',
@@ -427,7 +427,7 @@ function renderDashboard() {
     const known = signs.filter(s => progress.known[s.id]).length;
     const pct = total ? Math.round((known / total) * 100) : 0;
     const name = state.lang === 'ar' ? c.nameAr : c.nameSv;
-    
+
     catHtml += `
       <div class="dash-cat-row">
         <div class="dash-cat-header">
@@ -530,7 +530,7 @@ function stopAutoplay() {
 
 function playSignAutoplay(s) {
   if (!state.autoplay || !s) return;
-  
+
   // Highlight card
   $$('.sign-card').forEach(c => {
     const active = c.dataset.id === s.id;
@@ -544,11 +544,11 @@ function playSignAutoplay(s) {
   if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'sv-SE'; }
   u.rate = ttsSettings.rate;
   u.pitch = ttsSettings.pitch;
-  
+
   u.onend = () => {
     if (!state.autoplay) return;
     state.autoplayIdx++;
-    
+
     const search = state.search.trim().toLowerCase();
     let filtered = signsIn(state.category);
     if (search) {
@@ -558,7 +558,7 @@ function playSignAutoplay(s) {
         x.id.toLowerCase().includes(search)
       );
     }
-    
+
     if (state.autoplayIdx < filtered.length) {
       setTimeout(() => playSignAutoplay(filtered[state.autoplayIdx]), 1000);
     } else {
@@ -593,10 +593,10 @@ function renderBrowse() {
       const catName = state.lang === 'ar' ? c.nameAr : c.nameSv;
       const prevIcon = state.lang === 'ar' ? '→' : '←';
       const nextIcon = state.lang === 'ar' ? '←' : '→';
-      
+
       const playLabel = state.autoplay ? T('browse.stop') : T('browse.playAll');
       const playIcon = state.autoplay ? '⏹' : '🔊▶';
-      
+
       signsGrid.innerHTML = `<div class="section-title" style="grid-column:1/-1">
         <div class="title-nav-group">
           <div class="nav-buttons-group">
@@ -637,7 +637,7 @@ function signCardHTML(s) {
   const primary = state.lang === 'ar' ? s.nameAr : s.nameSv;
   const secondary = state.lang === 'ar' ? s.nameSv : s.nameAr;
   const activeClass = (state.autoplay && state.autoplayIdx !== -1 && signsIn(state.category)[state.autoplayIdx]?.id === s.id) ? 'autoplay-active' : '';
-  
+
   return `<div class="sign-card ${activeClass} cat-${s.category}" data-id="${s.id}" onclick="openModal('${s.id}')">
     <div class="sign-img">${s.svg}</div>
     <div class="sign-name">${primary}</div>
@@ -735,49 +735,145 @@ function modalPrev() {
   modalIdx = (modalIdx - 1 + modalList.length) % modalList.length;
   renderModalSign();
 }
-function closeModal() { $('modal').classList.add('hidden'); }
+function closeModal() {
+  state.autoplay = false;
+  updateAutoplayUI();
+  speechSynthesis.cancel();
+  $('modal').classList.add('hidden');
+}
 $('modal-close').addEventListener('click', closeModal);
 $('modal').querySelector('.modal-backdrop').addEventListener('click', closeModal);
- $('modal-prev').addEventListener('click', modalPrev);
+$('modal-prev').addEventListener('click', modalPrev);
 $('modal-next').addEventListener('click', modalNext);
 
-$('modal-play-all').addEventListener('click', () => {
+const playAllBtn = $('modal-play-all');
+if (playAllBtn) {
+  playAllBtn.addEventListener('click', () => {
+    const s = modalList[modalIdx];
+    if (!s) return;
+
+    const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
+    const arBtn = document.querySelector('#modal .btn-tts[data-lang="ar-SA"]');
+
+    const textSv = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
+    const textAr = s.descAr && !isDuplicate(s.nameAr, s.descAr) ? `${s.nameAr}. ${s.descAr}` : s.nameAr;
+
+    // Clear any existing speech
+    speechSynthesis.cancel();
+
+    // Create Swedish Utterance
+    const uSv = new SpeechSynthesisUtterance(cleanText(textSv));
+    const vSv = _voiceCache.sv || pickVoiceSync('sv-SE');
+    if (vSv) { uSv.voice = vSv; uSv.lang = vSv.lang; } else uSv.lang = 'sv-SE';
+    uSv.rate = ttsSettings.rate; uSv.pitch = ttsSettings.pitch;
+
+    // Create Arabic Utterance
+    const uAr = new SpeechSynthesisUtterance(cleanText(textAr));
+    const vAr = _voiceCache.ar || pickVoiceSync('ar-SA');
+    if (vAr) { uAr.voice = vAr; uAr.lang = vAr.lang; } else uAr.lang = 'ar-SA';
+    uAr.rate = ttsSettings.rate; uAr.pitch = ttsSettings.pitch;
+
+    // Chaining logic
+    uSv.onstart = () => {
+      setSpeakingState(svBtn, true);
+      setSpeakingState(playAllBtn, true);
+    };
+    uSv.onend = () => {
+      setSpeakingState(svBtn, false);
+      setTimeout(() => {
+        if (!modalList || modalIdx < 0) return;
+        speechSynthesis.speak(uAr);
+      }, 300);
+    };
+    uSv.onerror = () => {
+      setSpeakingState(svBtn, false);
+      setSpeakingState(playAllBtn, false);
+    };
+
+    uAr.onstart = () => { setSpeakingState(arBtn, true); };
+    uAr.onend = () => {
+      setSpeakingState(arBtn, false);
+      setSpeakingState(playAllBtn, false);
+    };
+    uAr.onerror = () => {
+      setSpeakingState(arBtn, false);
+      setSpeakingState(playAllBtn, false);
+    };
+
+    if (speechSynthesis.paused) speechSynthesis.resume();
+    speechSynthesis.speak(uSv);
+  });
+}
+const autoplayBtn = $('modal-autoplay');
+if (autoplayBtn) {
+  autoplayBtn.addEventListener('click', () => {
+    state.autoplay = !state.autoplay;
+    updateAutoplayUI();
+    if (state.autoplay) playCurrentSignSequence();
+    else speechSynthesis.cancel();
+  });
+}
+
+function updateAutoplayUI() {
+  const btn = $('modal-autoplay');
+  if (!btn) return;
+  if (state.autoplay) {
+    btn.classList.add('btn-primary');
+    btn.classList.remove('btn-ghost');
+  } else {
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-ghost');
+  }
+}
+
+function playCurrentSignSequence() {
   const s = modalList[modalIdx];
-  if (!s) return;
-  
+  if (!s || !state.autoplay) return;
+
   const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
   const arBtn = document.querySelector('#modal .btn-tts[data-lang="ar-SA"]');
-  
+  const playAllBtn = $('modal-play-all');
+
   const textSv = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
   const textAr = s.descAr && !isDuplicate(s.nameAr, s.descAr) ? `${s.nameAr}. ${s.descAr}` : s.nameAr;
 
-  // Clear any existing speech
   speechSynthesis.cancel();
 
-  // Create Swedish Utterance
   const uSv = new SpeechSynthesisUtterance(cleanText(textSv));
   const vSv = _voiceCache.sv || pickVoiceSync('sv-SE');
   if (vSv) { uSv.voice = vSv; uSv.lang = vSv.lang; } else uSv.lang = 'sv-SE';
   uSv.rate = ttsSettings.rate; uSv.pitch = ttsSettings.pitch;
-  
-  // Create Arabic Utterance
+
   const uAr = new SpeechSynthesisUtterance(cleanText(textAr));
   const vAr = _voiceCache.ar || pickVoiceSync('ar-SA');
   if (vAr) { uAr.voice = vAr; uAr.lang = vAr.lang; } else uAr.lang = 'ar-SA';
   uAr.rate = ttsSettings.rate; uAr.pitch = ttsSettings.pitch;
 
-  // Chaining logic
-  uSv.onstart = () => { setSpeakingState(svBtn, true); setSpeakingState($('modal-play-all'), true); };
-  uSv.onend = () => { setSpeakingState(svBtn, false); speechSynthesis.speak(uAr); };
-  uSv.onerror = () => { setSpeakingState(svBtn, false); setSpeakingState($('modal-play-all'), false); };
+  uSv.onstart = () => { setSpeakingState(svBtn, true); setSpeakingState(playAllBtn, true); };
+  uSv.onend = () => {
+    setSpeakingState(svBtn, false);
+    setTimeout(() => { if (state.autoplay) speechSynthesis.speak(uAr); }, 300);
+  };
+  uSv.onerror = () => { setSpeakingState(svBtn, false); state.autoplay = false; updateAutoplayUI(); };
 
   uAr.onstart = () => { setSpeakingState(arBtn, true); };
-  uAr.onend = () => { setSpeakingState(arBtn, false); setSpeakingState($('modal-play-all'), false); };
-  uAr.onerror = () => { setSpeakingState(arBtn, false); setSpeakingState($('modal-play-all'), false); };
+  uAr.onend = () => {
+    setSpeakingState(arBtn, false);
+    setSpeakingState(playAllBtn, false);
+    if (state.autoplay) {
+      setTimeout(() => {
+        if (state.autoplay) {
+          modalNext();
+          playCurrentSignSequence();
+        }
+      }, 1000); // 1 second gap before next sign
+    }
+  };
+  uAr.onerror = () => { setSpeakingState(arBtn, false); state.autoplay = false; updateAutoplayUI(); };
 
-  if (speechSynthesis.paused) speechSynthesis.resume();
   speechSynthesis.speak(uSv);
-});
+}
+
 document.addEventListener('keydown', (e) => {
   if ($('modal').classList.contains('hidden')) return;
   if (e.key === 'Escape') closeModal();
@@ -810,20 +906,20 @@ $('theme-toggle').addEventListener('click', () => {
 });
 
 // ===== QUIZ — Multiple Choice =====
-const quiz = { 
-  items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar', 
-  wrongPool: [], type: 'signs', isMock: false, 
+const quiz = {
+  items: [], idx: 0, correct: 0, wrong: 0, lang: 'ar',
+  wrongPool: [], type: 'signs', isMock: false,
   timerInterval: null, timeLeft: 3000 // 50 mins in seconds
 };
 
 function startQuiz(isMock = false) {
   const quizTypeEl = $('quiz-type');
   const quizType = quizTypeEl ? quizTypeEl.value : 'signs';
-  
+
   quiz.isMock = isMock;
   quiz.lang = state.lang;
   quiz.type = isMock ? 'signs' : quizType;
-  
+
   if (isMock) {
     if (typeof SIGNS === 'undefined' || typeof SCENARIOS === 'undefined') {
       toast(state.lang === 'ar' ? 'جاري تحميل البيانات... حاول ثانية' : 'Laddar data... försök igen');
@@ -839,17 +935,17 @@ function startQuiz(isMock = false) {
     startTimer();
   } else if (quizType === 'mistakes') {
     const mistakeIds = Object.keys(progress.mistakes);
-    if (mistakeIds.length === 0) { 
-      toast(state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً' : 'Inga fel sparade än'); 
-      return; 
+    if (mistakeIds.length === 0) {
+      toast(state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً' : 'Inga fel sparade än');
+      return;
     }
     quiz.items = shuffle(SIGNS.filter(s => progress.mistakes[s.id])).slice(0, 30);
     const timerEl = $('quiz-timer');
     if (timerEl) timerEl.classList.add('hidden');
   } else if (quizType === 'scenarios') {
-    if (typeof SCENARIOS === 'undefined' || SCENARIOS.length === 0) { 
-      toast(T('msg.tooFew')); 
-      return; 
+    if (typeof SCENARIOS === 'undefined' || SCENARIOS.length === 0) {
+      toast(T('msg.tooFew'));
+      return;
     }
     const countEl = $('quiz-count');
     const count = countEl ? parseInt(countEl.value, 10) : 15;
@@ -905,24 +1001,24 @@ function renderQuizQuestion() {
     const sc = item;
     const qText = quiz.lang === 'ar' ? sc.questionAr : sc.questionSv;
     const opts = quiz.lang === 'ar' ? sc.optionsAr : sc.optionsSv;
-    
+
     $('quiz-sign').className = 'quiz-sign scenario-img';
     if (sc.img.trim().startsWith('<svg')) {
       $('quiz-sign').innerHTML = sc.img;
     } else {
       $('quiz-sign').innerHTML = `<img src="${sc.img}" class="scenario-img-actual" style="width:100%; height:100%; object-fit:cover; display:block;">`;
     }
-    
+
     $('quiz-question-text').textContent = qText;
     $('quiz-question-text').classList.remove('hidden');
-    
+
     $('quiz-options').className = 'quiz-options scenario-options';
     $('quiz-options').innerHTML = opts.map((optText, i) =>
       `<button class="quiz-option scenario-btn" data-idx="${i}">
         <span>${optText}</span>
       </button>`
     ).join('');
-    
+
     $$('.quiz-option', $('quiz-options')).forEach(btn => {
       btn.addEventListener('click', () => handleQuizAnswerScenario(btn, sc));
     });
@@ -930,7 +1026,7 @@ function renderQuizQuestion() {
     $('quiz-sign').className = 'quiz-sign';
     $('quiz-question-text').classList.add('hidden');
     $('quiz-options').className = 'quiz-options';
-    
+
     const s = quiz.items[quiz.idx];
     const cat = catBy(s.category);
     const samePool = signsIn(s.category).filter(x => x.id !== s.id);
@@ -1032,13 +1128,13 @@ $('quiz-next').addEventListener('click', () => {
 function finishQuiz() {
   if (quiz.timerInterval) clearInterval(quiz.timerInterval);
   if (quiz.correct > 0) addXP(quiz.correct * 10);
-  
+
   $('quiz-game').classList.add('hidden');
   $('quiz-result').classList.remove('hidden');
-  
+
   const total = quiz.correct + quiz.wrong;
   const pct = total ? Math.round((quiz.correct / total) * 100) : 0;
-  
+
   if (quiz.isMock) {
     const passed = quiz.correct >= 56; // 80% pass mark for 70 questions
     $('quiz-result-title').textContent = passed ? T('quiz.mock.pass') : T('quiz.mock.fail');
@@ -1050,9 +1146,9 @@ function finishQuiz() {
 
   const lbl = state.lang === 'ar' ? 'النسبة' : 'Resultat';
   $('quiz-score-final').innerHTML = `${quiz.correct} ✓ / ${total} <br><span style="font-size:18px; color:var(--text-soft)">${lbl}: ${pct}%</span>`;
-  
+
   if (quiz.isMock && quiz.correct < 56) {
-    $('quiz-result-meta').innerHTML = state.lang === 'ar' 
+    $('quiz-result-meta').innerHTML = state.lang === 'ar'
       ? `<p style="color:var(--text-soft)">درجة النجاح هي 56/70. لا تيأس، استمر في التدريب!</p>`
       : `<p style="color:var(--text-soft)">Gränsen för godkänt är 56/70. Ge inte upp, fortsätt öva!</p>`;
   } else {
@@ -1180,7 +1276,8 @@ $('memory-start').addEventListener('click', () => {
   const cards = [];
   pool.forEach(s => {
     cards.push({ id: s.id, type: 'img', html: s.svg });
-    cards.push({ id: s.id, type: 'text', html: `
+    cards.push({
+      id: s.id, type: 'text', html: `
       <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:8px;">${s.nameAr}</div>
       <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
     ` });
@@ -1214,7 +1311,7 @@ $('memory-start').addEventListener('click', () => {
   clearInterval(memory.timer);
   memory.timer = setInterval(() => {
     const sec = Math.floor((Date.now() - memory.startedAt) / 1000);
-    $('memory-time').textContent = `${String(Math.floor(sec / 60)).padStart(2,'0')}:${String(sec % 60).padStart(2,'0')}`;
+    $('memory-time').textContent = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
   }, 1000);
 });
 
@@ -1258,7 +1355,7 @@ function finishMemory() {
   clearInterval(memory.timer);
   addXP(memory.total * 5);
   const sec = Math.floor((Date.now() - memory.startedAt) / 1000);
-  const time = `${String(Math.floor(sec / 60)).padStart(2,'0')}:${String(sec % 60).padStart(2,'0')}`;
+  const time = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
   const tLbl = state.lang === 'ar' ? 'الزمن' : 'Tid';
   const tryLbl = state.lang === 'ar' ? 'المحاولات' : 'Försök';
   $('memory-result-text').innerHTML = `${tLbl}: ${time}<br>${tryLbl}: ${memory.tries}`;
@@ -1283,17 +1380,17 @@ function openGame(gameId) {
 function closeGame() {
   $$('.sub-game').forEach(g => g.classList.add('hidden'));
   $('games-menu').classList.remove('hidden');
-  
+
   clearInterval(memory.timer);
   $('memory-game').classList.add('hidden');
   $('memory-result').classList.add('hidden');
   $('memory-setup').classList.remove('hidden');
-  
+
   clearInterval(timeAtt.timer);
   $('time-game').classList.add('hidden');
   $('time-result').classList.add('hidden');
   $('time-setup').classList.remove('hidden');
-  
+
   $('match-game').classList.add('hidden');
   $('match-result').classList.add('hidden');
   $('match-setup').classList.remove('hidden');
@@ -1314,7 +1411,7 @@ $('time-start').addEventListener('click', () => {
   $('time-setup').classList.add('hidden');
   $('time-game').classList.remove('hidden');
   nextTimeQuestion();
-  
+
   clearInterval(timeAtt.timer);
   timeAtt.timer = setInterval(() => {
     timeAtt.timeLeft--;
@@ -1329,7 +1426,7 @@ function nextTimeQuestion() {
   const samePool = signsIn(s.category).filter(x => x.id !== s.id);
   const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
   const opts = shuffle([s, ...distractors]);
-  
+
   $('time-sign').innerHTML = s.svg;
   $('time-options').innerHTML = opts.map(o =>
     `<button class="quiz-option" data-id="${o.id}">
@@ -1337,7 +1434,7 @@ function nextTimeQuestion() {
       <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
     </button>`
   ).join('');
-  
+
   $$('.quiz-option', $('time-options')).forEach(btn => {
     btn.addEventListener('click', () => {
       if (btn.dataset.id === timeAtt.currentSign.id) {
@@ -1391,13 +1488,13 @@ function startMatchRound() {
   matchG.matchedCount = 0;
   $('match-round').textContent = matchG.round;
   $('match-score').textContent = matchG.score;
-  
+
   const pool = sample(SIGNS, 5);
   const names = shuffle([...pool]);
   const signs = shuffle([...pool]);
-  
+
   const isAr = state.lang === 'ar';
-  
+
   $('match-board').innerHTML = `
     <div class="match-col" id="match-names">
       ${names.map(s => `
@@ -1410,14 +1507,14 @@ function startMatchRound() {
       ${signs.map(s => `<div class="match-item m-sign" data-id="${s.id}" style="width:70px; height:70px; margin:0 auto; padding:5px;">${s.svg}</div>`).join('')}
     </div>
   `;
-  
+
   $$('.m-name').forEach(el => el.addEventListener('click', () => {
     $$('.m-name').forEach(e => e.classList.remove('selected'));
     el.classList.add('selected');
     matchG.selectedName = el;
     checkMatch();
   }));
-  
+
   $$('.m-sign').forEach(el => el.addEventListener('click', () => {
     $$('.m-sign').forEach(e => e.classList.remove('selected'));
     el.classList.add('selected');
@@ -1460,16 +1557,16 @@ $('swipe-start').addEventListener('click', () => {
   swipeG.lives = 3;
   $('swipe-score').textContent = 0;
   $('swipe-lives').textContent = 3;
-  
+
   const isAr = state.lang === 'ar';
   const mainCats = CATEGORIES.slice(0, 6);
-  $('swipe-buttons').innerHTML = mainCats.map(c => 
+  $('swipe-buttons').innerHTML = mainCats.map(c =>
     `<button class="btn btn-secondary" data-cat="${c.key}" style="border-color:${c.color}; padding:10px; display:flex; flex-direction:column; align-items:center; gap:4px;">
       <span style="font-weight:bold;">${c.icon} <span dir="rtl" lang="ar">${c.nameAr}</span></span>
       <span dir="ltr" lang="sv" style="font-size:0.85em; opacity:0.9;">${c.nameSv}</span>
     </button>`
   ).join('');
-  
+
   $$('#swipe-buttons button').forEach(btn => {
     btn.addEventListener('click', () => handleSwipe(btn.dataset.cat));
   });
@@ -1575,7 +1672,7 @@ function init() {
 
   // Service worker — auto-reload when a new version takes control
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').catch(() => { });
     let reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (reloaded) return;
