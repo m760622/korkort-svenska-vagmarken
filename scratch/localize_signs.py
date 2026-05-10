@@ -62,8 +62,8 @@ def download_and_localize():
                 print(f"Error downloading {sign_id}: {e}")
 
             if success:
-                # Update line to use local path string
-                updated_line = f"{prefix}'{local_path}'{suffix}\n"
+                # Update line to use local path wrapped in IMG()
+                updated_line = f"{prefix}IMG('{local_path}'){suffix}\n"
                 updated_lines.append(updated_line)
             else:
                 # Keep original if download failed
