@@ -611,8 +611,20 @@ function toggleAutoplay() {
     updateAutoplayUI();
     return;
   }
-  if (state.autoplay) stopAutoplay();
-  else startAutoplay();
+  
+  if (state.autoplay) {
+    stopAutoplay();
+  } else {
+    // Check if we are in modal or browse view
+    const modalOpen = !$('modal').classList.contains('hidden');
+    if (modalOpen) {
+      state.autoplay = true;
+      updateAutoplayUI();
+      playCurrentSignSequence();
+    } else {
+      startAutoplay();
+    }
+  }
 }
 
 function startAutoplay() {
