@@ -1534,3 +1534,37 @@ html[lang="sv"] .quiz-setup select, html[lang="sv"] .game-setup select {
   color: var(--primary);
   font-weight: bold;
 }
+
+/* TTS Highlighting */
+.word-span {
+  display: inline-block;
+  border-radius: 4px;
+  transition: all 0.1s ease;
+  padding: 0 2px;
+}
+.word-span.highlight {
+  background-color: var(--primary);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+[data-theme="dark"] .word-span.highlight {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+/* TTS Button States */
+.btn-tts.speaking {
+  background: linear-gradient(135deg, var(--danger), #ff6b6b) !important;
+  animation: pulse-red 2s infinite;
+}
+.btn-tts.paused {
+  background: linear-gradient(135deg, var(--warning), #ffcd39) !important;
+  color: #000 !important;
+}
+.btn-tts.speaking::before {
+  content: '⏸ ';
+}
+.btn-tts.paused::before {
+  content: '▶️ ';
+}
