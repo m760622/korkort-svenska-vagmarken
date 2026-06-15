@@ -23,6 +23,8 @@ const I18N = {
     'game.time': 'سباق الزمن', 'game.time.desc': 'أجب بأسرع ما يمكن خلال 60 ثانية', 'game.time.intro': 'أجب بأسرع ما يمكن خلال 60 ثانية. (+2 ثانية للصح، -5 للخطأ)', 'time.done': 'انتهى الوقت!',
     'game.match': 'التوصيل', 'game.match.desc': 'اضغط على الاسم ثم على العلامة المطابقة', 'game.match.intro': 'اضغط على الاسم ثم على العلامة التي تطابقه.', 'match.done': 'عمل رائع!',
     'game.swipe': 'الفرز السريع', 'game.swipe.desc': 'صنف العلامات بسرعة حسب فئتها', 'game.swipe.intro': 'اضغط على الفئة الصحيحة للعلامة بأسرع ما يمكن!', 'swipe.done': 'انتهت المحاولات!',
+    'game.truefalse': 'صح أم خطأ', 'game.truefalse.desc': 'حدد صحة تفسير العلامة بسرعة', 'game.truefalse.intro': 'شاهد العلامة وحدد إن كان التفسير الموضح أسفلها صحيحاً أم خاطئاً بأسرع ما يمكن!',
+    'truefalse.btn.true': 'صح', 'truefalse.btn.false': 'خطأ', 'truefalse.result.score': 'أجبت بشكل صحيح على:',
     'lang.toggle': 'تغيير اللغة', 'lang.ar': 'العربية', 'lang.sv': 'السويدية',
     'tts.settings': 'إعدادات النطق', 'tts.title': '🔊 إعدادات النطق', 'tts.loading': 'جاري تحميل الأصوات...',
     'tts.voiceAr': 'الصوت العربي:', 'tts.voiceSv': 'الصوت السويدي:', 'tts.rate': 'السرعة:', 'tts.pitch': 'الدرجة:',
@@ -68,6 +70,8 @@ const I18N = {
     'game.time': 'Tidsutmaning', 'game.time.desc': 'Svara så snabbt du kan på 60 sekunder', 'game.time.intro': 'Svara så snabbt du kan på 60 sekunder. (+2 sek för rätt, -5 för fel)', 'time.done': 'Tiden är slut!',
     'game.match': 'Matcha', 'game.match.desc': 'Klicka på namnet och sedan på rätt märke', 'game.match.intro': 'Klicka på ett namn och sedan på rätt vägmärke.', 'match.done': 'Bra jobbat!',
     'game.swipe': 'Snabb Swipe', 'game.swipe.desc': 'Klassificera märket snabbt efter kategori', 'game.swipe.intro': 'Klicka på rätt kategori för märket så snabbt som möjligt!', 'swipe.done': 'Inga försök kvar!',
+    'game.truefalse': 'Sant eller Falskt', 'game.truefalse.desc': 'Avgör snabbt om skyltens beskrivning är sann eller falsk', 'game.truefalse.intro': 'Titta på skylten och avgör om beskrivningen nedan är sann eller falsk så snabbt som möjligt!',
+    'truefalse.btn.true': 'Sant', 'truefalse.btn.false': 'Falskt', 'truefalse.result.score': 'Du svarade rätt på:',
     'lang.toggle': 'Byt språk', 'lang.ar': 'Arabiska', 'lang.sv': 'Svenska',
     'tts.settings': 'Röstinställningar', 'tts.title': '🔊 Röstinställningar', 'tts.loading': 'Laddar röster...',
     'tts.voiceAr': 'Arabisk röst:', 'tts.voiceSv': 'Svensk röst:', 'tts.rate': 'Hastighet:', 'tts.pitch': 'Tonhöjd:',
@@ -320,6 +324,20 @@ class GameSession {
       this.score = 0;
       this.lives = 3;
       this.nextSwipeCard();
+    } else if (this.mode === 'truefalse') {
+      this.score = 0;
+      this.lives = 3;
+      this.timeLeft = 30;
+      this.nextTrueFalseQuestion();
+
+      clearInterval(this._timer);
+      this._timer = setInterval(() => {
+        this.timeLeft--;
+        this.emit('tick', { timeLeft: this.timeLeft });
+        if (this.timeLeft <= 0) {
+          this.finish();
+        }
+      }, 1000);
     }
   }
 
@@ -353,6 +371,22 @@ class GameSession {
     const pool = SIGNS.filter(s => mainCatKeys.includes(s.category));
     this.currentSign = sample(pool, 1)[0];
     this.emit('nextCard', { sign: this.currentSign });
+  }
+
+  nextTrueFalseQuestion() {
+    const s = sample(SIGNS, 1)[0];
+    this.currentSign = s;
+    this.isCorrectStatement = Math.random() < 0.5;
+
+    let statementSign = s;
+    if (!this.isCorrectStatement) {
+      const pool = SIGNS.filter(x => x.id !== s.id);
+      statementSign = sample(pool, 1)[0];
+    }
+
+    const lang = Translation.lang;
+    this.currentStatement = lang === 'ar' ? statementSign.nameAr : statementSign.nameSv;
+    this.emit('nextQuestion', { sign: s, statement: this.currentStatement });
   }
 
   action(type, payload = {}) {
@@ -433,6 +467,23 @@ class GameSession {
           setTimeout(() => this.finish(), 300);
         }
       }
+    } else if (this.mode === 'truefalse' && type === 'answer') {
+      const ans = payload.value;
+      if (ans === this.isCorrectStatement) {
+        this.score++;
+        this.timeLeft += 2;
+        this.emit('correct', { score: this.score, timeLeft: this.timeLeft });
+        setTimeout(() => this.nextTrueFalseQuestion(), 300);
+      } else {
+        this.lives--;
+        this.timeLeft -= 3;
+        this.emit('wrong', { lives: this.lives, timeLeft: this.timeLeft, correct: this.isCorrectStatement });
+        if (this.lives <= 0 || this.timeLeft <= 0) {
+          setTimeout(() => this.finish(), 300);
+        } else {
+          setTimeout(() => this.nextTrueFalseQuestion(), 600);
+        }
+      }
     }
   }
 
@@ -476,6 +527,9 @@ class GameSession {
       details = { score: this.score };
     } else if (this.mode === 'swipe') {
       xpEarned = this.score * 2;
+      details = { score: this.score };
+    } else if (this.mode === 'truefalse') {
+      xpEarned = this.score * 3;
       details = { score: this.score };
     }
 
@@ -2161,6 +2215,74 @@ $('swipe-start').addEventListener('click', () => {
 $('swipe-restart').addEventListener('click', () => {
   $('swipe-result').classList.add('hidden');
   $('swipe-setup').classList.remove('hidden');
+});
+
+// ===== TRUE/FALSE BLITZ =====
+$('truefalse-start').addEventListener('click', () => {
+  activeGame = new GameSession('truefalse');
+
+  $('truefalse-score').textContent = 0;
+  $('truefalse-lives').textContent = 3;
+  $('truefalse-timer').textContent = 30;
+
+  activeGame.on('tick', (data) => {
+    $('truefalse-timer').textContent = data.timeLeft;
+  });
+
+  activeGame.on('nextQuestion', (data) => {
+    $('truefalse-sign').innerHTML = data.sign.svg;
+    $('truefalse-statement').textContent = data.statement;
+    $('truefalse-card').style.transform = 'scale(1)';
+    $('truefalse-card').style.borderColor = 'var(--border)';
+  });
+
+  activeGame.on('correct', (data) => {
+    $('truefalse-score').textContent = data.score;
+    $('truefalse-timer').textContent = data.timeLeft;
+    $('truefalse-card').style.transform = 'scale(1.05)';
+    $('truefalse-card').style.borderColor = '#4caf50';
+  });
+
+  activeGame.on('wrong', (data) => {
+    $('truefalse-lives').textContent = data.lives;
+    $('truefalse-timer').textContent = data.timeLeft;
+    $('truefalse-card').style.transform = 'scale(0.95)';
+    $('truefalse-card').style.borderColor = '#e53935';
+  });
+
+  activeGame.on('gameOver', (data) => {
+    $('truefalse-game').classList.add('hidden');
+    $('truefalse-result').classList.remove('hidden');
+    $('truefalse-score-final').textContent = data.details.score;
+  });
+
+  activeGame.on('quit', () => {
+    $('truefalse-game').classList.add('hidden');
+    $('truefalse-setup').classList.remove('hidden');
+  });
+
+  $('truefalse-setup').classList.add('hidden');
+  $('truefalse-game').classList.remove('hidden');
+  $('truefalse-result').classList.add('hidden');
+
+  activeGame.start();
+});
+
+$('truefalse-btn-true').addEventListener('click', () => {
+  if (activeGame && activeGame.mode === 'truefalse') {
+    activeGame.action('answer', { value: true });
+  }
+});
+
+$('truefalse-btn-false').addEventListener('click', () => {
+  if (activeGame && activeGame.mode === 'truefalse') {
+    activeGame.action('answer', { value: false });
+  }
+});
+
+$('truefalse-restart').addEventListener('click', () => {
+  $('truefalse-result').classList.add('hidden');
+  $('truefalse-setup').classList.remove('hidden');
 });
 
 // ===== CHANGELOG MODAL =====

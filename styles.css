@@ -531,6 +531,14 @@ body {
 }
 .btn-success:hover {
   box-shadow: 0 6px 16px rgba(46, 125, 50, .3);
+}
+.btn-danger { 
+  background: linear-gradient(135deg, #c62828, #e53935); 
+  color: white; 
+  box-shadow: 0 4px 12px rgba(198, 40, 40, .2);
+}
+.btn-danger:hover {
+  box-shadow: 0 6px 16px rgba(198, 40, 40, .3);
   transform: translateY(-2px);
 }
 .btn-warn { 
