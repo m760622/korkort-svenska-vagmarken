@@ -105,19 +105,42 @@ const I18N = {
   },
 };
 
-const T = (key, ...args) => {
-  const v = (I18N[state.lang] || I18N.ar)[key];
-  if (typeof v === 'function') return v(...args);
-  return v != null ? v : key;
-};
+// ===== TRANSLATION ENGINE (Deep Module) =====
+const Translation = (() => {
+  const _listeners = [];
+  return {
+    get lang() {
+      return state.lang;
+    },
+    set lang(val) {
+      if (val !== state.lang) {
+        state.lang = val;
+        localStorage.setItem(LANG_KEY, val);
+        _listeners.forEach(cb => {
+          try { cb(val); } catch (e) { console.error('Error in language observer:', e); }
+        });
+      }
+    },
+    t(key, ...args) {
+      const v = (I18N[state.lang] || I18N.ar)[key];
+      if (typeof v === 'function') return v(...args);
+      return v != null ? v : key;
+    },
+    onChange(cb) {
+      _listeners.push(cb);
+    }
+  };
+})();
+
+const T = (key, ...args) => Translation.t(key, ...args);
 
 function applyLang() {
   const html = document.documentElement;
-  html.lang = state.lang;
-  html.dir = state.lang === 'ar' ? 'rtl' : 'ltr';
+  html.lang = Translation.lang;
+  html.dir = Translation.lang === 'ar' ? 'rtl' : 'ltr';
   document.title = T('app.title');
   const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = state.lang === 'ar' ? '🇸🇪 Svenska' : '🇸🇦 العربية';
+  if (btn) btn.textContent = Translation.lang === 'ar' ? '🇸🇪 Svenska' : '🇸🇦 العربية';
 
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -135,12 +158,6 @@ function applyLang() {
     el.setAttribute('aria-label', v);
     if (el.hasAttribute('title')) el.setAttribute('title', v);
   });
-
-  fillCategoryFilter('category-filter');
-  fillCategoryFilter('quiz-category');
-  fillCategoryFilter('flip-category');
-  if (state.view === 'browse') renderBrowse();
-  if (state.view === 'dashboard') renderDashboard();
 }
 
 const STORAGE_KEY = 'korkort_progress_v1';
@@ -214,6 +231,262 @@ function toast(msg, ms = 2200) {
   el.classList.remove('hidden');
   clearTimeout(toast._t);
   toast._t = setTimeout(() => el.classList.add('hidden'), ms);
+}
+
+// ===== GAME SESSION (Deep Module) =====
+let activeGame = null;
+
+class GameSession {
+  constructor(mode, config = {}) {
+    this.mode = mode; // 'memory', 'time', 'match', 'swipe'
+    this.config = config;
+    this.score = 0;
+    this.lives = 3;
+    this.timeLeft = 60;
+    this.round = 1;
+    this.matchedCount = 0;
+    this.items = [];
+    this.currentSign = null;
+    this.selectedName = null;
+    this.selectedSign = null;
+    this.cards = [];
+    this.firstCard = null;
+    this.secondCard = null;
+    this.locked = false;
+    this.found = 0;
+    this.total = 0;
+    this.startedAt = 0;
+    
+    this._timer = null;
+    this._listeners = {};
+  }
+
+  on(event, cb) {
+    if (!this._listeners[event]) this._listeners[event] = [];
+    this._listeners[event].push(cb);
+  }
+
+  emit(event, data) {
+    const listeners = this._listeners[event] || [];
+    listeners.forEach(cb => {
+      try { cb(data); } catch (e) { console.error(`Error in GameSession event ${event}:`, e); }
+    });
+  }
+
+  start() {
+    this.startedAt = Date.now();
+    this.score = 0;
+    this.lives = 3;
+    this.timeLeft = 60;
+    this.round = 1;
+    this.matchedCount = 0;
+    this.firstCard = null;
+    this.secondCard = null;
+    this.locked = false;
+
+    if (this.mode === 'memory') {
+      const pairs = this.config.pairs || 8;
+      this.total = pairs;
+      this.found = 0;
+
+      clearInterval(this._timer);
+      this._timer = setInterval(() => {
+        const sec = Math.floor((Date.now() - this.startedAt) / 1000);
+        this.emit('tick', {
+          time: `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`,
+          seconds: sec
+        });
+      }, 1000);
+
+    } else if (this.mode === 'time') {
+      this.score = 0;
+      this.timeLeft = 60;
+      this.nextTimeQuestion();
+
+      clearInterval(this._timer);
+      this._timer = setInterval(() => {
+        this.timeLeft--;
+        this.emit('tick', { timeLeft: this.timeLeft });
+        if (this.timeLeft <= 0) {
+          this.finish();
+        }
+      }, 1000);
+
+    } else if (this.mode === 'match') {
+      this.round = 1;
+      this.startMatchRound();
+
+    } else if (this.mode === 'swipe') {
+      this.score = 0;
+      this.lives = 3;
+      this.nextSwipeCard();
+    }
+  }
+
+  nextTimeQuestion() {
+    const s = sample(SIGNS, 1)[0];
+    this.currentSign = s;
+    const samePool = signsIn(s.category).filter(x => x.id !== s.id);
+    const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
+    const options = shuffle([s, ...distractors]);
+    this.items = options;
+    this.emit('nextQuestion', { sign: s, options });
+  }
+
+  startMatchRound() {
+    if (this.round > 5) {
+      this.finish();
+      return;
+    }
+    this.matchedCount = 0;
+    this.selectedName = null;
+    this.selectedSign = null;
+
+    const pool = sample(SIGNS, 5);
+    const names = shuffle([...pool]);
+    const signs = shuffle([...pool]);
+    this.emit('nextRound', { round: this.round, score: this.score, names, signs });
+  }
+
+  nextSwipeCard() {
+    const mainCatKeys = CATEGORIES.slice(0, 6).map(c => c.key);
+    const pool = SIGNS.filter(s => mainCatKeys.includes(s.category));
+    this.currentSign = sample(pool, 1)[0];
+    this.emit('nextCard', { sign: this.currentSign });
+  }
+
+  action(type, payload = {}) {
+    if (this.mode === 'memory' && type === 'flip') {
+      const idx = payload.index;
+      if (this.locked) return;
+      const card = this.cards[idx];
+      if (card.flipped || card.matched) return;
+
+      card.flipped = true;
+      this.emit('stateChange');
+
+      if (!this.firstCard) {
+        this.firstCard = { index: idx, id: card.id };
+        return;
+      }
+      if (idx === this.firstCard.index) return;
+
+      this.secondCard = { index: idx, id: card.id };
+      this.score++; // Treat tries as score or track tries separately
+      this.emit('try', { tries: this.score });
+
+      if (this.firstCard.id === this.secondCard.id) {
+        this.cards[this.firstCard.index].matched = true;
+        this.cards[this.secondCard.index].matched = true;
+        this.found++;
+        this.emit('match', { first: this.firstCard.index, second: this.secondCard.index, found: this.found });
+        this.firstCard = this.secondCard = null;
+        if (this.found === this.total) {
+          setTimeout(() => this.finish(), 600);
+        }
+      } else {
+        this.locked = true;
+        this.emit('mismatch', { first: this.firstCard.index, second: this.secondCard.index });
+        setTimeout(() => {
+          this.cards[this.firstCard.index].flipped = false;
+          this.cards[this.secondCard.index].flipped = false;
+          this.firstCard = this.secondCard = null;
+          this.locked = false;
+          this.emit('stateChange');
+        }, 900);
+      }
+
+    } else if (this.mode === 'time' && type === 'answer') {
+      const id = payload.id;
+      if (id === this.currentSign.id) {
+        this.score++;
+        this.timeLeft += 2;
+        this.emit('correct', { id, score: this.score, timeLeft: this.timeLeft });
+        setTimeout(() => this.nextTimeQuestion(), 300);
+      } else {
+        this.timeLeft -= 5;
+        this.emit('wrong', { id, correctId: this.currentSign.id, timeLeft: this.timeLeft });
+        setTimeout(() => this.nextTimeQuestion(), 600);
+      }
+
+    } else if (this.mode === 'match') {
+      if (type === 'selectName') {
+        this.selectedName = payload.id;
+        this.emit('stateChange');
+        this.checkMatch();
+      } else if (type === 'selectSign') {
+        this.selectedSign = payload.id;
+        this.emit('stateChange');
+        this.checkMatch();
+      }
+
+    } else if (this.mode === 'swipe' && type === 'swipe') {
+      const cat = payload.category;
+      if (this.currentSign.category === cat) {
+        this.score++;
+        this.emit('correct', { score: this.score });
+        setTimeout(() => this.nextSwipeCard(), 300);
+      } else {
+        this.lives--;
+        this.emit('wrong', { lives: this.lives });
+        if (this.lives <= 0) {
+          setTimeout(() => this.finish(), 300);
+        }
+      }
+    }
+  }
+
+  checkMatch() {
+    if (this.selectedName !== null && this.selectedSign !== null) {
+      if (this.selectedName === this.selectedSign) {
+        this.matchedCount++;
+        this.emit('match', { id: this.selectedName, score: this.score });
+        this.selectedName = this.selectedSign = null;
+        if (this.matchedCount === 5) {
+          this.round++;
+          setTimeout(() => this.startMatchRound(), 500);
+        }
+      } else {
+        const prevName = this.selectedName;
+        const prevSign = this.selectedSign;
+        this.selectedName = this.selectedSign = null;
+        this.emit('mismatch', { nameId: prevName, signId: prevSign });
+      }
+    }
+  }
+
+  finish() {
+    clearInterval(this._timer);
+    
+    let xpEarned = 0;
+    let details = {};
+
+    if (this.mode === 'memory') {
+      xpEarned = this.total * 5;
+      const sec = Math.floor((Date.now() - this.startedAt) / 1000);
+      details = {
+        time: `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`,
+        tries: this.score
+      };
+    } else if (this.mode === 'time') {
+      xpEarned = this.score * 5;
+      details = { score: this.score };
+    } else if (this.mode === 'match') {
+      xpEarned = this.score * 10;
+      details = { score: this.score };
+    } else if (this.mode === 'swipe') {
+      xpEarned = this.score * 2;
+      details = { score: this.score };
+    }
+
+    if (xpEarned > 0) addXP(xpEarned);
+    this.emit('gameOver', { xp: xpEarned, details });
+  }
+
+  quit() {
+    clearInterval(this._timer);
+    this.emit('quit');
+  }
 }
 
 // ===== TTS — نظام نطق محسّن =====
@@ -1201,9 +1474,7 @@ document.addEventListener('keydown', (e) => {
 
 // ===== LANG TOGGLE =====
 $('lang-toggle').addEventListener('click', () => {
-  state.lang = state.lang === 'ar' ? 'sv' : 'ar';
-  localStorage.setItem(LANG_KEY, state.lang);
-  applyLang();
+  Translation.lang = Translation.lang === 'ar' ? 'sv' : 'ar';
 });
 
 // ===== THEME TOGGLE =====
@@ -1579,114 +1850,7 @@ function nextFlip() {
   renderFlipCard();
 }
 
-// ===== MEMORY =====
-const memory = { cards: [], first: null, second: null, locked: false, found: 0, total: 0, tries: 0, startedAt: 0, timer: null };
-
-$('memory-start').addEventListener('click', () => {
-  const pairs = parseInt($('memory-pairs').value, 10);
-  const pool = sample(SIGNS, pairs);
-  memory.total = pairs;
-  memory.found = 0;
-  memory.tries = 0;
-  memory.first = memory.second = null;
-  memory.locked = false;
-
-  const cards = [];
-  pool.forEach(s => {
-    cards.push({ id: s.id, type: 'img', html: s.svg });
-    cards.push({
-      id: s.id, type: 'text', html: `
-      <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:8px;">${s.nameAr}</div>
-      <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
-    ` });
-  });
-  memory.cards = shuffle(cards);
-
-  $('memory-found').textContent = '0';
-  $('memory-total').textContent = pairs;
-  $('memory-tries').textContent = '0';
-
-  const board = $('memory-board');
-  board.className = 'memory-board';
-  board.innerHTML = memory.cards.map((c, i) => `
-    <div class="memory-card" data-i="${i}" data-id="${c.id}">
-      <div class="memory-card-inner">
-        <div class="memory-face memory-face-front">?</div>
-        <div class="memory-face memory-face-back">${c.html}</div>
-      </div>
-    </div>
-  `).join('');
-
-  $$('.memory-card', board).forEach(card => {
-    card.addEventListener('click', () => onMemoryFlip(card));
-  });
-
-  $('memory-setup').classList.add('hidden');
-  $('memory-game').classList.remove('hidden');
-  $('memory-result').classList.add('hidden');
-
-  memory.startedAt = Date.now();
-  clearInterval(memory.timer);
-  memory.timer = setInterval(() => {
-    const sec = Math.floor((Date.now() - memory.startedAt) / 1000);
-    $('memory-time').textContent = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
-  }, 1000);
-});
-
-$('memory-quit').addEventListener('click', () => {
-  clearInterval(memory.timer);
-  $('memory-game').classList.add('hidden');
-  $('memory-setup').classList.remove('hidden');
-});
-
-function onMemoryFlip(card) {
-  if (memory.locked) return;
-  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
-  card.classList.add('flipped');
-
-  if (!memory.first) { memory.first = card; return; }
-  if (card === memory.first) return;
-
-  memory.second = card;
-  memory.tries++;
-  $('memory-tries').textContent = memory.tries;
-
-  if (memory.first.dataset.id === memory.second.dataset.id) {
-    memory.first.classList.add('matched');
-    memory.second.classList.add('matched');
-    memory.first = memory.second = null;
-    memory.found++;
-    $('memory-found').textContent = memory.found;
-    if (memory.found === memory.total) finishMemory();
-  } else {
-    memory.locked = true;
-    setTimeout(() => {
-      memory.first.classList.remove('flipped');
-      memory.second.classList.remove('flipped');
-      memory.first = memory.second = null;
-      memory.locked = false;
-    }, 900);
-  }
-}
-
-function finishMemory() {
-  clearInterval(memory.timer);
-  addXP(memory.total * 5);
-  const sec = Math.floor((Date.now() - memory.startedAt) / 1000);
-  const time = `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
-  const tLbl = state.lang === 'ar' ? 'الزمن' : 'Tid';
-  const tryLbl = state.lang === 'ar' ? 'المحاولات' : 'Försök';
-  $('memory-result-text').innerHTML = `${tLbl}: ${time}<br>${tryLbl}: ${memory.tries}`;
-  setTimeout(() => {
-    $('memory-game').classList.add('hidden');
-    $('memory-result').classList.remove('hidden');
-  }, 600);
-}
-
-$('memory-restart').addEventListener('click', () => {
-  $('memory-result').classList.add('hidden');
-  $('memory-setup').classList.remove('hidden');
-});
+// ===== ARCADE GAMES =====
 
 // ===== ARCADE GAMES MENU =====
 function openGame(gameId) {
@@ -1699,184 +1863,250 @@ function closeGame() {
   $$('.sub-game').forEach(g => g.classList.add('hidden'));
   $('games-menu').classList.remove('hidden');
 
-  clearInterval(memory.timer);
-  $('memory-game').classList.add('hidden');
-  $('memory-result').classList.add('hidden');
-  $('memory-setup').classList.remove('hidden');
-
-  clearInterval(timeAtt.timer);
-  $('time-game').classList.add('hidden');
-  $('time-result').classList.add('hidden');
-  $('time-setup').classList.remove('hidden');
-
-  $('match-game').classList.add('hidden');
-  $('match-result').classList.add('hidden');
-  $('match-setup').classList.remove('hidden');
-
-  $('swipe-game').classList.add('hidden');
-  $('swipe-result').classList.add('hidden');
-  $('swipe-setup').classList.remove('hidden');
+  if (activeGame) {
+    activeGame.quit();
+    activeGame = null;
+  }
 }
 
-// ===== TIME ATTACK =====
-const timeAtt = { score: 0, timeLeft: 60, timer: null, currentSign: null };
+// ===== MEMORY =====
+$('memory-start').addEventListener('click', () => {
+  const pairs = parseInt($('memory-pairs').value, 10);
+  activeGame = new GameSession('memory', { pairs });
 
-$('time-start').addEventListener('click', () => {
-  timeAtt.score = 0;
-  timeAtt.timeLeft = 60;
-  $('time-score').textContent = 0;
-  $('time-timer').textContent = 60;
-  $('time-setup').classList.add('hidden');
-  $('time-game').classList.remove('hidden');
-  nextTimeQuestion();
+  $('memory-found').textContent = '0';
+  $('memory-total').textContent = pairs;
+  $('memory-tries').textContent = '0';
+  $('memory-time').textContent = '00:00';
 
-  clearInterval(timeAtt.timer);
-  timeAtt.timer = setInterval(() => {
-    timeAtt.timeLeft--;
-    $('time-timer').textContent = timeAtt.timeLeft;
-    if (timeAtt.timeLeft <= 0) finishTimeAttack();
-  }, 1000);
-});
+  activeGame.on('tick', (data) => {
+    $('memory-time').textContent = data.time;
+  });
 
-function nextTimeQuestion() {
-  const s = sample(SIGNS, 1)[0];
-  timeAtt.currentSign = s;
-  const samePool = signsIn(s.category).filter(x => x.id !== s.id);
-  const distractors = sample(samePool.length >= 3 ? samePool : SIGNS.filter(x => x.id !== s.id), 3);
-  const opts = shuffle([s, ...distractors]);
+  activeGame.on('try', (data) => {
+    $('memory-tries').textContent = data.tries;
+  });
 
-  $('time-sign').innerHTML = s.svg;
-  $('time-options').innerHTML = opts.map(o =>
-    `<button class="quiz-option" data-id="${o.id}">
-      <span class="opt-ar" dir="rtl" lang="ar">${o.nameAr}</span>
-      <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
-    </button>`
-  ).join('');
-
-  $$('.quiz-option', $('time-options')).forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.dataset.id === timeAtt.currentSign.id) {
-        timeAtt.score++;
-        timeAtt.timeLeft += 2; // bonus
-        $('time-score').textContent = timeAtt.score;
-        btn.classList.add('correct');
-        setTimeout(nextTimeQuestion, 300);
-      } else {
-        timeAtt.timeLeft -= 5; // penalty
-        btn.classList.add('wrong');
-        const correctBtn = $$('.quiz-option', $('time-options')).find(b => b.dataset.id === timeAtt.currentSign.id);
-        if (correctBtn) correctBtn.classList.add('correct');
-        setTimeout(nextTimeQuestion, 600);
+  activeGame.on('stateChange', () => {
+    activeGame.cards.forEach((c, i) => {
+      const el = document.querySelector(`.memory-card[data-i="${i}"]`);
+      if (el) {
+        el.classList.toggle('flipped', c.flipped);
+        el.classList.toggle('matched', c.matched);
       }
-      $('time-timer').textContent = timeAtt.timeLeft;
     });
   });
-}
 
-function finishTimeAttack() {
-  clearInterval(timeAtt.timer);
-  $('time-game').classList.add('hidden');
-  $('time-result').classList.remove('hidden');
-  $('time-score-final').textContent = timeAtt.score;
-  if (timeAtt.score > 0) addXP(timeAtt.score * 5);
-}
+  activeGame.on('match', (data) => {
+    $('memory-found').textContent = data.found;
+  });
+
+  activeGame.on('gameOver', (data) => {
+    const tLbl = state.lang === 'ar' ? 'الزمن' : 'Tid';
+    const tryLbl = state.lang === 'ar' ? 'المحاولات' : 'Försök';
+    $('memory-result-text').innerHTML = `${tLbl}: ${data.details.time}<br>${tryLbl}: ${data.details.tries}`;
+    setTimeout(() => {
+      $('memory-game').classList.add('hidden');
+      $('memory-result').classList.remove('hidden');
+    }, 600);
+  });
+
+  activeGame.on('quit', () => {
+    $('memory-game').classList.add('hidden');
+    $('memory-setup').classList.remove('hidden');
+  });
+
+  const pool = sample(SIGNS, pairs);
+  const cards = [];
+  pool.forEach(s => {
+    cards.push({ id: s.id, type: 'img', html: s.svg, flipped: false, matched: false });
+    cards.push({
+      id: s.id, type: 'text', html: `
+      <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:8px;">${s.nameAr}</div>
+      <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
+    `, flipped: false, matched: false
+    });
+  });
+  activeGame.cards = shuffle(cards);
+  activeGame.total = pairs;
+
+  const board = $('memory-board');
+  board.className = 'memory-board';
+  board.innerHTML = activeGame.cards.map((c, i) => `
+    <div class="memory-card" data-i="${i}" data-id="${c.id}">
+      <div class="memory-card-inner">
+        <div class="memory-face memory-face-front">?</div>
+        <div class="memory-face memory-face-back">${c.html}</div>
+      </div>
+    </div>
+  `).join('');
+
+  $$('.memory-card', board).forEach(card => {
+    card.addEventListener('click', () => {
+      activeGame.action('flip', { index: parseInt(card.dataset.i, 10) });
+    });
+  });
+
+  $('memory-setup').classList.add('hidden');
+  $('memory-game').classList.remove('hidden');
+  $('memory-result').classList.add('hidden');
+
+  activeGame.start();
+});
+
+$('memory-quit').addEventListener('click', () => {
+  if (activeGame) activeGame.quit();
+});
+
+$('memory-restart').addEventListener('click', () => {
+  $('memory-result').classList.add('hidden');
+  $('memory-setup').classList.remove('hidden');
+});
+
+// ===== TIME ATTACK =====
+$('time-start').addEventListener('click', () => {
+  activeGame = new GameSession('time');
+  
+  $('time-score').textContent = 0;
+  $('time-timer').textContent = 60;
+
+  activeGame.on('tick', (data) => {
+    $('time-timer').textContent = data.timeLeft;
+  });
+
+  activeGame.on('nextQuestion', (data) => {
+    $('time-sign').innerHTML = data.sign.svg;
+    $('time-options').innerHTML = data.options.map(o =>
+      `<button class="quiz-option" data-id="${o.id}">
+        <span class="opt-ar" dir="rtl" lang="ar">${o.nameAr}</span>
+        <span class="opt-sv" dir="ltr" lang="sv">${o.nameSv}</span>
+      </button>`
+    ).join('');
+
+    $$('.quiz-option', $('time-options')).forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeGame.action('answer', { id: btn.dataset.id });
+      });
+    });
+  });
+
+  activeGame.on('correct', (data) => {
+    $('time-score').textContent = data.score;
+    const btn = $$('.quiz-option', $('time-options')).find(b => b.dataset.id === data.id);
+    if (btn) btn.classList.add('correct');
+    $('time-timer').textContent = data.timeLeft;
+  });
+
+  activeGame.on('wrong', (data) => {
+    const btn = $$('.quiz-option', $('time-options')).find(b => b.dataset.id === data.id);
+    if (btn) btn.classList.add('wrong');
+    const correctBtn = $$('.quiz-option', $('time-options')).find(b => b.dataset.id === data.correctId);
+    if (correctBtn) correctBtn.classList.add('correct');
+    $('time-timer').textContent = data.timeLeft;
+  });
+
+  activeGame.on('gameOver', (data) => {
+    $('time-game').classList.add('hidden');
+    $('time-result').classList.remove('hidden');
+    $('time-score-final').textContent = data.details.score;
+  });
+
+  activeGame.on('quit', () => {
+    $('time-game').classList.add('hidden');
+    $('time-setup').classList.remove('hidden');
+  });
+
+  $('time-setup').classList.add('hidden');
+  $('time-game').classList.remove('hidden');
+  
+  activeGame.start();
+});
+
 $('time-restart').addEventListener('click', () => {
   $('time-result').classList.add('hidden');
   $('time-setup').classList.remove('hidden');
 });
 
 // ===== MATCH GAME =====
-const matchG = { round: 1, score: 0, items: [], selectedName: null, selectedSign: null, matchedCount: 0 };
-
 $('match-start').addEventListener('click', () => {
-  matchG.round = 1;
-  matchG.score = 0;
-  $('match-setup').classList.add('hidden');
-  $('match-game').classList.remove('hidden');
-  startMatchRound();
-});
+  activeGame = new GameSession('match');
 
-function startMatchRound() {
-  if (matchG.round > 5) {
+  activeGame.on('nextRound', (data) => {
+    $('match-round').textContent = data.round;
+    $('match-score').textContent = data.score;
+
+    $('match-board').innerHTML = `
+      <div class="match-col" id="match-names">
+        ${data.names.map(s => `
+          <div class="match-item m-name" data-id="${s.id}">
+            <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:4px;">${s.nameAr}</div>
+            <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
+          </div>`).join('')}
+      </div>
+      <div class="match-col" id="match-signs">
+        ${data.signs.map(s => `<div class="match-item m-sign" data-id="${s.id}" style="width:70px; height:70px; margin:0 auto; padding:5px;">${s.svg}</div>`).join('')}
+      </div>
+    `;
+
+    $$('.m-name').forEach(el => el.addEventListener('click', () => {
+      activeGame.action('selectName', { id: el.dataset.id });
+    }));
+
+    $$('.m-sign').forEach(el => el.addEventListener('click', () => {
+      activeGame.action('selectSign', { id: el.dataset.id });
+    }));
+  });
+
+  activeGame.on('stateChange', () => {
+    $$('.m-name').forEach(el => {
+      el.classList.toggle('selected', el.dataset.id === activeGame.selectedName);
+    });
+    $$('.m-sign').forEach(el => {
+      el.classList.toggle('selected', el.dataset.id === activeGame.selectedSign);
+    });
+  });
+
+  activeGame.on('match', (data) => {
+    $('match-score').textContent = data.score;
+    $$(`.m-name[data-id="${data.id}"]`).forEach(el => el.classList.add('matched'));
+    $$(`.m-sign[data-id="${data.id}"]`).forEach(el => el.classList.add('matched'));
+  });
+
+  activeGame.on('mismatch', (data) => {
+    $$(`.m-name[data-id="${data.nameId}"]`).forEach(el => el.classList.remove('selected'));
+    $$(`.m-sign[data-id="${data.signId}"]`).forEach(el => el.classList.remove('selected'));
+    toast(T('msg.wrongMatch') || 'خطأ!', 1000);
+  });
+
+  activeGame.on('gameOver', (data) => {
     $('match-game').classList.add('hidden');
     $('match-result').classList.remove('hidden');
-    addXP(matchG.score * 10);
-    return;
-  }
-  matchG.matchedCount = 0;
-  $('match-round').textContent = matchG.round;
-  $('match-score').textContent = matchG.score;
+    $('match-score-final').textContent = data.details.score;
+  });
 
-  const pool = sample(SIGNS, 5);
-  const names = shuffle([...pool]);
-  const signs = shuffle([...pool]);
+  activeGame.on('quit', () => {
+    $('match-game').classList.add('hidden');
+    $('match-setup').classList.remove('hidden');
+  });
 
-  const isAr = state.lang === 'ar';
+  $('match-setup').classList.add('hidden');
+  $('match-game').classList.remove('hidden');
 
-  $('match-board').innerHTML = `
-    <div class="match-col" id="match-names">
-      ${names.map(s => `
-        <div class="match-item m-name" data-id="${s.id}">
-          <div dir="rtl" lang="ar" style="font-weight:bold; margin-bottom:4px;">${s.nameAr}</div>
-          <div dir="ltr" lang="sv" style="font-size:0.9em; opacity:0.9;">${s.nameSv}</div>
-        </div>`).join('')}
-    </div>
-    <div class="match-col" id="match-signs">
-      ${signs.map(s => `<div class="match-item m-sign" data-id="${s.id}" style="width:70px; height:70px; margin:0 auto; padding:5px;">${s.svg}</div>`).join('')}
-    </div>
-  `;
+  activeGame.start();
+});
 
-  $$('.m-name').forEach(el => el.addEventListener('click', () => {
-    $$('.m-name').forEach(e => e.classList.remove('selected'));
-    el.classList.add('selected');
-    matchG.selectedName = el;
-    checkMatch();
-  }));
-
-  $$('.m-sign').forEach(el => el.addEventListener('click', () => {
-    $$('.m-sign').forEach(e => e.classList.remove('selected'));
-    el.classList.add('selected');
-    matchG.selectedSign = el;
-    checkMatch();
-  }));
-}
-
-function checkMatch() {
-  if (matchG.selectedName && matchG.selectedSign) {
-    if (matchG.selectedName.dataset.id === matchG.selectedSign.dataset.id) {
-      matchG.selectedName.classList.add('matched');
-      matchG.selectedSign.classList.add('matched');
-      matchG.score++;
-      $('match-score').textContent = matchG.score;
-      matchG.matchedCount++;
-      if (matchG.matchedCount === 5) {
-        matchG.round++;
-        setTimeout(startMatchRound, 500);
-      }
-    } else {
-      matchG.selectedName.classList.remove('selected');
-      matchG.selectedSign.classList.remove('selected');
-      toast(T('msg.wrongMatch') || 'خطأ!', 1000);
-    }
-    matchG.selectedName = null;
-    matchG.selectedSign = null;
-  }
-}
 $('match-restart').addEventListener('click', () => {
   $('match-result').classList.add('hidden');
   $('match-setup').classList.remove('hidden');
 });
 
 // ===== SWIPE SORTER =====
-const swipeG = { score: 0, lives: 3, current: null };
-
 $('swipe-start').addEventListener('click', () => {
-  swipeG.score = 0;
-  swipeG.lives = 3;
+  activeGame = new GameSession('swipe');
+
   $('swipe-score').textContent = 0;
   $('swipe-lives').textContent = 3;
 
-  const isAr = state.lang === 'ar';
   const mainCats = CATEGORIES.slice(0, 6);
   $('swipe-buttons').innerHTML = mainCats.map(c =>
     `<button class="btn btn-secondary" data-cat="${c.key}" style="border-color:${c.color}; padding:10px; display:flex; flex-direction:column; align-items:center; gap:4px;">
@@ -1886,46 +2116,48 @@ $('swipe-start').addEventListener('click', () => {
   ).join('');
 
   $$('#swipe-buttons button').forEach(btn => {
-    btn.addEventListener('click', () => handleSwipe(btn.dataset.cat));
+    btn.addEventListener('click', () => {
+      activeGame.action('swipe', { category: btn.dataset.cat });
+    });
+  });
+
+  activeGame.on('nextCard', (data) => {
+    $('swipe-sign').innerHTML = data.sign.svg;
+    $('swipe-card').style.transform = 'translateX(0) rotate(0)';
+    $('swipe-card').style.opacity = '1';
+  });
+
+  activeGame.on('correct', (data) => {
+    $('swipe-score').textContent = data.score;
+    $('swipe-card').style.transform = 'translateX(100px) rotate(15deg)';
+    $('swipe-card').style.opacity = '0';
+  });
+
+  activeGame.on('wrong', (data) => {
+    $('swipe-lives').textContent = data.lives;
+    $('swipe-card').style.transform = 'translateX(-20px)';
+    setTimeout(() => $('swipe-card').style.transform = 'translateX(20px)', 100);
+    setTimeout(() => $('swipe-card').style.transform = 'translateX(0)', 200);
+  });
+
+  activeGame.on('gameOver', (data) => {
+    $('swipe-game').classList.add('hidden');
+    $('swipe-result').classList.remove('hidden');
+    $('swipe-score-final').textContent = data.details.score;
+  });
+
+  activeGame.on('quit', () => {
+    $('swipe-game').classList.add('hidden');
+    $('swipe-setup').classList.remove('hidden');
   });
 
   $('swipe-setup').classList.add('hidden');
   $('swipe-game').classList.remove('hidden');
-  nextSwipe();
+  $('swipe-result').classList.add('hidden');
+
+  activeGame.start();
 });
 
-function nextSwipe() {
-  const mainCatKeys = CATEGORIES.slice(0, 6).map(c => c.key);
-  const pool = SIGNS.filter(s => mainCatKeys.includes(s.category));
-  swipeG.current = sample(pool, 1)[0];
-  $('swipe-sign').innerHTML = swipeG.current.svg;
-  $('swipe-card').style.transform = 'translateX(0) rotate(0)';
-  $('swipe-card').style.opacity = '1';
-}
-
-function handleSwipe(cat) {
-  if (swipeG.current.category === cat) {
-    swipeG.score++;
-    $('swipe-score').textContent = swipeG.score;
-    $('swipe-card').style.transform = 'translateX(100px) rotate(15deg)';
-    $('swipe-card').style.opacity = '0';
-    setTimeout(nextSwipe, 300);
-  } else {
-    swipeG.lives--;
-    $('swipe-lives').textContent = swipeG.lives;
-    $('swipe-card').style.transform = 'translateX(-20px)';
-    setTimeout(() => $('swipe-card').style.transform = 'translateX(20px)', 100);
-    setTimeout(() => $('swipe-card').style.transform = 'translateX(0)', 200);
-    if (swipeG.lives <= 0) setTimeout(finishSwipe, 300);
-  }
-}
-
-function finishSwipe() {
-  $('swipe-game').classList.add('hidden');
-  $('swipe-result').classList.remove('hidden');
-  $('swipe-score-final').textContent = swipeG.score;
-  if (swipeG.score > 0) addXP(swipeG.score * 2);
-}
 $('swipe-restart').addEventListener('click', () => {
   $('swipe-result').classList.add('hidden');
   $('swipe-setup').classList.remove('hidden');
@@ -1985,7 +2217,19 @@ $('tts-test-sv').addEventListener('click', (e) => {
 
 // ===== INIT =====
 function init() {
+  Translation.onChange(() => {
+    applyLang();
+    fillCategoryFilter('category-filter');
+    fillCategoryFilter('quiz-category');
+    fillCategoryFilter('flip-category');
+    if (state.view === 'browse') renderBrowse();
+    if (state.view === 'dashboard') renderDashboard();
+  });
+
   applyLang();
+  fillCategoryFilter('category-filter');
+  fillCategoryFilter('quiz-category');
+  fillCategoryFilter('flip-category');
   updateFlipCounters();
 
   // Service worker — auto-reload when a new version takes control
