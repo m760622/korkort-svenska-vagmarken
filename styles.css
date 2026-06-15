@@ -538,6 +538,7 @@ body {
 }
 .btn-success:hover {
   box-shadow: 0 6px 16px rgba(46, 125, 50, .3);
+  transform: translateY(-2px);
 }
 .btn-danger { 
   background: linear-gradient(135deg, #c62828, #e53935); 
@@ -1344,6 +1345,14 @@ html[lang="sv"] .quiz-option.scenario-btn {
 }
 .back-btn {
   margin-bottom: 20px;
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
+}
+.back-btn:hover {
+  background: var(--border) !important;
+  transform: translateY(-1px);
 }
 /* Swipe Game Styles */
 .swipe-card {
