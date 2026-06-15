@@ -1576,3 +1576,86 @@ html[lang="sv"] .quiz-setup select, html[lang="sv"] .game-setup select {
 .btn-tts.paused::before {
   content: '▶️ ';
 }
+
+/* True/False Blitz Premium Styles */
+.truefalse-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 30px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.truefalse-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.truefalse-card.glow-correct {
+  border-color: var(--success) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.truefalse-card.glow-wrong {
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Animations */
+@keyframes tf-swipe-right {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(150px, 10px) rotate(10deg); opacity: 0; }
+}
+
+@keyframes tf-swipe-left {
+  0% { transform: translate(0, 0) rotate(0); opacity: 1; }
+  100% { transform: translate(-150px, 10px) rotate(-10deg); opacity: 0; }
+}
+
+@keyframes tf-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+
+@keyframes tf-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.truefalse-swipe-right {
+  animation: tf-swipe-right 0.4s forwards cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.truefalse-swipe-left {
+  animation: tf-swipe-left 0.4s forwards cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.truefalse-shake {
+  animation: tf-shake 0.4s ease-in-out;
+}
+
+.truefalse-pulse {
+  animation: tf-pulse 0.3s ease-in-out;
+}
+
+/* Statement Container */
+#truefalse-statement {
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--text);
+  font-weight: 700;
+  margin-top: 24px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--border);
+}

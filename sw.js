@@ -1,4 +1,4 @@
-const CACHE_NAME = 'korkort-v18.6';
+const CACHE_NAME = 'korkort-v18.7';
 const ASSETS = [
   './',
   './index.html',
