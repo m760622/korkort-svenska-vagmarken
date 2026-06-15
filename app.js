@@ -17,6 +17,7 @@ const I18N = {
     'app.title': 'علامات الطرق السويدية — Svenska Vägmärken',
     'tab.browse': 'تصفّح', 'tab.dashboard': 'إنجازاتي', 'tab.quiz': 'اختبار', 'tab.flip': 'قلب البطاقات', 'tab.games': 'الألعاب',
     'dash.streak': 'أيام متتالية', 'dash.xp': 'نقاط (XP)', 'dash.known': 'تم الحفظ', 'dash.progress': 'مستوى التقدم في الفئات', 'dash.badges': 'الأوسمة (Badges)', 'dash.mistakes': 'تحليل نقاط الضعف (أخطائي)',
+    'dash.btn.practice': 'تمرّن عليها 🎯', 'dash.btn.clear': 'مسح الكل 🗑️', 'msg.confirmClearMistakes': 'هل أنت متأكد من مسح جميع الأخطاء المسجلة؟',
     'quiz.type': 'نوع الاختبار', 'quiz.type.signs': 'العلامات المرورية', 'quiz.type.scenarios': 'مواقف مرورية (سيناريوهات)', 'quiz.type.mistakes': 'مراجعة أخطائي',
     'quiz.mock.title': '🏆 محاكي الاختبار الشامل (70 سؤال)', 'quiz.mock.pass': '🎉 مبروك! لقد نجحت في الاختبار', 'quiz.mock.fail': '❌ للأسف لم تنجح، حاول مرة أخرى',
     'games.title': '🕹️ ألعاب التحدي', 'game.memory': 'لعبة الذاكرة', 'game.memory.desc': 'ابحث عن أزواج العلامات المتطابقة',
@@ -64,6 +65,7 @@ const I18N = {
     'app.title': 'Svenska Vägmärken — علامات الطرق السويدية',
     'tab.browse': 'Bläddra', 'tab.dashboard': 'Mina Framsteg', 'tab.quiz': 'Quiz', 'tab.flip': 'Vändkort', 'tab.games': 'Spel',
     'dash.streak': 'Dagar i rad', 'dash.xp': 'Erfarenhet (XP)', 'dash.known': 'Inlärda', 'dash.progress': 'Framsteg per Kategori', 'dash.badges': 'Utmärkelser', 'dash.mistakes': 'Analys av misstag',
+    'dash.btn.practice': 'Öva fel 🎯', 'dash.btn.clear': 'Rensa alla 🗑️', 'msg.confirmClearMistakes': 'Är du säker på att du vill rensa alla sparade fel?',
     'quiz.type': 'Typ av Quiz', 'quiz.type.signs': 'Vägmärken', 'quiz.type.scenarios': 'Trafiksituationer', 'quiz.type.mistakes': 'Repetera mina fel',
     'quiz.mock.title': '🏆 Fullständigt Teoriprov (70 frågor)', 'quiz.mock.pass': '🎉 Grattis! Du klarade provet', 'quiz.mock.fail': '❌ Tyvärr, du blev inte godkänd',
     'games.title': '🕹️ Utmaningsspel', 'game.memory': 'Memory', 'game.memory.desc': 'Hitta matchande par',
@@ -1094,6 +1096,30 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// ===== DASHBOARD ACTIONS =====
+$('dash-practice-mistakes').addEventListener('click', () => {
+  const mistakeIds = Object.keys(progress.mistakes);
+  if (mistakeIds.length === 0) return;
+  switchView('quiz');
+  const quizTypeEl = $('quiz-type');
+  if (quizTypeEl) {
+    quizTypeEl.value = 'mistakes';
+    quizTypeEl.dispatchEvent(new Event('change'));
+  }
+  startQuiz(false);
+});
+
+$('dash-clear-mistakes').addEventListener('click', () => {
+  const mistakeIds = Object.keys(progress.mistakes);
+  if (mistakeIds.length === 0) return;
+  if (confirm(T('msg.confirmClearMistakes'))) {
+    progress.mistakes = {};
+    saveProgress();
+    renderDashboard();
+    toast(T('msg.cleared'));
+  }
+});
+
 // ===== TABS / VIEW SWITCH =====
 $$('.tab').forEach(btn => {
   btn.addEventListener('click', () => switchView(btn.dataset.view));
@@ -1152,9 +1178,15 @@ function renderDashboard() {
 
   // Mistakes analysis
   const mistakeIds = Object.keys(progress.mistakes);
+  const practiceBtn = $('dash-practice-mistakes');
+  const clearBtn = $('dash-clear-mistakes');
   if (mistakeIds.length === 0) {
+    if (practiceBtn) practiceBtn.disabled = true;
+    if (clearBtn) clearBtn.disabled = true;
     $('dash-mistakes').innerHTML = `<p style="color:var(--text-soft); width:100%; text-align:center;">${state.lang === 'ar' ? 'لا توجد أخطاء مسجلة حالياً. استمر في العمل الرائع!' : 'Inga fel sparade än. Bra jobbat!'}</p>`;
   } else {
+    if (practiceBtn) practiceBtn.disabled = false;
+    if (clearBtn) clearBtn.disabled = false;
     $('dash-mistakes').innerHTML = mistakeIds.slice(0, 12).map(id => {
       const s = SIGNS.find(x => x.id === id);
       if (!s) return '';
@@ -1761,10 +1793,16 @@ function handleQuizAnswer(btn, sign) {
 }
 
 $('quiz-type').addEventListener('change', (e) => {
-  if (e.target.value === 'scenarios') {
+  const val = e.target.value;
+  if (val === 'scenarios' || val === 'mistakes') {
     $('quiz-cat-wrapper').style.display = 'none';
   } else {
     $('quiz-cat-wrapper').style.display = 'block';
+  }
+  if (val === 'mistakes') {
+    $('quiz-count-wrapper').style.display = 'none';
+  } else {
+    $('quiz-count-wrapper').style.display = 'block';
   }
 });
 
