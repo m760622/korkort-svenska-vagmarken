@@ -298,27 +298,6 @@ function refreshVoiceCache() {
   _voiceCache.sv = pickVoiceSync('sv-SE');
 }
 
-let _currentBtn = null;
-function setSpeakingState(btn, on, isPaused = false) {
-  if (!btn) return;
-  if (on) {
-    const isMain = btn.id?.includes('play-all') || btn.classList.contains('btn-autoplay') || btn.id === 'modal-autoplay';
-    if (_currentBtn && _currentBtn !== btn) {
-      const currIsMain = _currentBtn.id?.includes('play-all') || _currentBtn.classList.contains('btn-autoplay') || _currentBtn.id === 'modal-autoplay';
-      // Clear old button if: it's not a main button OR we are explicitly starting a new main action
-      if (!currIsMain || isMain) {
-        _currentBtn.classList.remove('speaking', 'paused');
-      }
-    }
-    btn.classList.toggle('speaking', !isPaused);
-    btn.classList.toggle('paused', isPaused);
-    _currentBtn = btn;
-  } else {
-    btn.classList.remove('speaking', 'paused');
-    if (_currentBtn === btn) _currentBtn = null;
-  }
-}
-
 function cleanText(t) {
   return (t || '')
     .replace(/[«»""()،,\-—–]/g, ' ')
@@ -326,110 +305,339 @@ function cleanText(t) {
     .trim();
 }
 
-function speak(textOrConfig, lang, btn = null, cancel = true) {
-  if (!('speechSynthesis' in window)) {
-    toast(T('msg.noTtsSupport'));
-    return;
+// ===== AUDIO SEQUENCER (Consolidated Deep Module) =====
+const AudioSequencer = (() => {
+  let _playlist = [];
+  let _signIdx = -1;
+  let _phraseIdx = -1;
+  let _currentUtterance = null;
+  let _delayTimeout = null;
+  let _activeBtn = null;
+  let _highlights = [];
+  let _isPlaying = false;
+  let _isPaused = false;
+  
+  const _listeners = {
+    start: [],
+    step: [],
+    phraseStart: [],
+    phraseEnd: [],
+    pause: [],
+    resume: [],
+    stop: []
+  };
+
+  function on(event, callback) {
+    if (_listeners[event]) _listeners[event].push(callback);
   }
 
-  // Toggle Pause/Resume if same button clicked
-  if (btn && btn === _currentBtn && (speechSynthesis.speaking || speechSynthesis.paused)) {
-    if (speechSynthesis.paused) {
-      speechSynthesis.resume();
-      setSpeakingState(btn, true, false);
-      return;
-    } else {
-      speechSynthesis.pause();
-      setSpeakingState(btn, true, true);
-      return;
+  function trigger(event, ...args) {
+    if (_listeners[event]) {
+      _listeners[event].forEach(cb => cb(...args));
     }
   }
 
-  if (cancel) speechSynthesis.cancel();
-
-  let fullText = '';
-  const highlights = [];
-
-  if (Array.isArray(textOrConfig)) {
+  function wrapWords(el, text) {
+    const highlights = [];
+    if (!el || !text.trim()) return highlights;
+    
+    const words = text.split(/(\s+)/);
+    el.innerHTML = '';
     let offset = 0;
-    textOrConfig.forEach(item => {
-      const text = item.text || '';
-      if (item.el && text.trim()) {
-        const words = text.split(/(\s+)/);
-        item.el.innerHTML = '';
-        words.forEach(w => {
-          const start = offset;
-          const end = offset + w.length;
-          if (w.trim()) {
-            const span = document.createElement('span');
-            span.className = 'word-span';
-            span.textContent = w;
-            item.el.appendChild(span);
-            highlights.push({ start, end, el: span });
-          } else {
-            item.el.appendChild(document.createTextNode(w));
-          }
-          offset += w.length;
-        });
+    
+    words.forEach(w => {
+      const start = offset;
+      const end = offset + w.length;
+      if (w.trim()) {
+        const span = document.createElement('span');
+        span.className = 'word-span';
+        span.textContent = w;
+        el.appendChild(span);
+        highlights.push({ start, end, el: span });
       } else {
-        offset += text.length;
+        el.appendChild(document.createTextNode(w));
       }
-      fullText += text;
+      offset += w.length;
     });
-  } else {
-    fullText = textOrConfig;
+    return highlights;
   }
 
-  const cleaned = cleanText(fullText);
-  if (!cleaned) return;
-
-  const baseLang = lang.split('-')[0];
-  const voice = (baseLang === 'sv' ? _voiceCache.sv : _voiceCache.ar) || pickVoiceSync(lang);
-  
-  if (baseLang === 'sv' ? !_voiceCache.sv : !_voiceCache.ar) {
-    if (voice) (baseLang === 'sv' ? _voiceCache.sv = voice : _voiceCache.ar = voice);
+  function clearHighlights() {
+    _highlights.forEach(h => h.el.classList.remove('highlight'));
+    _highlights = [];
   }
 
-  const u = new SpeechSynthesisUtterance(fullText);
-  if (voice) {
-    u.voice = voice;
-    u.lang = voice.lang;
-  } else {
-    u.lang = lang;
-    if (lang.startsWith('sv')) toast(T('msg.noVoice.sv'));
-    else if (lang.startsWith('ar')) toast(T('msg.noVoice.ar'));
-  }
+  function speakPhrase(phrase, onDone) {
+    if (!('speechSynthesis' in window)) {
+      onDone();
+      return;
+    }
 
-  u.rate = ttsSettings.rate;
-  u.pitch = ttsSettings.pitch;
-  u.volume = 1.0;
+    clearHighlights();
 
-  if (highlights.length > 0) {
-    u.onboundary = (e) => {
-      if (e.name === 'word') {
-        const charIdx = e.charIndex;
-        highlights.forEach(h => {
-          const isActive = charIdx >= h.start && charIdx < h.end;
-          h.el.classList.toggle('highlight', isActive);
-        });
+    if (phrase.config && Array.isArray(phrase.config)) {
+      let offset = 0;
+      let fullText = '';
+      phrase.config.forEach(item => {
+        const text = item.text || '';
+        if (item.el && text.trim()) {
+          const partHighlights = wrapWords(item.el, text);
+          partHighlights.forEach(h => {
+            _highlights.push({ start: offset + h.start, end: offset + h.end, el: h.el });
+          });
+        }
+        offset += text.length;
+        fullText += text;
+      });
+      phrase.text = fullText;
+    } else if (phrase.el && typeof phrase.text === 'string') {
+      _highlights = wrapWords(phrase.el, phrase.text);
+    }
+
+    const cleaned = cleanText(phrase.text);
+    if (!cleaned) {
+      onDone();
+      return;
+    }
+
+    const baseLang = phrase.lang.split('-')[0];
+    const voice = (baseLang === 'sv' ? _voiceCache.sv : _voiceCache.ar) || pickVoiceSync(phrase.lang);
+    if (baseLang === 'sv' ? !_voiceCache.sv : !_voiceCache.ar) {
+      if (voice) {
+        if (baseLang === 'sv') _voiceCache.sv = voice;
+        else _voiceCache.ar = voice;
       }
+    }
+
+    const u = new SpeechSynthesisUtterance(cleaned);
+    if (voice) {
+      u.voice = voice;
+      u.lang = voice.lang;
+    } else {
+      u.lang = phrase.lang;
+      if (phrase.lang.startsWith('sv')) toast(T('msg.noVoice.sv'));
+      else if (phrase.lang.startsWith('ar')) toast(T('msg.noVoice.ar'));
+    }
+
+    u.rate = ttsSettings.rate;
+    u.pitch = ttsSettings.pitch;
+    u.volume = 1.0;
+
+    if (_highlights.length > 0) {
+      u.onboundary = (e) => {
+        if (e.name === 'word') {
+          const charIdx = e.charIndex;
+          _highlights.forEach(h => {
+            const isActive = charIdx >= h.start && charIdx < h.end;
+            h.el.classList.toggle('highlight', isActive);
+          });
+        }
+      };
+    }
+
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearHighlights();
+      trigger('phraseEnd', phrase);
+      onDone();
     };
+
+    u.onstart = () => {
+      trigger('phraseStart', phrase);
+    };
+    u.onend = finish;
+    u.onerror = finish;
+
+    _currentUtterance = u;
+    
+    setTimeout(() => {
+      if (!_isPlaying || _isPaused) return;
+      if (speechSynthesis.paused) speechSynthesis.resume();
+      speechSynthesis.speak(u);
+    }, 50);
   }
 
-  u.onstart = () => setSpeakingState(btn, true);
-  const finish = () => {
-    setSpeakingState(btn, false);
-    highlights.forEach(h => h.el.classList.remove('highlight'));
-  };
-  u.onend = finish;
-  u.onerror = finish;
+  function playNext() {
+    if (!_isPlaying || _isPaused) return;
 
-  // Use a small timeout to ensure cancel() has finished processing on some browsers
-  setTimeout(() => {
-    if (speechSynthesis.paused) speechSynthesis.resume();
-    speechSynthesis.speak(u);
-  }, 50);
-}
+    if (_signIdx === -1 || _phraseIdx >= _playlist[_signIdx].phrases.length - 1) {
+      _signIdx++;
+      _phraseIdx = 0;
+    } else {
+      _phraseIdx++;
+    }
+
+    if (_signIdx >= _playlist.length) {
+      stop();
+      return;
+    }
+
+    const currentSignItem = _playlist[_signIdx];
+    const currentPhrase = currentSignItem.phrases[_phraseIdx];
+
+    if (_phraseIdx === 0) {
+      trigger('step', currentSignItem.sign, _signIdx);
+    }
+
+    speakPhrase(currentPhrase, () => {
+      if (!_isPlaying || _isPaused) return;
+
+      let delay = 0;
+      if (_phraseIdx >= currentSignItem.phrases.length - 1) {
+        delay = 1000;
+      } else {
+        delay = 100;
+      }
+
+      _delayTimeout = setTimeout(() => {
+        playNext();
+      }, delay);
+    });
+  }
+
+  function play(playlist, activeBtn = null) {
+    stop();
+    _playlist = playlist;
+    _activeBtn = activeBtn;
+    _isPlaying = true;
+    _isPaused = false;
+    _signIdx = -1;
+    _phraseIdx = -1;
+
+    trigger('start', _activeBtn);
+    playNext();
+  }
+
+  function pause() {
+    if (!_isPlaying || _isPaused) return;
+    _isPaused = true;
+    speechSynthesis.pause();
+    trigger('pause', _activeBtn);
+  }
+
+  function resume() {
+    if (!_isPlaying || !_isPaused) return;
+    _isPaused = false;
+    speechSynthesis.resume();
+    trigger('resume', _activeBtn);
+  }
+
+  function stop() {
+    _isPlaying = false;
+    _isPaused = false;
+    _playlist = [];
+    _signIdx = -1;
+    _phraseIdx = -1;
+    clearTimeout(_delayTimeout);
+    clearHighlights();
+    speechSynthesis.cancel();
+    trigger('stop', _activeBtn);
+    _activeBtn = null;
+    _currentUtterance = null;
+  }
+
+  function toggle(playlist, btn) {
+    if (_activeBtn === btn && _isPlaying) {
+      if (_isPaused) {
+        resume();
+      } else {
+        pause();
+      }
+    } else {
+      play(playlist, btn);
+    }
+  }
+
+  function isSpeaking(btn = null) {
+    if (btn) return _activeBtn === btn && _isPlaying;
+    return _isPlaying;
+  }
+
+  function getActiveBtn() {
+    return _activeBtn;
+  }
+
+  return {
+    on,
+    play,
+    pause,
+    resume,
+    stop,
+    toggle,
+    isSpeaking,
+    getActiveBtn,
+    cleanText
+  };
+})();
+
+// Wire up AudioSequencer events to centralized UI handlers
+AudioSequencer.on('start', (btn) => {
+  if (btn) btn.classList.add('speaking');
+});
+AudioSequencer.on('pause', (btn) => {
+  if (btn) {
+    btn.classList.remove('speaking');
+    btn.classList.add('paused');
+  }
+});
+AudioSequencer.on('resume', (btn) => {
+  if (btn) {
+    btn.classList.remove('paused');
+    btn.classList.add('speaking');
+  }
+});
+AudioSequencer.on('stop', (btn) => {
+  if (btn) btn.classList.remove('speaking', 'paused');
+  document.querySelectorAll('.btn-tts, #modal-play-all, .btn-autoplay, #modal-autoplay').forEach(b => {
+    b.classList.remove('speaking', 'paused');
+  });
+});
+AudioSequencer.on('phraseStart', (phrase) => {
+  if (phrase.btn) {
+    phrase.btn.classList.add('speaking');
+  }
+});
+AudioSequencer.on('phraseEnd', (phrase) => {
+  if (phrase.btn) {
+    phrase.btn.classList.remove('speaking', 'paused');
+  }
+});
+
+AudioSequencer.on('step', (s, idx) => {
+  if (s) {
+    // If we are in category autoplay view (browse tab)
+    if (state.view === 'browse' && state.autoplay) {
+      state.autoplayIdx = idx;
+      $$('.sign-card').forEach(c => {
+        const active = c.dataset.id === s.id;
+        c.classList.toggle('autoplay-active', active);
+        if (active) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+    
+    // If we are in modal view
+    const modalOpen = !$('modal').classList.contains('hidden');
+    if (modalOpen && state.autoplay) {
+      if (modalIdx !== idx) {
+        modalIdx = idx;
+        renderModalSign(false);
+      }
+    }
+  }
+});
+
+AudioSequencer.on('stop', (btn) => {
+  if (state.autoplay) {
+    state.autoplay = false;
+    state.autoplayIdx = -1;
+    updateAutoplayUI();
+    renderBrowse();
+  }
+  $$('.sign-card').forEach(c => c.classList.remove('autoplay-active'));
+});
+
 
 // ضمان تحميل الأصوات مبكراً + تخزين مؤقت لتجنّب await داخل أحداث الضغط
 if ('speechSynthesis' in window) {
@@ -473,31 +681,71 @@ function populateVoicePickers(voices) {
   $('tts-status').textContent = T('voicesAvail', arVoices.length, svVoices.length);
 }
 
+function getHighlightElements(s, lang) {
+  const isAr = state.lang === 'ar';
+  const isSv = lang.startsWith('sv');
+  
+  const isModalOpen = !$('modal').classList.contains('hidden');
+  const isFlipcardOpen = state.view === 'flip';
+  
+  let nameEl = null;
+  let descEl = null;
+  
+  if (isModalOpen) {
+    nameEl = isSv ? (isAr ? $('modal-secondary') : $('modal-primary')) : (isAr ? $('modal-primary') : $('modal-secondary'));
+    descEl = isSv ? (isAr ? $('modal-desc-secondary') : $('modal-desc-primary')) : (isAr ? $('modal-desc-primary') : $('modal-desc-secondary'));
+  } else if (isFlipcardOpen) {
+    if (isSv) {
+      nameEl = isAr ? $('flip-secondary') : $('flip-primary');
+      descEl = isAr ? null : $('flip-desc');
+    } else {
+      nameEl = isAr ? $('flip-primary') : $('flip-secondary');
+      descEl = isAr ? $('flip-desc') : null;
+    }
+  }
+  return { nameEl, descEl };
+}
+
+function playSingleSignLanguage(s, lang, btn) {
+  const isSv = lang.startsWith('sv');
+  const { nameEl, descEl } = getHighlightElements(s, lang);
+  
+  const name = isSv ? s.nameSv : s.nameAr;
+  const desc = isSv ? s.descSv : s.descAr;
+  
+  const config = [{ text: name, el: nameEl }];
+  if (desc && !isDuplicate(name, desc)) {
+    config.push({ text: '. ', el: null });
+    config.push({ text: desc, el: descEl });
+  }
+  
+  const phrases = [{ config, lang, btn }];
+  AudioSequencer.play([{ sign: s, phrases }], btn);
+}
+
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.btn-tts');
   if (!btn) return;
+  
+  if (AudioSequencer.getActiveBtn() === btn && AudioSequencer.isSpeaking()) {
+    AudioSequencer.stop();
+    return;
+  }
+
   const lang = btn.dataset.lang;
   const signId = btn.dataset.signId;
-  let text = '';
+  
   if (signId) {
     const s = SIGNS.find(x => x.id === signId);
     if (s) {
-      const isSv = lang.startsWith('sv');
-      const name = (isSv ? s.nameSv : s.nameAr) || '';
-      const desc = (isSv ? s.descSv : s.descAr) || '';
-      text = desc ? `${name}. ${desc}` : name;
+      playSingleSignLanguage(s, lang, btn);
     }
   } else if (btn.dataset.target) {
     const target = $(btn.dataset.target);
-    if (target) text = target.textContent.trim();
-  }
-  
-  if (text) {
-    const target = btn.dataset.target ? $(btn.dataset.target) : null;
     if (target) {
-      speak([{ text: text, el: target }], lang, btn);
-    } else {
-      speak(text, lang, btn);
+      const text = target.textContent.trim();
+      const phrases = [{ config: [{ text: text, el: target }], lang, btn }];
+      AudioSequencer.play([{ sign: null, phrases }], btn);
     }
   }
 });
@@ -601,26 +849,66 @@ function switchCategory(offset) {
   renderBrowse();
 }
 
-function toggleAutoplay() {
-  if (state.autoplay && (speechSynthesis.speaking || speechSynthesis.paused)) {
-    if (speechSynthesis.paused) {
-      speechSynthesis.resume();
-    } else {
-      speechSynthesis.pause();
+function playCategoryAutoplaySequence(signsList, startIndex, btn) {
+  const playlist = [];
+  for (let i = startIndex; i < signsList.length; i++) {
+    const s = signsList[i];
+    const text = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
+    const phrases = [{ text, lang: 'sv-SE' }];
+    playlist.push({ sign: s, phrases });
+  }
+  AudioSequencer.play(playlist, btn);
+}
+
+function playModalAutoplaySequence(startIndex) {
+  const playlist = [];
+  const isAr = state.lang === 'ar';
+  
+  for (let i = startIndex; i < modalList.length; i++) {
+    const s = modalList[i];
+    const phrases = [];
+    
+    const configSv = [{ text: s.nameSv, el: isAr ? $('modal-secondary') : $('modal-primary') }];
+    if (s.descSv && !isDuplicate(s.nameSv, s.descSv)) {
+      configSv.push({ text: '. ', el: null });
+      configSv.push({ text: s.descSv, el: isAr ? $('modal-desc-secondary') : $('modal-desc-primary') });
     }
-    updateAutoplayUI();
-    return;
+    phrases.push({ config: configSv, lang: 'sv-SE', btn: document.querySelector('#modal .btn-tts[data-lang="sv-SE"]') });
+    
+    const configAr = [{ text: s.nameAr, el: isAr ? $('modal-primary') : $('modal-secondary') }];
+    if (s.descAr && !isDuplicate(s.nameAr, s.descAr)) {
+      configAr.push({ text: '. ', el: null });
+      configAr.push({ text: s.descAr, el: isAr ? $('modal-desc-primary') : $('modal-desc-secondary') });
+    }
+    phrases.push({ config: configAr, lang: 'ar-SA', btn: document.querySelector('#modal .btn-tts[data-lang="ar-SA"]') });
+    
+    playlist.push({ sign: s, phrases });
   }
   
+  const btn = $('modal-autoplay');
+  AudioSequencer.play(playlist, btn);
+}
+
+function toggleAutoplay() {
+  const modalOpen = !$('modal').classList.contains('hidden');
+  const btn = modalOpen ? $('modal-autoplay') : document.querySelector('.btn-autoplay');
+  
   if (state.autoplay) {
+    if (AudioSequencer.getActiveBtn() === btn && AudioSequencer.isSpeaking()) {
+      if (speechSynthesis.paused) {
+        AudioSequencer.resume();
+      } else {
+        AudioSequencer.pause();
+      }
+      updateAutoplayUI();
+      return;
+    }
     stopAutoplay();
   } else {
-    // Check if we are in modal or browse view
-    const modalOpen = !$('modal').classList.contains('hidden');
+    state.autoplay = true;
+    updateAutoplayUI();
     if (modalOpen) {
-      state.autoplay = true;
-      updateAutoplayUI();
-      playCurrentSignSequence();
+      playModalAutoplaySequence(modalIdx);
     } else {
       startAutoplay();
     }
@@ -641,55 +929,16 @@ function startAutoplay() {
   state.autoplay = true;
   state.autoplayIdx = 0;
   renderBrowse();
-  playSignAutoplay(filtered[state.autoplayIdx]);
+  
+  const btn = document.querySelector('.btn-autoplay');
+  playCategoryAutoplaySequence(filtered, state.autoplayIdx, btn);
 }
 
 function stopAutoplay() {
   state.autoplay = false;
   state.autoplayIdx = -1;
-  speechSynthesis.cancel();
+  AudioSequencer.stop();
   renderBrowse();
-}
-
-function playSignAutoplay(s) {
-  if (!state.autoplay || !s) return;
-
-  // Highlight card
-  $$('.sign-card').forEach(c => {
-    const active = c.dataset.id === s.id;
-    c.classList.toggle('autoplay-active', active);
-    if (active) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  });
-
-  const text = s.descSv && !isDuplicate(s.nameSv, s.descSv) ? `${s.nameSv}. ${s.descSv}` : s.nameSv;
-  const voice = _voiceCache.sv || pickVoiceSync('sv-SE');
-  const u = new SpeechSynthesisUtterance(text);
-  if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = 'sv-SE'; }
-  u.rate = ttsSettings.rate;
-  u.pitch = ttsSettings.pitch;
-
-  u.onend = () => {
-    if (!state.autoplay) return;
-    state.autoplayIdx++;
-
-    const search = state.search.trim().toLowerCase();
-    let filtered = signsIn(state.category);
-    if (search) {
-      filtered = filtered.filter(x =>
-        x.nameSv.toLowerCase().includes(search) ||
-        x.nameAr.includes(state.search.trim()) ||
-        x.id.toLowerCase().includes(search)
-      );
-    }
-
-    if (state.autoplayIdx < filtered.length) {
-      setTimeout(() => playSignAutoplay(filtered[state.autoplayIdx]), 1000);
-    } else {
-      stopAutoplay();
-    }
-  };
-  u.onerror = () => stopAutoplay();
-  speechSynthesis.speak(u);
 }
 
 function renderBrowse() {
@@ -796,7 +1045,7 @@ function openModal(id) {
   $('modal').classList.remove('hidden');
 }
 
-function renderModalSign() {
+function renderModalSign(triggerAudio = true) {
   try {
     const s = modalList[modalIdx];
     if (!s) return;
@@ -846,15 +1095,10 @@ function renderModalSign() {
     document.querySelector('.modal-content')?.scrollTo({ top: 0, behavior: 'instant' });
 
     // Auto-play Swedish TTS with Highlight
-    const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
-    const configSv = [
-      { text: s.nameSv, el: isAr ? $('modal-secondary') : $('modal-primary') }
-    ];
-    if (s.descSv && !isDuplicate(s.nameSv, s.descSv)) {
-      configSv.push({ text: '. ', el: null });
-      configSv.push({ text: s.descSv, el: isAr ? $('modal-desc-secondary') : $('modal-desc-primary') });
+    if (triggerAudio && !state.autoplay) {
+      const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
+      playSingleSignLanguage(s, 'sv-SE', svBtn);
     }
-    speak(configSv, 'sv-SE', svBtn);
   } catch (err) {
     console.error('Error rendering modal:', err);
   }
@@ -869,86 +1113,58 @@ function modalPrev() {
   renderModalSign();
 }
 function closeModal() {
-  state.autoplay = false;
-  updateAutoplayUI();
-  speechSynthesis.cancel();
+  stopAutoplay();
   $('modal').classList.add('hidden');
 }
 $('modal-close').addEventListener('click', closeModal);
 $('modal').querySelector('.modal-backdrop').addEventListener('click', closeModal);
-$('modal-prev').addEventListener('click', modalPrev);
-$('modal-next').addEventListener('click', modalNext);
+$('modal-prev').addEventListener('click', () => { stopAutoplay(); modalPrev(); });
+$('modal-next').addEventListener('click', () => { stopAutoplay(); modalNext(); });
 
 const playAllBtn = $('modal-play-all');
 if (playAllBtn) {
   playAllBtn.addEventListener('click', () => {
-    if (speechSynthesis.speaking || speechSynthesis.paused) {
+    if (AudioSequencer.getActiveBtn() === playAllBtn && AudioSequencer.isSpeaking()) {
       if (speechSynthesis.paused) {
-        speechSynthesis.resume();
-        setSpeakingState(playAllBtn, true, false);
+        AudioSequencer.resume();
       } else {
-        speechSynthesis.pause();
-        setSpeakingState(playAllBtn, true, true);
+        AudioSequencer.pause();
       }
+      updateAutoplayUI();
       return;
     }
-
-    const s = modalList[modalIdx];
-    if (!s) return;
-
-    const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
-    const arBtn = document.querySelector('#modal .btn-tts[data-lang="ar-SA"]');
-    const isAr = state.lang === 'ar';
-
-    // Create Swedish Highlighting Config
-    const configSv = [
-      { text: s.nameSv, el: isAr ? $('modal-secondary') : $('modal-primary') }
-    ];
-    if (s.descSv && !isDuplicate(s.nameSv, s.descSv)) {
-      configSv.push({ text: '. ', el: null });
-      configSv.push({ text: s.descSv, el: isAr ? $('modal-desc-secondary') : $('modal-desc-primary') });
-    }
-
-    // Create Arabic Highlighting Config
-    const configAr = [
-      { text: s.nameAr, el: isAr ? $('modal-primary') : $('modal-secondary') }
-    ];
-    if (s.descAr && !isDuplicate(s.nameAr, s.descAr)) {
-      configAr.push({ text: '. ', el: null });
-      configAr.push({ text: s.descAr, el: isAr ? $('modal-desc-primary') : $('modal-desc-secondary') });
-    }
-
-    // Clear any existing speech
-    speechSynthesis.cancel();
-    
-    // Set state for the main button
-    setSpeakingState(playAllBtn, true);
-
-    // Play Swedish
-    speak(configSv, 'sv-SE', svBtn, true);
-    
-    // Wait for end to play Arabic
-    const iv = setInterval(() => {
-      if (!speechSynthesis.speaking && !speechSynthesis.paused) {
-        clearInterval(iv);
-        // Also check if we are still on the same sign
-        if (modalIdx >= 0 && modalList[modalIdx]?.id === s.id) {
-          speak(configAr, 'ar-SA', arBtn, false);
-          
-          // One more interval to clear the playAllBtn state
-          const iv2 = setInterval(() => {
-            if (!speechSynthesis.speaking && !speechSynthesis.paused) {
-              clearInterval(iv2);
-              setSpeakingState(playAllBtn, false);
-            }
-          }, 200);
-        } else {
-          setSpeakingState(playAllBtn, false);
-        }
-      }
-    }, 200);
+    playModalPlayAll();
   });
 }
+
+function playModalPlayAll() {
+  const s = modalList[modalIdx];
+  if (!s) return;
+
+  const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
+  const arBtn = document.querySelector('#modal .btn-tts[data-lang="ar-SA"]');
+  const playAllBtn = $('modal-play-all');
+  const isAr = state.lang === 'ar';
+
+  const phrases = [];
+  
+  const configSv = [{ text: s.nameSv, el: isAr ? $('modal-secondary') : $('modal-primary') }];
+  if (s.descSv && !isDuplicate(s.nameSv, s.descSv)) {
+    configSv.push({ text: '. ', el: null });
+    configSv.push({ text: s.descSv, el: isAr ? $('modal-desc-secondary') : $('modal-desc-primary') });
+  }
+  phrases.push({ config: configSv, lang: 'sv-SE', btn: svBtn });
+  
+  const configAr = [{ text: s.nameAr, el: isAr ? $('modal-primary') : $('modal-secondary') }];
+  if (s.descAr && !isDuplicate(s.nameAr, s.descAr)) {
+    configAr.push({ text: '. ', el: null });
+    configAr.push({ text: s.descAr, el: isAr ? $('modal-desc-primary') : $('modal-desc-secondary') });
+  }
+  phrases.push({ config: configAr, lang: 'ar-SA', btn: arBtn });
+
+  AudioSequencer.play([{ sign: s, phrases }], playAllBtn);
+}
+
 const autoplayBtn = $('modal-autoplay');
 if (autoplayBtn) {
   autoplayBtn.addEventListener('click', toggleAutoplay);
@@ -974,53 +1190,7 @@ function updateAutoplayUI() {
   });
 }
 
-function playCurrentSignSequence() {
-  const s = modalList[modalIdx];
-  if (!s || !state.autoplay) return;
 
-  const svBtn = document.querySelector('#modal .btn-tts[data-lang="sv-SE"]');
-  const arBtn = document.querySelector('#modal .btn-tts[data-lang="ar-SA"]');
-  const playAllBtn = $('modal-play-all');
-  const isAr = state.lang === 'ar';
-
-  const configSv = [{ text: s.nameSv, el: isAr ? $('modal-secondary') : $('modal-primary') }];
-  if (s.descSv && !isDuplicate(s.nameSv, s.descSv)) {
-    configSv.push({ text: '. ', el: null });
-    configSv.push({ text: s.descSv, el: isAr ? $('modal-desc-secondary') : $('modal-desc-primary') });
-  }
-
-  const configAr = [{ text: s.nameAr, el: isAr ? $('modal-primary') : $('modal-secondary') }];
-  if (s.descAr && !isDuplicate(s.nameAr, s.descAr)) {
-    configAr.push({ text: '. ', el: null });
-    configAr.push({ text: s.descAr, el: isAr ? $('modal-desc-primary') : $('modal-desc-secondary') });
-  }
-
-  speechSynthesis.cancel();
-  speak(configSv, 'sv-SE', svBtn, true);
-
-  const iv = setInterval(() => {
-    if (!speechSynthesis.speaking && !speechSynthesis.paused) {
-      clearInterval(iv);
-      if (!state.autoplay) return;
-      
-      speak(configAr, 'ar-SA', arBtn, false);
-      
-      const iv2 = setInterval(() => {
-        if (!speechSynthesis.speaking && !speechSynthesis.paused) {
-          clearInterval(iv2);
-          if (state.autoplay) {
-            setTimeout(() => {
-              if (state.autoplay) {
-                modalNext();
-                playCurrentSignSequence();
-              }
-            }, 1000);
-          }
-        }
-      }, 200);
-    }
-  }, 200);
-}
 
 document.addEventListener('keydown', (e) => {
   if ($('modal').classList.contains('hidden')) return;
@@ -1214,7 +1384,7 @@ function handleQuizAnswerScenario(btn, sc) {
     quiz.correct++;
     delete progress.mistakes[sc.id]; // Remove from mistakes if correct now
     $('quiz-correct').textContent = quiz.correct;
-    speak(quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE');
+    AudioSequencer.play([{ sign: null, phrases: [{ text: quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', lang: quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE' }] }]);
   } else {
     quiz.wrong++;
     quiz.wrongPool.push(sc);
@@ -1237,7 +1407,7 @@ function handleQuizAnswer(btn, sign) {
     quiz.correct++;
     delete progress.mistakes[sign.id]; // Remove from mistakes if correct now
     $('quiz-correct').textContent = quiz.correct;
-    speak(quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE');
+    AudioSequencer.play([{ sign: null, phrases: [{ text: quiz.lang === 'ar' ? 'إجابة صحيحة' : 'Rätt', lang: quiz.lang === 'ar' ? 'ar-SA' : 'sv-SE' }] }]);
   } else {
     quiz.wrong++;
     quiz.wrongPool.push(sign);
@@ -1807,10 +1977,10 @@ $('tts-pitch').addEventListener('input', (e) => {
   saveTtsSettings();
 });
 $('tts-test-ar').addEventListener('click', (e) => {
-  speak('علامة تحذير من منعطف خطير', 'ar-SA', e.currentTarget);
+  AudioSequencer.play([{ sign: null, phrases: [{ text: 'علامة تحذير من منعطف خطير', lang: 'ar-SA', btn: e.currentTarget }] }], e.currentTarget);
 });
 $('tts-test-sv').addEventListener('click', (e) => {
-  speak('Varning för farlig kurva', 'sv-SE', e.currentTarget);
+  AudioSequencer.play([{ sign: null, phrases: [{ text: 'Varning för farlig kurva', lang: 'sv-SE', btn: e.currentTarget }] }], e.currentTarget);
 });
 
 // ===== INIT =====
