@@ -514,6 +514,13 @@ body {
   gap: 8px;
 }
 .btn:active { transform: scale(.96); }
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
+}
 .btn-primary { 
   background: linear-gradient(135deg, var(--primary), var(--primary-light)); 
   color: white; 
@@ -1658,4 +1665,17 @@ html[lang="sv"] .quiz-setup select, html[lang="sv"] .game-setup select {
   background: var(--surface-2);
   border-radius: var(--radius-sm);
   border: 1px dashed var(--border);
+}
+
+#truefalse-explanation {
+  margin-top: 15px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+  line-height: 1.4;
+  text-align: center;
 }

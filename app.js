@@ -24,7 +24,7 @@ const I18N = {
     'game.match': 'التوصيل', 'game.match.desc': 'اضغط على الاسم ثم على العلامة المطابقة', 'game.match.intro': 'اضغط على الاسم ثم على العلامة التي تطابقه.', 'match.done': 'عمل رائع!',
     'game.swipe': 'الفرز السريع', 'game.swipe.desc': 'صنف العلامات بسرعة حسب فئتها', 'game.swipe.intro': 'اضغط على الفئة الصحيحة للعلامة بأسرع ما يمكن!', 'swipe.done': 'انتهت المحاولات!',
     'game.truefalse': 'صح أم خطأ', 'game.truefalse.desc': 'حدد صحة تفسير العلامة بسرعة', 'game.truefalse.intro': 'شاهد العلامة وحدد إن كان التفسير الموضح أسفلها صحيحاً أم خاطئاً بأسرع ما يمكن!',
-    'truefalse.btn.true': 'صح', 'truefalse.btn.false': 'خطأ', 'truefalse.result.score': 'أجبت بشكل صحيح على:',
+    'truefalse.btn.true': 'صح', 'truefalse.btn.false': 'خطأ', 'truefalse.result.score': 'أجبت بشكل صحيح على:', 'truefalse.correctStatement': 'المعنى الصحيح: ',
     'lang.toggle': 'تغيير اللغة', 'lang.ar': 'العربية', 'lang.sv': 'السويدية',
     'tts.settings': 'إعدادات النطق', 'tts.title': '🔊 إعدادات النطق', 'tts.loading': 'جاري تحميل الأصوات...',
     'tts.voiceAr': 'الصوت العربي:', 'tts.voiceSv': 'الصوت السويدي:', 'tts.rate': 'السرعة:', 'tts.pitch': 'الدرجة:',
@@ -71,7 +71,7 @@ const I18N = {
     'game.match': 'Matcha', 'game.match.desc': 'Klicka på namnet och sedan på rätt märke', 'game.match.intro': 'Klicka på ett namn och sedan på rätt vägmärke.', 'match.done': 'Bra jobbat!',
     'game.swipe': 'Snabb Swipe', 'game.swipe.desc': 'Klassificera märket snabbt efter kategori', 'game.swipe.intro': 'Klicka på rätt kategori för märket så snabbt som möjligt!', 'swipe.done': 'Inga försök kvar!',
     'game.truefalse': 'Sant eller Falskt', 'game.truefalse.desc': 'Avgör snabbt om skyltens beskrivning är sann eller falsk', 'game.truefalse.intro': 'Titta på skylten och avgör om beskrivningen nedan är sann eller falsk så snabbt som möjligt!',
-    'truefalse.btn.true': 'Sant', 'truefalse.btn.false': 'Falskt', 'truefalse.result.score': 'Du svarade rätt på:',
+    'truefalse.btn.true': 'Sant', 'truefalse.btn.false': 'Falskt', 'truefalse.result.score': 'Du svarade rätt på:', 'truefalse.correctStatement': 'Rätt betydelse: ',
     'lang.toggle': 'Byt språk', 'lang.ar': 'Arabiska', 'lang.sv': 'Svenska',
     'tts.settings': 'Röstinställningar', 'tts.title': '🔊 Röstinställningar', 'tts.loading': 'Laddar röster...',
     'tts.voiceAr': 'Arabisk röst:', 'tts.voiceSv': 'Svensk röst:', 'tts.rate': 'Hastighet:', 'tts.pitch': 'Tonhöjd:',
@@ -328,10 +328,13 @@ class GameSession {
       this.score = 0;
       this.lives = 3;
       this.timeLeft = 30;
+      this.locked = false;
+      this.paused = false;
       this.nextTrueFalseQuestion();
 
       clearInterval(this._timer);
       this._timer = setInterval(() => {
+        if (this.paused) return;
         this.timeLeft--;
         this.emit('tick', { timeLeft: this.timeLeft });
         if (this.timeLeft <= 0) {
@@ -374,6 +377,8 @@ class GameSession {
   }
 
   nextTrueFalseQuestion() {
+    this.locked = false;
+    this.paused = false;
     const s = sample(SIGNS, 1)[0];
     this.currentSign = s;
     this.isCorrectStatement = Math.random() < 0.5;
@@ -468,6 +473,8 @@ class GameSession {
         }
       }
     } else if (this.mode === 'truefalse' && type === 'answer') {
+      if (this.locked) return;
+      this.locked = true;
       const ans = payload.value;
       if (ans === this.isCorrectStatement) {
         this.score++;
@@ -475,14 +482,22 @@ class GameSession {
         this.emit('correct', { score: this.score, timeLeft: this.timeLeft });
         setTimeout(() => this.nextTrueFalseQuestion(), 300);
       } else {
+        this.paused = true;
         this.lives--;
         this.timeLeft -= 3;
-        this.emit('wrong', { lives: this.lives, timeLeft: this.timeLeft, correct: this.isCorrectStatement });
-        if (this.lives <= 0 || this.timeLeft <= 0) {
-          setTimeout(() => this.finish(), 300);
-        } else {
-          setTimeout(() => this.nextTrueFalseQuestion(), 600);
+        if (this.currentSign && this.currentSign.id) {
+          progress.mistakes[this.currentSign.id] = true;
+          saveProgress();
         }
+        this.emit('wrong', { lives: this.lives, timeLeft: this.timeLeft, sign: this.currentSign, correct: this.isCorrectStatement });
+        const isGameOver = this.lives <= 0 || this.timeLeft <= 0;
+        setTimeout(() => {
+          if (isGameOver) {
+            this.finish();
+          } else {
+            this.nextTrueFalseQuestion();
+          }
+        }, 2500);
       }
     }
   }
@@ -508,6 +523,7 @@ class GameSession {
 
   finish() {
     clearInterval(this._timer);
+    AudioSequencer.stop();
     
     let xpEarned = 0;
     let details = {};
@@ -539,6 +555,7 @@ class GameSession {
 
   quit() {
     clearInterval(this._timer);
+    AudioSequencer.stop();
     this.emit('quit');
   }
 }
@@ -2232,22 +2249,54 @@ $('truefalse-start').addEventListener('click', () => {
   activeGame.on('nextQuestion', (data) => {
     $('truefalse-sign').innerHTML = data.sign.svg;
     $('truefalse-statement').textContent = data.statement;
-    $('truefalse-card').style.transform = 'scale(1)';
-    $('truefalse-card').style.borderColor = 'var(--border)';
+    
+    // Clear animations and glows
+    $('truefalse-card').classList.remove('glow-correct', 'glow-wrong', 'truefalse-shake', 'truefalse-pulse');
+    $('truefalse-explanation').classList.add('hidden');
+    $('truefalse-explanation').textContent = '';
+
+    // Re-enable answer buttons
+    $('truefalse-btn-true').disabled = false;
+    $('truefalse-btn-false').disabled = false;
   });
 
   activeGame.on('correct', (data) => {
     $('truefalse-score').textContent = data.score;
     $('truefalse-timer').textContent = data.timeLeft;
-    $('truefalse-card').style.transform = 'scale(1.05)';
-    $('truefalse-card').style.borderColor = '#4caf50';
+    
+    // Disable buttons to prevent multiple inputs
+    $('truefalse-btn-true').disabled = true;
+    $('truefalse-btn-false').disabled = true;
+
+    $('truefalse-card').classList.add('glow-correct', 'truefalse-pulse');
   });
 
   activeGame.on('wrong', (data) => {
     $('truefalse-lives').textContent = data.lives;
     $('truefalse-timer').textContent = data.timeLeft;
-    $('truefalse-card').style.transform = 'scale(0.95)';
-    $('truefalse-card').style.borderColor = '#e53935';
+
+    // Disable buttons
+    $('truefalse-btn-true').disabled = true;
+    $('truefalse-btn-false').disabled = true;
+
+    $('truefalse-card').classList.add('glow-wrong', 'truefalse-shake');
+
+    // Show correct statement explanation
+    const correctStatement = Translation.lang === 'ar' ? data.sign.nameAr : data.sign.nameSv;
+    const label = T('truefalse.correctStatement');
+    $('truefalse-explanation').textContent = `${label}${correctStatement}`;
+    $('truefalse-explanation').classList.remove('hidden');
+
+    // Read correct answer aloud via AudioSequencer
+    const correctAudioText = Translation.lang === 'ar' ? data.sign.nameAr : data.sign.nameSv;
+    const errorPrefix = Translation.lang === 'ar' ? 'خطأ' : 'Fel';
+    AudioSequencer.play([{
+      sign: null,
+      phrases: [
+        { text: errorPrefix, lang: Translation.lang === 'ar' ? 'ar-SA' : 'sv-SE' },
+        { text: correctAudioText, lang: Translation.lang === 'ar' ? 'ar-SA' : 'sv-SE' }
+      ]
+    }]);
   });
 
   activeGame.on('gameOver', (data) => {
